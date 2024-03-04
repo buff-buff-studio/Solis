@@ -33,24 +33,32 @@ namespace SolarBuff.Interface.Menu
 
         public async void UpdateList()
         {
-            var id = ++_currentSearchId;
-            
-            //Clear all viewports
-            foreach (Transform child in viewport)
-                Destroy(child.gameObject);
-            
-            void OnFindServer(ServerDiscoverer.GameInfo gameInfo)
+            try
             {
-                _servers.Enqueue(gameInfo);
-            }
-            
-            void OnSearchFinished()
-            {
-                if (id != _currentSearchId)
-                    return;
-            }
+                var id = ++_currentSearchId;
 
-            ServerDiscoverer.FindServers(udpPort, OnFindServer, OnSearchFinished);
+                //Clear all viewports
+                foreach (Transform child in viewport)
+                    Destroy(child.gameObject);
+
+                void OnFindServer(ServerDiscoverer.GameInfo gameInfo)
+                {
+                    Debug.Log($"Found server");
+                    _servers.Enqueue(gameInfo);
+                }
+
+                void OnSearchFinished()
+                {
+                    if (id != _currentSearchId)
+                        return;
+                }
+
+                ServerDiscoverer.FindServers(udpPort, OnFindServer, OnSearchFinished);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+            }
         }
         
         private void Update()
