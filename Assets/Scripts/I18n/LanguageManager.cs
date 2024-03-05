@@ -6,7 +6,7 @@ using Random = UnityEngine.Random;
 
 namespace SolarBuff.i18n
 {
-    public class LanguageController : SingletonBehaviour<LanguageController>
+    public class LanguageManager : SingletonBehaviour<LanguageManager>
     {
         private Dictionary<int, string[]> _cache = null;
     

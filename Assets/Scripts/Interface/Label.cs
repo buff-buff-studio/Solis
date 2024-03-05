@@ -15,14 +15,14 @@ namespace SolarBuff.Interface
             _text = GetComponent<TMP_Text>();
             _rawString = _text.text;
             
-            LanguageController.Instance.onLanguageChange += Localize;
+            LanguageManager.Instance.onLanguageChange += Localize;
             Localize();
         }
 
         private void OnDisable()
         {
-            if(LanguageController.Instance != null)
-                LanguageController.Instance.onLanguageChange -= Localize;
+            if(LanguageManager.Instance != null)
+                LanguageManager.Instance.onLanguageChange -= Localize;
             
             _text.text = _rawString;
             _text = null;
@@ -30,7 +30,7 @@ namespace SolarBuff.Interface
 
         public void Localize()
         {
-            _text.text = LanguageController.Localize(_rawString);
+            _text.text = LanguageManager.Localize(_rawString);
         }
     }
 }

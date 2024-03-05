@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+using Interface;
 using NetBuff;
 using NetBuff.Misc;
 using NetBuff.UDP;
@@ -32,9 +34,14 @@ namespace SolarBuff.Interface.Menu
             buttonJoin.onClick.AddListener(Join);
         }
         
-        public void Join()
+        public async void Join()
         {
-            SceneManager.LoadScene("Scenes/Gameplay");
+            Chat.LocalPlayerName = GetComponentInParent<ServerList>().inputNickName.text;
+
+            var op = SceneManager.LoadSceneAsync("Scenes/Gameplay");
+            while (!op.isDone)
+                await Task.Delay(100);
+            await Task.Delay(500);
             
             if (_gameInfo is ServerDiscoverer.EthernetGameInfo ethernetGameInfo)
             {

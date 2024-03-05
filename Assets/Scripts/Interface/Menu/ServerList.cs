@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Interface;
 using NetBuff;
 using NetBuff.Misc;
 using NetBuff.UDP;
@@ -43,7 +44,6 @@ namespace SolarBuff.Interface.Menu
 
                 void OnFindServer(ServerDiscoverer.GameInfo gameInfo)
                 {
-                    Debug.Log($"Found server");
                     _servers.Enqueue(gameInfo);
                 }
 
@@ -77,6 +77,7 @@ namespace SolarBuff.Interface.Menu
             while (!op.isDone)
                 await Task.Delay(100);
             await Task.Delay(500);
+            Chat.LocalPlayerName = inputNickName.text;
             NetworkManager.Instance.transport.Name = inputNickName.text;
             if (NetworkManager.Instance.transport is UDPNetworkTransport udp)
                 udp.address = inputAddress.text;
