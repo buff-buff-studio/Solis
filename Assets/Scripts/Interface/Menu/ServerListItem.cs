@@ -12,6 +12,7 @@ namespace SolarBuff.Interface.Menu
 {
     public class ServerListItem : MonoBehaviour
     {
+        [Header("REFERENCES")]
         public TMP_Text labelRoomName;
         public TMP_Text labelPlayerCount;
         public TMP_Text labelPlatform;
@@ -36,7 +37,7 @@ namespace SolarBuff.Interface.Menu
         
         public async void Join()
         {
-            Chat.LocalPlayerName = GetComponentInParent<ServerList>().inputNickName.text;
+            TempData.PlayerName = GetComponentInParent<ServerList>().inputNickName.text;
 
             var op = SceneManager.LoadSceneAsync("Scenes/Gameplay");
             while (!op.isDone)
