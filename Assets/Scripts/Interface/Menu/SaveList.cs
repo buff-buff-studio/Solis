@@ -36,11 +36,11 @@ namespace SolarBuff.Interface.Menu
             }
         }
         
-        public void CreateSave()
+        public async void CreateSave()
         {
             var sm = SaveManager.Instance;
-            sm.currentProfile = sm.CreateNewSave();
-            sm.currentProfile.Save();
+            sm.CurrentProfile = SaveManager.CreateNewSave();
+            await SaveManager.Save();
             StartServer();
         }
 

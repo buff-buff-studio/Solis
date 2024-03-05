@@ -11,7 +11,13 @@ namespace SolarBuff.Data
         public static string SaveFolder => Application.persistentDataPath + "/saves";
         
         [SerializeField, HideInInspector]
-        public SaveProfile currentProfile;
+        private SaveProfile currentProfile;
+        
+        public SaveProfile CurrentProfile
+        {
+            get { return currentProfile ??= CreateNewSave(); }
+            set => currentProfile = value;
+        }
         
         protected override void OnEnable()
         {
@@ -19,9 +25,7 @@ namespace SolarBuff.Data
             
             if (!Directory.Exists(SaveFolder))
                 Directory.CreateDirectory(SaveFolder);
-
-            var profile = CreateNewSave();
-            profile.Save();
+            
             DontDestroyOnLoad(gameObject);
         }
         
@@ -51,15 +55,6 @@ namespace SolarBuff.Data
             }
         }
         
-        public SaveProfile CreateNewSave()
-        {
-            return new SaveProfile
-            {
-                creationTime = DateTime.Now.Ticks,
-                playTime = 0
-            };
-        }
-        
         public bool Exists(string saveName)
         {
             return Directory.Exists(SaveFolder + "/" + saveName);
@@ -75,6 +70,39 @@ namespace SolarBuff.Data
         {
             if(currentProfile != null)
                 currentProfile.playTime += Time.deltaTime;
+        }
+        
+        /// <summary>
+        /// Save the current profile
+        /// </summary>
+        public static async Awaitable Save()
+        {
+            await Instance.currentProfile?.Save()!;
+        }
+        
+        /// <summary>
+        /// <summary>
+        /// Create new empty save
+        /// </summary>
+        /// <returns></returns>
+        public static SaveProfile CreateNewSave()
+        {
+            var profile = new SaveProfile
+            {
+                creationTime = DateTime.Now.Ticks,
+                playTime = 0
+            };
+            profile.Clear();
+            return profile;
+        }
+        
+        /// <summary>
+        /// Returns the current profile
+        /// </summary>
+        /// <returns></returns>
+        public static SaveProfile GetCurrentProfile()
+        {
+            return Instance.currentProfile;
         }
     }
 }

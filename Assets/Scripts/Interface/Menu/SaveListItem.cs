@@ -25,7 +25,7 @@ namespace SolarBuff.Interface.Menu
         public void Load()
         {
             var sm = SaveManager.Instance;
-            sm.currentProfile = _profile;
+            sm.CurrentProfile = _profile;
             SaveList.StartServer();
         }
     }

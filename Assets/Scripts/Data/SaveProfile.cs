@@ -12,8 +12,36 @@ namespace SolarBuff.Data
         public string name;
         public float playTime;
         public Texture2D thumbnail;
+        private JsonObject _body;
+ 
+        public JsonObject Body
+        {
+            get
+            {
+                if (_body == null)
+                    Load();
+                
+                return _body;
+            }
+        }
+
+        public void Clear()
+        {
+            _body = new JsonObject();
+        }
         
-        public async void Save()
+        public void Load()
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                _body = new JsonObject();
+                return;
+            }
+            
+            _body = JsonValue.Parse(File.ReadAllText(SaveManager.SaveFolder + "/" + name + "/body.json"));
+        }
+        
+        public async Awaitable Save()
         {
             var time = (long) (playTime * System.TimeSpan.TicksPerSecond);
             var modified = System.DateTime.Now.Ticks;
@@ -45,6 +73,7 @@ namespace SolarBuff.Data
             
             await File.WriteAllTextAsync(path + "/data.json", obj.ToString(true));
             await File.WriteAllBytesAsync(path + "/thumbnail.png", thumbnail.EncodeToPNG());
+            await File.WriteAllTextAsync(path + "/body.json", Body.ToString(true));
             Debug.Log("Saved to: " + path);
         }
         
