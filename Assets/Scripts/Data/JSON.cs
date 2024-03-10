@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
-using AYellowpaper.SerializedCollections;
 using UnityEngine;
 
 namespace SolarBuff.Data
@@ -118,6 +117,70 @@ namespace SolarBuff.Data
     public abstract class JsonValue
     {
         public abstract void Serialize(JsonWriter writer);
+
+        public static JsonValue Cast(object o)
+        {
+            switch (o)
+            {
+                case null:
+                    return null;
+                case JsonValue value:
+                    return value;
+                case bool value:
+                    return new JsonBool() {value = value};
+                case double value:
+                    return new JsonNumber() {value = value};
+                case float value:
+                    return new JsonNumber() {value = value};
+                case int value:
+                    return new JsonNumber() {value = value};
+                case byte value:
+                    return new JsonNumber() {value = value};
+                case string value:
+                    return new JsonString() {value = value};
+                case Color value:
+                    return new JsonString() {value = $"#{ColorUtility.ToHtmlStringRGBA(value)}"};
+                case Vector2 value:
+                    return new JsonList() {new JsonNumber() {value = value.x}, new JsonNumber() {value = value.y}};
+                case Vector3 value:
+                    return new JsonList() {new JsonNumber() {value = value.x}, new JsonNumber() {value = value.y}, new JsonNumber() {value = value.z}};
+                case Vector4 value:
+                    return new JsonList() {new JsonNumber() {value = value.x}, new JsonNumber() {value = value.y}, new JsonNumber() {value = value.z}, new JsonNumber() {value = value.w}};
+                case Quaternion value:
+                    return new JsonList() {new JsonNumber() {value = value.x}, new JsonNumber() {value = value.y}, new JsonNumber() {value = value.z}, new JsonNumber() {value = value.w}};
+                default:
+                    throw new Exception($"Invalid type {o.GetType()}");
+            }
+        }
+        
+        public static object CastInverse(JsonValue value, Type type)
+        {
+            if (type == typeof(JsonValue))
+                return value;
+            if (type == typeof(bool))
+                return (bool) value;
+            if (type == typeof(double))
+                return (double) value;
+            if (type == typeof(float))
+                return (float) value;
+            if (type == typeof(int))
+                return (int) value;
+            if (type == typeof(byte))
+                return (byte) value;
+            if (type == typeof(string))
+                return (string) value;
+            if (type == typeof(Color))
+                return (Color) value;
+            if (type == typeof(Vector2))
+                return (Vector2) value;
+            if (type == typeof(Vector3))
+                return (Vector3) value;
+            if (type == typeof(Vector4))
+                return (Vector4) value;
+            if (type == typeof(Quaternion))
+                return (Quaternion) value;
+            throw new Exception($"Invalid type {type}");
+        }
         
         public static implicit operator JsonValue(bool value) => new JsonBool() {value = value};
         public static implicit operator bool(JsonValue value) => (value as JsonBool)!.value;
@@ -371,7 +434,6 @@ namespace SolarBuff.Data
         }
     }
     
-    [Serializable]
     public class JsonNumber : JsonValue
     {
         public double value;
@@ -419,7 +481,6 @@ namespace SolarBuff.Data
         }
     }
     
-    [Serializable]
     public class JsonBool : JsonValue
     {
         public bool value;
@@ -453,7 +514,6 @@ namespace SolarBuff.Data
         }
     }
     
-    [Serializable]
     public class JsonString : JsonValue
     {
         public string value;
@@ -491,25 +551,23 @@ namespace SolarBuff.Data
             return value.GetHashCode();
         }
     }
-
-    [Serializable]
+    
     public class JsonObject : JsonValue, IEnumerable<KeyValuePair<string, JsonValue>>
     {
-        [SerializeReference]
-        private SerializedDictionary<string, JsonValue> values = new();
-        
-        public int Count => values.Count;
+        private readonly Dictionary<string, JsonValue> _values = new Dictionary<string, JsonValue>();
+
+        public int Count => _values.Count;
         
         public JsonValue this[string key]
         {
-            get => values[key];
-            set => values[key] = value;
+            get => _values[key];
+            set => _values[key] = value;
         }
  
         public override void Serialize(JsonWriter writer)
         {
             writer.BeginObject();
-            foreach (var pair in values)
+            foreach (var pair in _values)
             {
                 writer.Write(pair.Key, pair.Value);
             }
@@ -535,68 +593,66 @@ namespace SolarBuff.Data
 
         public void Add(string key, JsonValue value)
         {
-            values.Add(key, value);
+            _values.Add(key, value);
         }
         
         public void Remove(string key)
         {
-            values.Remove(key);
+            _values.Remove(key);
         }
         
         public bool ContainsKey(string key)
         {
-            return values.ContainsKey(key);
+            return _values.ContainsKey(key);
         }
         
         public JsonValue Get(string key, JsonValue fallback = null)
         {
-            return values.GetValueOrDefault(key, fallback);
+            return _values.GetValueOrDefault(key, fallback);
         }
         
         public T Get<T>(string key, T fallback = default)
         {
-            return (T) (object) values.GetValueOrDefault(key, fallback as JsonValue);
+            return (T) CastInverse(_values.GetValueOrDefault(key, Cast(fallback)), typeof(T));
         }
         
         public JsonList GetList(string key)
         {
-            return (JsonList) values.GetValueOrDefault(key, new JsonList());
+            return (JsonList) _values.GetValueOrDefault(key, new JsonList());
         }
         
         public JsonObject GetObject(string key)
         {
-            return (JsonObject) values.GetValueOrDefault(key, new JsonObject());
+            return (JsonObject) _values.GetValueOrDefault(key, new JsonObject());
         }
         
         public void Clear()
         {
-            values.Clear();
+            _values.Clear();
         }
         
         public IEnumerator<KeyValuePair<string, JsonValue>> GetEnumerator()
         {
-            return values.GetEnumerator();
+            return _values.GetEnumerator();
         }
     }
-
-    [Serializable]
+    
     public class JsonList : JsonValue, IEnumerable<JsonValue>
     {
-        [SerializeReference] 
-        private List<JsonValue> values = new();
+        private readonly List<JsonValue> _values = new();
 
-        public int Count => values.Count;
+        public int Count => _values.Count;
         
         public JsonValue this[int index]
         {
-            get => values[index];
-            set => values[index] = value;
+            get => _values[index];
+            set => _values[index] = value;
         }
         
         public override void Serialize(JsonWriter writer)
         {
             writer.BeginArray();
-            foreach (var t in values)
+            foreach (var t in _values)
             {
                 writer.Write(t);
             }
@@ -622,62 +678,62 @@ namespace SolarBuff.Data
         
         public void Add(JsonValue value)
         {
-            values.Add(value);
+            _values.Add(value);
         }
         
         public void RemoveAt(int index)
         {
-            values.RemoveAt(index);
+            _values.RemoveAt(index);
         }
         
         public T Get<T>(int index)
         {
-            return (T) (object) values[index];
+            return (T) (object) _values[index];
         }
         
         public JsonList GetList(int index)
         {
-            return (JsonList) values[index];
+            return (JsonList) _values[index];
         }
         
         public JsonObject GetObject(int index)
         {
-            return (JsonObject) values[index];
+            return (JsonObject) _values[index];
         }
         
         public void Clear()
         {
-            values.Clear();
+            _values.Clear();
         }
         
         public void AddRange(IEnumerable<JsonValue> collection)
         {
-            values.AddRange(collection);
+            _values.AddRange(collection);
         }
         
         public void Insert(int index, JsonValue value)
         {
-            values.Insert(index, value);
+            _values.Insert(index, value);
         }
         
         public void Remove(JsonValue value)
         {
-            values.Remove(value);
+            _values.Remove(value);
         }
         
         public bool Contains(JsonValue value)
         {
-            return values.Contains(value);
+            return _values.Contains(value);
         }
         
         public int IndexOf(JsonValue value)
         {
-            return values.IndexOf(value);
+            return _values.IndexOf(value);
         }
 
         public IEnumerator<JsonValue> GetEnumerator()
         {
-            return values.GetEnumerator();
+            return _values.GetEnumerator();
         }
     }
 }
