@@ -15,8 +15,7 @@ namespace SolarBuff
         public void OnEnable()
         {
             var profile = SaveManager.GetCurrentProfile();
-            if (profile.Body.ContainsKey("counter"))
-                counter = new IntNetworkValue(profile.Body["counter"], NetworkValue.ModifierType.Everybody);
+            counter = new IntNetworkValue(profile.Body.Get("counter", 0), NetworkValue.ModifierType.Everybody);
             
             WithValues(counter);
             label.text = counter.Value.ToString();

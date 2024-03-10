@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using UnityEngine;
-using LightJson;
 
 namespace SolarBuff.Data
 {
@@ -38,7 +37,7 @@ namespace SolarBuff.Data
                 return;
             }
             
-            _body = JsonValue.Parse(File.ReadAllText(SaveManager.SaveFolder + "/" + name + "/body.json"));
+            _body = JsonValue.Parse(File.ReadAllText(SaveManager.SaveFolder + "/" + name + "/body.json")) as JsonObject;
         }
         
         public async Awaitable Save()

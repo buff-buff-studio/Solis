@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using LightJson;
 using UnityEngine;
 
 namespace SolarBuff.Data
@@ -39,7 +38,7 @@ namespace SolarBuff.Data
                     continue;
                 
                 var data = File.ReadAllText(dataPath);
-                var obj = JsonValue.Parse(data);
+                var obj = JsonValue.Parse(data) as JsonObject;
                 var tex = new Texture2D(2, 2);
                 tex.LoadImage(File.ReadAllBytes(dir + "/thumbnail.png"));
                 
