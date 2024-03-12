@@ -1,35 +1,65 @@
 ﻿using System;
+using SolarBuff.Props;
 using UnityEngine;
 
 namespace SolarBuff.Circuit
 {
+    [RequireComponent(typeof(CableRenderer))]
     [ExecuteInEditMode]
     public class CircuitConnection : MonoBehaviour
     {
-        public float currentDisplayValue = 0;
-        
+        private CableRenderer _renderer;
+    
         public CircuitPlug a;
         public CircuitPlug b;
-
+        
         private void OnEnable()
+        {
+            _renderer = GetComponent<CableRenderer>();
+            UpdateVisual();
+        }
+
+        private void Update()
+        {
+            if(a.Owner != null && a.Owner.transform.hasChanged)
+            {
+                UpdateVisual();
+                return;
+            }
+            
+            if(b.Owner != null && b.Owner.transform.hasChanged)
+            {
+                UpdateVisual();
+                return;
+            }
+        }
+
+        #region Path
+        public Vector3[] GetControlPoints()
+        {
+            return new[] {a.transform.position, b.transform.position};
+        }
+        #endregion
+        
+        public void UpdateVisual()
         {
             if (a != null && b != null)
             {
                 a.Connection = this;
                 b.Connection = this;
-            }
-            
-            Refresh();
-        }
-
-        private void OnValidate()
-        {
-            if (a != null && b != null)
-            {
                 transform.position = (a.transform.position + b.transform.position) / 2;
+                _renderer.SetPositions(GetControlPoints());
+                
+                if(Application.isPlaying)
+                    _renderer.material.color = Color.Lerp(Color.black, Color.red, a.ReadValue<float>());
+            }
+            else
+            {
+                DestroyImmediate(gameObject);
             }
         }
-
+        
+        
         private void OnDisable()
         {
             if (a != null)
@@ -44,33 +74,20 @@ namespace SolarBuff.Circuit
                 b.Owner.Refresh();
             }
         }
-
-        private void OnDrawGizmos()
-        {
-            if (a != null && b != null)
-            {
-                Gizmos.color = Color.Lerp(Color.black, Color.red, currentDisplayValue);
-                Gizmos.DrawLine(a.transform.position, b.transform.position);
-            }
-        }
-
+        
         public void Refresh()
         {
             if (a.type == CircuitPlug.Type.Input)
             {
-                UpdateDisplay(b.ReadValue<float>());
+                UpdateVisual();
                 a.Owner.Refresh();
             }
             else
             {
-                UpdateDisplay(a.ReadValue<float>());
+                UpdateVisual();
                 b.Owner.Refresh();
             }
         }
 
-        private void UpdateDisplay(float value)
-        {
-            currentDisplayValue = value;
-        }
     }
 }
