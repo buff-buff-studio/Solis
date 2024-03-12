@@ -138,7 +138,16 @@ namespace ExamplePlatformer
             if (_orbitCamera == null)
             {
                 var idx = GetLocalClientIndex(OwnerId);
-                _orbitCamera = LevelManager.Instance.orbitCameras[idx];
+
+                if (LevelManager.Instance != null)
+                {
+                    _orbitCamera = LevelManager.Instance.orbitCameras[idx];
+                }
+                else
+                {
+                    _orbitCamera = FindAnyObjectByType<OrbitCamera>();
+                }
+                
                 _orbitCamera.target = gameObject;
 
                 if (idx == 1)
