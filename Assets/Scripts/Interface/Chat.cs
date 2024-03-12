@@ -7,6 +7,7 @@ using NetBuff;
 using NetBuff.Components;
 using NetBuff.Interface;
 using NetBuff.Misc;
+using SolarBuff;
 using TMPro;
 using UnityEngine;
 
@@ -15,9 +16,6 @@ namespace Interface
     
     public class Chat : NetworkBehaviour
     {
-        public static string LocalPlayerName { get; set; }
-        
-        
         [Header("REFERENCES")]
         public TMP_Text chatContents;
         public TMP_InputField chatInput;
@@ -112,7 +110,7 @@ namespace Interface
         {
             var packet = new PlayerNamePacket
             {
-                Name = LocalPlayerName,
+                Name = TempData.PlayerName,
                 ClientId = -1
             };
             

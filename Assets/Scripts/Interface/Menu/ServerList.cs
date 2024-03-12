@@ -1,13 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using Interface;
-using NetBuff;
 using NetBuff.Misc;
-using NetBuff.UDP;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
 
 namespace SolarBuff.Interface.Menu
@@ -22,9 +17,10 @@ namespace SolarBuff.Interface.Menu
         public GameObject itemPrefab;
         public TMP_InputField inputNickName;
         public TMP_InputField inputAddress;
+        public SaveList saveList;
  
-        private int _currentSearchId = 0;
-        private readonly Queue<ServerDiscoverer.GameInfo> _servers = new Queue<ServerDiscoverer.GameInfo>();
+        private int _currentSearchId;
+        private readonly Queue<ServerDiscoverer.GameInfo> _servers = new();
 
         private void OnEnable()
         {
@@ -32,7 +28,7 @@ namespace SolarBuff.Interface.Menu
             inputNickName.text = GenerateName();
         }
 
-        public async void UpdateList()
+        public void UpdateList()
         {
             try
             {
@@ -44,14 +40,13 @@ namespace SolarBuff.Interface.Menu
 
                 void OnFindServer(ServerDiscoverer.GameInfo gameInfo)
                 {
+                    if (id != _currentSearchId)
+                        return;
+                    
                     _servers.Enqueue(gameInfo);
                 }
 
-                void OnSearchFinished()
-                {
-                    if (id != _currentSearchId)
-                        return;
-                }
+                void OnSearchFinished() {}
 
                 ServerDiscoverer.FindServers(udpPort, OnFindServer, OnSearchFinished);
             }
@@ -71,17 +66,14 @@ namespace SolarBuff.Interface.Menu
             }
         }
 
-        public async void HostGame()
+        public void HostGame()
         {
-            var op = SceneManager.LoadSceneAsync("Scenes/Gameplay");
-            while (!op.isDone)
-                await Task.Delay(100);
-            await Task.Delay(500);
-            Chat.LocalPlayerName = inputNickName.text;
-            NetworkManager.Instance.transport.Name = inputNickName.text;
-            if (NetworkManager.Instance.transport is UDPNetworkTransport udp)
-                udp.address = inputAddress.text;
-            NetworkManager.Instance.StartHost();
+            TempData.PlayerName = inputNickName.text;
+            TempData.ServerAddress = inputAddress.text;
+            TempData.ServerPort = udpPort;
+            
+            gameObject.SetActive(false);
+            saveList.gameObject.SetActive(true);
         }
 
         private static string GenerateName()

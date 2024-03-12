@@ -13,7 +13,15 @@ namespace SolarBuff
         {
             if (Instance != null && this != Instance)
             {
-                Destroy(this);
+                if (Application.isEditor)
+                    Debug.LogWarning($"Multiple instances of {typeof(T)} found. Destroying {this}.");
+                
+                
+                if(gameObject.GetComponents<Component>().Length <= 2)
+                    Destroy(gameObject);
+                else
+                    Destroy(this);
+                
                 return;
             }
             
