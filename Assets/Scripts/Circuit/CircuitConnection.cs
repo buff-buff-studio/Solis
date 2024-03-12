@@ -65,13 +65,15 @@ namespace SolarBuff.Circuit
             if (a != null)
             {
                 a.Connection = null;
-                a.Owner.Refresh();
+                if(a.Owner != null)
+                    a.Owner.Refresh();
             }
             
             if (b != null)
             {
                 b.Connection = null;
-                b.Owner.Refresh();
+                if(b.Owner != null)
+                    b.Owner.Refresh();
             }
         }
         
