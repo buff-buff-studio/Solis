@@ -1,4 +1,5 @@
 ﻿using System;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace SolarBuff.Circuit
@@ -7,15 +8,30 @@ namespace SolarBuff.Circuit
     {
         public enum Type
         {
-            None,
             Output,
             Input
         }
+
+        private void OnEnable()
+        {
+            Owner.plugs.Add(this);
+        }
         
-        public Type type = Type.None;
+        private void OnDisable()
+        {
+            Owner.plugs.Remove(this);
+        }
+
+        public Type type = Type.Output;
         [SerializeField, HideInInspector]
         private CircuitConnection connection;
+        public CircuitConnection Connection
+        {
+            get => connection;
+            set => connection = value;
+        }
 
+        private CircuitComponent _owner;
         public CircuitComponent Owner
         {
             get
@@ -25,42 +41,48 @@ namespace SolarBuff.Circuit
                 return _owner;
             }
         }
-        
-        public CircuitConnection Connection
+
+        public CircuitComponent Other
         {
-            get => connection;
-            set => connection = value;
+            get
+            {
+                if (connection == null) return null;
+                return connection.a == this ? connection.b.Owner : connection.a.Owner;
+            }
         }
-
-        private CircuitComponent _owner;
-
+        
+        public CircuitPlug OtherPlug
+        {
+            get
+            {
+                if (connection == null) return null;
+                return connection.a == this ? connection.b : connection.a;
+            }
+        }
+        
         private void OnDrawGizmos()
         {
-            switch (type)
+            Gizmos.color = type switch
             {
-                case Type.Input:
-                    Gizmos.color = Color.red;
-                    break;
-                case Type.Output:
-                    Gizmos.color = Color.green;
-                    break;
-                default:
-                    Gizmos.color = Color.white;
-                    break;
-            }
-            
+                Type.Input => Color.red,
+                Type.Output => Color.green,
+                _ => Color.white
+            };
+
             Gizmos.DrawSphere(transform.position, 0.1f);
         }
         
-        public T ReadInput<T>()
+        public T ReadValue<T>()
         {
-            if (type != Type.Input)
-                throw new InvalidOperationException("Cannot read input from non-input plug");
-            if (connection == null)
+            if(Connection == null)
                 return default;
-            return connection.a == this
-                ? connection.b.Owner.ReadOutput<T>(connection.b)
-                : connection.a.Owner.ReadOutput<T>(connection.a);
+            
+            return type switch
+            {
+                Type.Input => Other.ReadOutput<T>(OtherPlug),
+                Type.Output => Owner.ReadOutput<T>(this),
+                _ => default
+            };
         }
     }
 }
