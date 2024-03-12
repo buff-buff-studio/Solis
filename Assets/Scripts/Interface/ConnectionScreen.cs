@@ -18,12 +18,14 @@ namespace Game.Menu
 
         private void OnDisconnect()
         {
+            /*
             SceneManager.LoadScene("Scenes/Menu");
 
             if (SaveManager.Instance != null)
             {
                 SaveManager.Instance.CurrentProfile.Save();
             }
+            */
         }
 
         private void OnConnect()
