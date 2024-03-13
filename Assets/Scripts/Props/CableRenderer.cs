@@ -139,9 +139,9 @@ namespace SolarBuff.Props
 		{
 			var uvs = new Vector2[positions.Length*sides];
 
-			for (int segment = 0; segment < positions.Length; segment++)
+			for (var segment = 0; segment < positions.Length; segment++)
 			{
-				for (int side = 0; side < sides; side++)
+				for (var side = 0; side < sides; side++)
 				{
 					var vertIndex = (segment * sides + side);
 					var u = side/(sides-1f);

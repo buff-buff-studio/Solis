@@ -1,17 +1,16 @@
 ﻿#if UNITY_EDITOR
 using System;
-using System.Linq;
-using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
+using Random = UnityEngine.Random;
 
 namespace SolarBuff.Circuit.Tools
 {
     public class EditorCircuitEditor : EditorWindow
     {
-        public const string PREFABS_PATH = "Assets/Prefabs/Circuit";
-        public const int PREFAB_SIZE = 80;
+        private const string _PREFABS_PATH = "Assets/Prefabs/Circuit";
+        private const int _PREFAB_SIZE = 80;
         
         private enum Action
         {
@@ -27,8 +26,9 @@ namespace SolarBuff.Circuit.Tools
         private CircuitPlug _currentPlug;
         private CircuitConnection _currentConnection;
         private int _currentControlPointIndex = -1;
-        private GameObject _mouseOverObject = null;
+        private GameObject _mouseOverObject;
         private Vector2 _scrollPos;
+        private GameObject _lastPrefab;
         #endregion
 
         [Header("Settings")] 
@@ -58,7 +58,31 @@ namespace SolarBuff.Circuit.Tools
             {
                 EditorGUILayout.Space();
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-                EditorGUILayout.LabelField("Connection Tool", EditorStyles.boldLabel);
+                EditorGUILayout.LabelField("Connection", EditorStyles.boldLabel);
+                
+                //Button to smooth path
+                if (GUILayout.Button("Smooth Path"))
+                {
+                    var so2 = new SerializedObject(_currentConnection);
+                    so2.Update();
+                    Undo.RecordObject(_currentConnection, "Smooth Path");
+                    
+                    //Smooth _controlPoints, setting the handles smoothing the last and next directions
+                    var points = _currentConnection.GetControlPoints();
+                    var prev = points[_currentControlPointIndex - 1];
+                    var next = points[_currentControlPointIndex + 1];
+                    
+                    for (var i = 1; i < points.Length - 1; i++)
+                    {
+                        var prevDir = (points[i - 1].position - points[i].position).normalized;
+                        var nextDir = (points[i + 1].position - points[i].position).normalized;
+                        points[i].leftHandle = prevDir;
+                        points[i].rightHandle = nextDir;
+                    }
+                    
+                    so2.ApplyModifiedProperties();
+                    _currentConnection.UpdateVisual(true);
+                }
                 
                 //Create info box showing the controls
                 EditorGUILayout.EndVertical();
@@ -107,10 +131,7 @@ namespace SolarBuff.Circuit.Tools
                         var next = points[_currentControlPointIndex + 1];
                         var dirLeft = (prev.position - point.position).normalized;
                         var dirRight = (next.position - point.position).normalized;
-                        
-                        newLeft = point.position + dirLeft;
-                        newRight = point.position + dirRight;
-                        
+         
                         var so2 = new SerializedObject(_currentConnection);
                         so2.Update();
                         Undo.RecordObject(_currentConnection, "Rectangle Handles");
@@ -159,13 +180,14 @@ namespace SolarBuff.Circuit.Tools
             EditorGUILayout.Space();
             
             #region Prefabs
-            var prefabFiles = AssetDatabase.FindAssets("t:Prefab", new[] {PREFABS_PATH});
+            var prefabFiles = AssetDatabase.FindAssets("t:Prefab", new[] {_PREFABS_PATH});
             EditorGUILayout.LabelField("Components (Drag n' drop)", EditorStyles.boldLabel);
             _scrollPos = EditorGUILayout.BeginScrollView(_scrollPos);
-
-            var size = 5;
+            
+            EditorGUILayout.HelpBox("Hold Ctrl while dropping to snap to surface", MessageType.Info);
+            
             var width = (position.width - 5);
-            var columnCount = Mathf.Max(1, (int) (width / (PREFAB_SIZE + 5)));
+            var columnCount = Mathf.Max(1, (int) (width / (_PREFAB_SIZE + 5)));
             
             var n = 0;
             while (n < prefabFiles.Length)
@@ -182,14 +204,15 @@ namespace SolarBuff.Circuit.Tools
                     
                     //begin vertical with the image and name bellow
                     EditorGUILayout.BeginVertical();
-                    GUILayout.Label(preview, GUILayout.Width(PREFAB_SIZE), GUILayout.Height(PREFAB_SIZE));
-                    GUILayout.Label(asset.name, GUILayout.Width(PREFAB_SIZE));
+                    GUILayout.Label(preview, GUILayout.Width(_PREFAB_SIZE), GUILayout.Height(_PREFAB_SIZE));
+                    GUILayout.Label(asset.name, GUILayout.Width(_PREFAB_SIZE));
                     EditorGUILayout.EndVertical();
                     
                     if (Event.current.type == EventType.MouseDown && GUILayoutUtility.GetLastRect().Contains(Event.current.mousePosition))
                     {
                         DragAndDrop.PrepareStartDrag();
-                        DragAndDrop.objectReferences = new Object[] {asset};
+                         DragAndDrop.objectReferences = new Object[] {asset};
+                        _lastPrefab = asset;
                         DragAndDrop.StartDrag("Prefab");
                         Event.current.Use();
                     }
@@ -225,8 +248,60 @@ namespace SolarBuff.Circuit.Tools
             _isOnCircuitMode = false;
         }
 
+        private bool reloadDrag = false;
+        
         void OnSceneGUI(SceneView sceneView)
         {
+            if (Event.current.type == EventType.DragPerform)
+            {
+                if (_lastPrefab != null && DragAndDrop.objectReferences.Length == 1 && DragAndDrop.objectReferences[0] == _lastPrefab)
+                {
+                    if (Event.current.control)
+                    {
+                        Event.current.Use();
+
+                        var ray = HandleUtility.GUIPointToWorldRay(Event.current.mousePosition);
+                        if (Physics.Raycast(ray, out var hit))
+                        {
+                            ray.origin = hit.point + ray.direction * 0.02f;
+
+                            if (Physics.Raycast(ray, out var hit2))
+                            {
+                                var go = PrefabUtility.InstantiatePrefab(_lastPrefab) as GameObject;
+                                go.transform.position = hit2.point;
+
+                                var ax = Mathf.Abs(hit2.normal.x);
+                                var ay = Mathf.Abs(hit2.normal.y);
+                                var az = Mathf.Abs(hit2.normal.z);
+
+                                //if normal is floor or ceil
+                                if (ax < 0.1f && az < 0.1f)
+                                {
+                                    go.transform.up = new Vector3(0, Mathf.Sign(hit2.normal.y), 0);
+                                    var euler = go.transform.eulerAngles;
+                                    go.transform.eulerAngles = new Vector3(euler.x,
+                                        sceneView.camera.transform.eulerAngles.y, euler.z);
+                                }
+                                else if (ax < 0.01f || ay < 0.01f || az < 0.01f)
+                                {
+                                    //forward = Vector3.down, up = normal
+                                    var q = Quaternion.LookRotation(Vector3.up, hit2.normal);
+                                    go.transform.rotation = q;
+                                }
+                                else
+                                {
+                                    go.transform.up = hit2.normal;
+                                }
+
+                                Undo.RegisterCreatedObjectUndo(go, "Create Object");
+
+                            }
+                        }
+                    }
+                }
+                _lastPrefab = null;
+            }
+
             if (!_isOnCircuitMode)
                 return;
             
@@ -554,7 +629,6 @@ namespace SolarBuff.Circuit.Tools
                         }
                         else
                             _action = Action.Idle;
-                        break;
                     }
                     #endregion
                     break;

@@ -159,7 +159,7 @@ namespace SolarBuff.Circuit
                 return 1;
             
             //One for each 0.25f
-            return Mathf.CeilToInt(Vector3.Distance(p0.position, p1.position) / 0.25f);
+            return Mathf.CeilToInt(Vector3.Distance(p0.position, p1.position) / 0.1f);
         }
         
         private static Vector3 BezierCurve(CircuitConnection.ControlPoint p0, CircuitConnection.ControlPoint p1, float t)
