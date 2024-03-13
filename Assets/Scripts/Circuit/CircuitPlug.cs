@@ -38,6 +38,7 @@ namespace SolarBuff.Circuit
             {
                 if (_owner == null)
                     _owner = GetComponentInParent<CircuitComponent>();
+                    
                 return _owner;
             }
         }
