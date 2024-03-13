@@ -1,6 +1,7 @@
 ﻿#if UNITY_EDITOR
 using System;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -145,13 +146,13 @@ namespace SolarBuff.Circuit.Tools
                 case Action.Idle:
                     if (_mouseOverObject != null && _mouseOverObject.TryGetComponent<CircuitConnection>(out var con2))
                     {
-                        var cps = con2.GetControlPoints().ToArray();
+                        var cps = con2.GetControlPoints();
                         for(var i = 1; i < cps.Length; i++)
                         {
                             if (Event.current.type == EventType.Repaint)
                             {
-                                Handles.color = Color.yellow;
-                                Handles.DrawLine(cps[i - 1], cps[i]);
+                                Handles.color = Color.white;
+                                Handles.DrawLine(cps[i - 1].position, cps[i].position);
                             }
                         }
                     }
@@ -172,7 +173,7 @@ namespace SolarBuff.Circuit.Tools
                         {
                             if (_mouseOverObject != null && _mouseOverObject.TryGetComponent<CircuitConnection>(out var con))
                             {
-                                Selection.activeGameObject = _mouseOverObject;
+                                Selection.activeGameObject = null;
                                 action = Action.EditingConnection;
                                 currentControlPointIndex = -1;
                                 currentConnection = con;
@@ -218,121 +219,178 @@ namespace SolarBuff.Circuit.Tools
                     break;
             
                 case Action.EditingConnection:
-                    if (_mouseOverObject != null && _mouseOverObject.TryGetComponent<CircuitConnection>(out var con3))
+                    if (currentConnection == null)
                     {
-                        var cps = con3.GetControlPoints().ToArray();
+                        action = Action.Idle;
+                        break;
+                    }
+                    
+                    #region Current Connection Handles
+                    var controlPoints = currentConnection.GetControlPoints();
+                    
+                    if (currentControlPointIndex <= 0)
+                        currentControlPointIndex = -1;
+
+                    var onHandle = false;
+                        
+                    if (currentControlPointIndex != -1)
+                    {
+                        var point = controlPoints[currentControlPointIndex];
+                        
+                        var leftHandlePos = point.position + point.leftHandle;
+                        var rightHandlePos = point.position + point.rightHandle;
+                        
+                        Handles.color = Color.white;
+                        Handles.DrawDottedLine(leftHandlePos, rightHandlePos, 0.5f);
+                        
+                        Handles.color = Color.blue;
+                        var newLeftHandlePosition = Handles.FreeMoveHandle(leftHandlePos, 0.15f, Vector3.zero, Handles.CircleHandleCap);
+                        var newRightHandlePosition = Handles.FreeMoveHandle(rightHandlePos, 0.15f, Vector3.zero, Handles.CircleHandleCap);
+                        
+                        if (newLeftHandlePosition != leftHandlePos)
+                        {
+                            var so = new SerializedObject(currentConnection);
+                            so.Update();
+                            Undo.RecordObject(currentConnection, "Move Left Handle");
+                            
+                            point.leftHandle = newLeftHandlePosition - point.position;
+                        }
+                        else if (newRightHandlePosition != rightHandlePos)
+                        {
+                            var so = new SerializedObject(currentConnection);
+                            so.Update();
+                            Undo.RecordObject(currentConnection, "Move Right Handle");
+                            
+                            point.rightHandle = newRightHandlePosition - point.position;
+                        }
+                        
+                        if (HandleUtility.DistanceToCircle(leftHandlePos, 0.15f) < 0.25f || HandleUtility.DistanceToCircle(rightHandlePos, 0.15f) < 0.25f)
+                        {
+                            onHandle = true;
+                        }
+                    }
+                    #endregion
+
+                    #region Show If Hovering Other Cable
+                    if (!onHandle && _mouseOverObject != null && _mouseOverObject.TryGetComponent<CircuitConnection>(out var con3))
+                    {
+                        var cps = con3.GetControlPoints();
                         for(var i = 1; i < cps.Length; i++)
                         {
                             if (Event.current.type == EventType.Repaint)
                             {
-                                Handles.color = Color.yellow;
-                                Handles.DrawLine(cps[i - 1], cps[i]);
+                                Handles.color = Color.white;
+                                Handles.DrawLine(cps[i - 1].position, cps[i].position);
                             }
                         }
                     }
+                    #endregion
 
-                    if (currentConnection == null || (Event.current.type == EventType.MouseDown && Event.current.button == 0 && _mouseOverObject != currentConnection.gameObject))
+                    #region Current Cable Editing
+                    void SetControlPointPosition(int index, Vector3 pos)
                     {
-                        if (_mouseOverObject != null && _mouseOverObject.TryGetComponent<CircuitConnection>(out var con))
-                        {
-                            Selection.activeGameObject = _mouseOverObject;
-                            action = Action.EditingConnection;
-                            currentControlPointIndex = -1;
-                            currentConnection = con;
-                            Event.current.Use();
-                        }
-                        else
-                            action = Action.Idle;
-                        break;
+                        currentConnection.controlPoints[index - 1].position = pos;
                     }
-
-                    var controlPoints = currentConnection.GetControlPoints().ToArray();
+                    
                     var mousePos = RaycastPosition();
 
-                    var segmentIndex = 0;
-                    var closest = controlPoints[0];
+                    var closestPosition = Vector3.zero;
+                    var closestSegment = 0;
                     var closestDistance = float.MaxValue;
-                    var closestControlPoint = -1;
-                
+                    var mouseOverControlPoint = -1;
+
                     for(var i = 0; i < controlPoints.Length; i++)
                     {
-                        if(i > 0)
+                        if (i > 0)
                         {
                             if (Event.current.type == EventType.Repaint)
                             {
                                 Handles.color = Color.yellow;
-                                Handles.DrawLine(controlPoints[i - 1], controlPoints[i]);
+                                Handles.DrawLine(controlPoints[i - 1].position, controlPoints[i].position);
                             }
-
-                            var p = ClosestPointOnLineSegment(controlPoints[i - 1], controlPoints[i], mousePos); 
+                            
+                            var p = ClosestPointOnLineSegment(controlPoints[i - 1].position, controlPoints[i].position, mousePos); 
                             var d = Vector3.Distance(p, mousePos);
                             if (d < closestDistance)
                             {
-                                closest = p;
+                                closestPosition = p;
+                                closestSegment = i - 1;
                                 closestDistance = d;
-                                segmentIndex = i - 1;
                             }
-                        }
-
-                        if (HandleUtility.DistanceToCircle(controlPoints[i], 0.15f) < 0.25f)
-                        {
-                            closestControlPoint = i;
-
-                            if (Event.current.type == EventType.Repaint)
+                            
+                            if (i < controlPoints.Length - 1)
                             {
-                                Handles.color = Color.red;
-                                Handles.SphereHandleCap(0, controlPoints[i], Quaternion.identity, 0.15f, EventType.Repaint);
-                                Handles.color = Color.yellow;
+                                if (HandleUtility.DistanceToCircle(controlPoints[i].position, 0.15f) < 0.25f)
+                                {
+                                    mouseOverControlPoint = i;
+
+                                    if (Event.current.type == EventType.Repaint)
+                                    {
+                                        Handles.color = Color.red;
+                                        Handles.SphereHandleCap(0, controlPoints[i].position, Quaternion.identity, 0.15f, EventType.Repaint);
+                                        Handles.color = Color.yellow;
+                                    }
+                                }
+                                else if (Event.current.type == EventType.Repaint)
+                                {
+                                    if(currentControlPointIndex == i)
+                                        Handles.color = Color.green;
+                                    else
+                                        Handles.color = Color.yellow;
+
+                                    Handles.SphereHandleCap(0, controlPoints[i].position, Quaternion.identity, 0.15f, EventType.Repaint);
+                                }
                             }
                         }
-                        else if (Event.current.type == EventType.Repaint)
-                        {
-                            if(currentControlPointIndex == i)
-                                Handles.color = Color.green;
-                            else
-                                Handles.color = Color.yellow;
-
-                            Handles.SphereHandleCap(0, controlPoints[i], Quaternion.identity, 0.15f, EventType.Repaint);
-                        }
-
                     }
 
-                    if(closestControlPoint == -1)
+                    if (!onHandle)
                     {
-                        Handles.color = Color.white;
-                        if (Event.current.type == EventType.Repaint)
-                            Handles.SphereHandleCap(0, closest, Quaternion.identity, 0.25f, EventType.Repaint);
-                    
-                        if (Event.current.type == EventType.MouseDown && Event.current.button == 0)
+                        if (mouseOverControlPoint == -1)
                         {
-                            //add undo
-                            var so = new SerializedObject(currentConnection);
-                            so.Update();
-                            Undo.RecordObject(currentConnection, "Add Control Point");
-                            var point = new CircuitConnection.ControlPoint{ position = closest };
-                            currentConnection.controlPoints.Insert(segmentIndex, point);
-                            //action = Action.MovingControlPoint;
-                            //currentControlPointIndex = segmentIndex + 1;
-                            so.ApplyModifiedProperties();
-                            Event.current.Use();
+                            Handles.color = Color.white;
+                            if (Event.current.type == EventType.Repaint)
+                                Handles.SphereHandleCap(0, closestPosition, Quaternion.identity, 0.25f,
+                                    EventType.Repaint);
+
+                            if (HandleUtility.DistanceToCircle(closestPosition, 0.25f) < 0.25f)
+                            {
+                                onHandle = true;
+                                if (Event.current.type == EventType.MouseDown && Event.current.button == 0)
+                                {
+                                    //add undo
+                                    var so = new SerializedObject(currentConnection);
+                                    so.Update();
+                                    Undo.RecordObject(currentConnection, "Add Control Point");
+                                    
+                                    var dir = controlPoints[closestSegment].position - controlPoints[closestSegment + 1].position;
+                                
+                                    var point = new CircuitConnection.ControlPoint { position = closestPosition, leftHandle = dir.normalized, rightHandle = -dir.normalized };
+                                    currentConnection.controlPoints.Insert(closestSegment, point);
+                                    action = Action.MovingControlPoint;
+                                    currentControlPointIndex = closestSegment + 1;
+                                    so.ApplyModifiedProperties();
+                                    Event.current.Use();
+                                }
+                            }
                         }
-                    }
-                    else
-                    {
-                        if (Event.current.type == EventType.MouseDown && Event.current.button == 0)
+                        else
                         {
-                            currentControlPointIndex = closestControlPoint;
-                            Event.current.Use();
-                        }
-                        else if (Event.current.type == EventType.MouseDrag && Event.current.button == 0)
-                        {
-                            var so = new SerializedObject(currentConnection);
-                            so.Update();
-                            Undo.RecordObject(currentConnection, "Move Control Point");
-                            action = Action.MovingControlPoint;
-                            currentControlPointIndex = closestControlPoint;
-                            so.ApplyModifiedProperties();
-                            Event.current.Use();
+                            if (Event.current.type == EventType.MouseDown && Event.current.button == 0)
+                            {
+                                currentControlPointIndex = mouseOverControlPoint;
+                                Event.current.Use();
+                            }
+                            else if (Event.current.type == EventType.MouseDrag && Event.current.button == 0)
+                            {
+                                var so = new SerializedObject(currentConnection);
+                                so.Update();
+                                Undo.RecordObject(currentConnection, "Move Control Point");
+                                action = Action.MovingControlPoint;
+                                currentControlPointIndex = mouseOverControlPoint;
+                                so.ApplyModifiedProperties();
+                                Event.current.Use();
+                            }
                         }
                     }
 
@@ -342,12 +400,29 @@ namespace SolarBuff.Circuit.Tools
                         so.Update();
                         Undo.RecordObject(currentConnection, "Delete Control Point");
                         currentConnection.controlPoints.RemoveAt(currentControlPointIndex - 1);
-                        currentControlPointIndex = -1;
+                        currentControlPointIndex --;
                         so.ApplyModifiedProperties();
                         Event.current.Use();
                         currentConnection.UpdateVisual();
                     }
-
+                    #endregion
+                    
+                    #region Change Selected
+                    if (!onHandle && Event.current.type == EventType.MouseDown && Event.current.button == 0 && _mouseOverObject != currentConnection.gameObject)
+                    {
+                        if (_mouseOverObject != null && _mouseOverObject.TryGetComponent<CircuitConnection>(out var con))
+                        {
+                            Selection.activeGameObject = null;
+                            action = Action.EditingConnection;
+                            currentControlPointIndex = -1;
+                            currentConnection = con;
+                            Event.current.Use();
+                        }
+                        else
+                            action = Action.Idle;
+                        break;
+                    }
+                    #endregion
                     break;
 
                 case Action.MovingControlPoint:
@@ -357,8 +432,7 @@ namespace SolarBuff.Circuit.Tools
                     {
                         if (Event.current.type == EventType.MouseDrag && Event.current.button == 0)
                         {
-                            var mousePos2 = RaycastPosition();
-                            currentConnection.controlPoints[currentControlPointIndex - 1] = new CircuitConnection.ControlPoint{ position = mousePos2 };
+                            currentConnection.controlPoints[currentControlPointIndex - 1].position = RaycastPosition();
                             currentConnection.UpdateVisual();
                             Event.current.Use();
                         }
