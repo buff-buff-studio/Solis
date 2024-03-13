@@ -61,21 +61,23 @@ namespace SolarBuff.Circuit.Tools
                 EditorGUILayout.LabelField("Connection", EditorStyles.boldLabel);
                 
                 //Button to smooth path
-                if (GUILayout.Button("Smooth Path"))
+                if (GUILayout.Button("Straighten Path"))
                 {
                     var so2 = new SerializedObject(_currentConnection);
                     so2.Update();
-                    Undo.RecordObject(_currentConnection, "Smooth Path");
+                    Undo.RecordObject(_currentConnection, "Straighten Path");
                     
-                    //Smooth _controlPoints, setting the handles smoothing the last and next directions
                     var points = _currentConnection.GetControlPoints();
-                    var prev = points[_currentControlPointIndex - 1];
-                    var next = points[_currentControlPointIndex + 1];
-                    
+
                     for (var i = 1; i < points.Length - 1; i++)
                     {
-                        var prevDir = (points[i - 1].position - points[i].position).normalized;
-                        var nextDir = (points[i + 1].position - points[i].position).normalized;
+                        var curr = points[i];
+                        var prev = points[i - 1];
+                        var next = points[i + 1];
+                        
+                        var prevDir = (prev.position - curr.position).normalized;
+                        var nextDir = (next.position - curr.position).normalized;
+
                         points[i].leftHandle = prevDir;
                         points[i].rightHandle = nextDir;
                     }
@@ -92,87 +94,83 @@ namespace SolarBuff.Circuit.Tools
                     EditorGUILayout.Space();
                     EditorGUILayout.BeginVertical(EditorStyles.helpBox);
                     EditorGUILayout.LabelField("Control Point", EditorStyles.boldLabel);
-                    
+
+                    #region Fields
                     var point = _currentConnection.controlPoints[_currentControlPointIndex - 1];
-                    
                     var oldPos = point.position;
                     var oldLeft = point.leftHandle + point.position;
                     var oldRight = point.rightHandle + point.position;
-                    
                     var newPos = EditorGUILayout.Vector3Field("Position", oldPos);
                     var newLeft = EditorGUILayout.Vector3Field("Left Handle", oldLeft);
                     var newRight = EditorGUILayout.Vector3Field("Right Handle", oldRight);
-
-                    if (GUILayout.Button("Flat Handles"))
+                    #endregion
+                    
+                    var w = position.width - 34;
+                    EditorGUILayout.BeginHorizontal();
+                    if(GUILayout.Button("Recalculate Handles", GUILayout.Width(w * 0.6f)))
                     {
-                        var points = _currentConnection.GetControlPoints();
-                        var prev = points[_currentControlPointIndex - 1];
-                        var next = points[_currentControlPointIndex + 1];
-                        var dirLeft = (prev.position - point.position).normalized;
-                        var dirRight = (next.position - point.position).normalized;
-                        
-                        var plane = -Vector3.Cross(dirLeft, dirRight).normalized;
-
-                        newLeft = GetPointOnPlane(newLeft, point.position, plane);
-                        newRight = GetPointOnPlane(newRight, point.position, plane);
-                       
+                        RecalculateHandles(true, true);
+                    }
+                    else if (GUILayout.Button("Left", GUILayout.Width(w * 0.2f)))
+                    {
+                        RecalculateHandles(true, false);
+                    }
+                    else if (GUILayout.Button("Right", GUILayout.Width(w * 0.2f)))
+                    {
+                        RecalculateHandles(false, true);
+                    }
+                    EditorGUILayout.EndHorizontal();
+                    
+                    if (GUILayout.Button("Plane Handles"))
+                    {
+                        HandlesPlain();
+                    }
+                    
+                    EditorGUILayout.BeginHorizontal();
+                    if(GUILayout.Button("Smooth Handles", GUILayout.Width(w * 0.6f)))
+                    {
+                        SmoothHandles(true, true);
+                    }
+                    else if (GUILayout.Button("Left", GUILayout.Width(w * 0.2f)))
+                    {
+                        SmoothHandles(true, false);
+                    }
+                    else if (GUILayout.Button("Right", GUILayout.Width(w * 0.2f)))
+                    {
+                        SmoothHandles(false, true);
+                    }
+                    EditorGUILayout.EndHorizontal();
+                    
+                    if (newPos != oldPos)
+                    {
                         var so2 = new SerializedObject(_currentConnection);
                         so2.Update();
-                        Undo.RecordObject(_currentConnection, "Flat Handles");
+                        Undo.RecordObject(_currentConnection, "Move Control Point");
+                        point.position = Snap(newPos);
+                        so2.ApplyModifiedProperties();
+                        _currentConnection.UpdateVisual(true);
+                    }
+                    else if (newLeft != oldLeft)
+                    {
+                        var so2 = new SerializedObject(_currentConnection);
+                        so2.Update();
+                        Undo.RecordObject(_currentConnection, "Move Left Handle");
                         point.leftHandle = newLeft - point.position;
+                        so2.ApplyModifiedProperties();
+                        _currentConnection.UpdateVisual(true);
+                    }
+                    else if (newRight != oldRight)
+                    {
+                        var so2 = new SerializedObject(_currentConnection);
+                        so2.Update();
+                        Undo.RecordObject(_currentConnection, "Move Right Handle");
                         point.rightHandle = newRight - point.position;
                         so2.ApplyModifiedProperties();
                         _currentConnection.UpdateVisual(true);
                     }
-                    else if (GUILayout.Button("Recalculate Handles"))
-                    {
-                        var points = _currentConnection.GetControlPoints();
-                        var prev = points[_currentControlPointIndex - 1];
-                        var next = points[_currentControlPointIndex + 1];
-                        var dirLeft = (prev.position - point.position).normalized;
-                        var dirRight = (next.position - point.position).normalized;
-         
-                        var so2 = new SerializedObject(_currentConnection);
-                        so2.Update();
-                        Undo.RecordObject(_currentConnection, "Rectangle Handles");
-                        point.leftHandle = dirLeft;
-                        point.rightHandle = dirRight;
-                        so2.ApplyModifiedProperties();
-                        _currentConnection.UpdateVisual(true);
-                    }
-                    else
-                    {
-                        if (newPos != oldPos)
-                        {
-                            var so2 = new SerializedObject(_currentConnection);
-                            so2.Update();
-                            Undo.RecordObject(_currentConnection, "Move Control Point");
-                            point.position = Snap(newPos);
-                            so2.ApplyModifiedProperties();
-                            _currentConnection.UpdateVisual(true);
-                        }
-                        else if (newLeft != oldLeft)
-                        {
-                            var so2 = new SerializedObject(_currentConnection);
-                            so2.Update();
-                            Undo.RecordObject(_currentConnection, "Move Left Handle");
-                            point.leftHandle = newLeft - point.position;
-                            so2.ApplyModifiedProperties();
-                            _currentConnection.UpdateVisual(true);
-                        }
-                        else if (newRight != oldRight)
-                        {
-                            var so2 = new SerializedObject(_currentConnection);
-                            so2.Update();
-                            Undo.RecordObject(_currentConnection, "Move Right Handle");
-                            point.rightHandle = newRight - point.position;
-                            so2.ApplyModifiedProperties();
-                            _currentConnection.UpdateVisual(true);
-                        }
-                    }
                     
                     EditorGUILayout.EndVertical();
-                    EditorGUILayout.HelpBox("Hold Shift to show move handles\nPress F to focus on the selected point\nPress backspace to delete the selected control point\nHold Ctrl to snap to grid", MessageType.Info);
+                    EditorGUILayout.HelpBox("Hold [Shift] to show move handles\nPress [F] to focus on the selected point\nPress [Backspace] to delete the selected point\nHold [Ctrl] to snap to grid\nPress [Left Arrow] to go to the previous point\nPress [Right Arrow] to go to the next point", MessageType.Info);
                 }
             }
             #endregion
@@ -227,7 +225,6 @@ namespace SolarBuff.Circuit.Tools
             #endregion
             EditorGUILayout.EndVertical();
         }
-
         
         void OnFocus()
         {
@@ -304,6 +301,19 @@ namespace SolarBuff.Circuit.Tools
 
             if (!_isOnCircuitMode)
                 return;
+
+            if (Selection.count == 1 && Selection.gameObjects[0].TryGetComponent<CircuitConnection>(out var cc))
+            {
+                if(_action == Action.Idle)
+                    _action = Action.EditingConnection;
+                _currentConnection = cc;
+            }
+            else if(_action != Action.CreatingConnection)
+            {
+                _currentConnection = null;
+                _currentControlPointIndex = -1;
+                _action = Action.Idle;
+            }
             
             CircuitPlug mouseOverPlug = null;
             
@@ -368,7 +378,6 @@ namespace SolarBuff.Circuit.Tools
                                 
                                 _action = Action.EditingConnection;
                                 _currentControlPointIndex = -1;
-                                _currentConnection = con;
                                 Event.current.Use();
                             }
                         }
@@ -515,18 +524,23 @@ namespace SolarBuff.Circuit.Tools
                                     if (Event.current.type == EventType.Repaint)
                                     {
                                         Handles.color = Color.red;
-                                        Handles.SphereHandleCap(0, controlPoints[i].position, Quaternion.identity, 0.15f, EventType.Repaint);
+                                        Handles.SphereHandleCap(0, controlPoints[i].position, Quaternion.identity, 0.25f, EventType.Repaint);
                                         Handles.color = Color.yellow;
                                     }
                                 }
                                 else if (Event.current.type == EventType.Repaint)
                                 {
-                                    if(_currentControlPointIndex == i)
-                                        Handles.color = Color.green;
-                                    else
-                                        Handles.color = Color.yellow;
 
-                                    Handles.SphereHandleCap(0, controlPoints[i].position, Quaternion.identity, 0.15f, EventType.Repaint);
+                                    if (_currentControlPointIndex == i)
+                                    {
+                                        Handles.color = Color.green;
+                                        Handles.SphereHandleCap(0, controlPoints[i].position, Quaternion.identity, 0.25f, EventType.Repaint);
+                                    }
+                                    else
+                                    {
+                                        Handles.color = Color.yellow;
+                                        Handles.SphereHandleCap(0, controlPoints[i].position, Quaternion.identity, 0.15f, EventType.Repaint);
+                                    }
                                 }
                             }
                         }
@@ -612,6 +626,21 @@ namespace SolarBuff.Circuit.Tools
                             SceneView.lastActiveSceneView.LookAt(pos);
                             Event.current.Use();
                         }
+                        
+                        //if pres sleft, go to previous
+                        if (Event.current.keyCode == KeyCode.LeftArrow)
+                        {
+                            _currentControlPointIndex = Mathf.Max(1, _currentControlPointIndex - 1);
+                            Event.current.Use();
+                        }
+                        
+                        
+                        //if press sright, go to next
+                        if (Event.current.keyCode == KeyCode.RightArrow)
+                        {
+                            _currentControlPointIndex = Mathf.Min(controlPoints.Length - 2, _currentControlPointIndex + 1);
+                            Event.current.Use();
+                        }
                     }
                     #endregion
                     
@@ -624,7 +653,6 @@ namespace SolarBuff.Circuit.Tools
                             UnityEditor.Tools.current = Tool.None;
                             _action = Action.EditingConnection;
                             _currentControlPointIndex = -1;
-                            _currentConnection = con;
                             Event.current.Use();
                         }
                         else
@@ -716,6 +744,76 @@ namespace SolarBuff.Circuit.Tools
             Undo.RegisterCreatedObjectUndo(go, "Create Connection");
             return con;
         }
+
+        private void HandlesPlain()
+        {
+            var point = _currentConnection.controlPoints[_currentControlPointIndex - 1];
+            
+            var oldLeft = point.leftHandle + point.position;
+            var oldRight = point.rightHandle + point.position;
+            
+            var points = _currentConnection.GetControlPoints();
+            var prev = points[_currentControlPointIndex - 1];
+            var next = points[_currentControlPointIndex + 1];
+            var dirLeft = (prev.position - point.position).normalized;
+            var dirRight = (next.position - point.position).normalized;
+                        
+            var plane = -Vector3.Cross(dirLeft, dirRight).normalized;
+
+            oldLeft = GetPointOnPlane(oldLeft, point.position, plane);
+            oldRight = GetPointOnPlane(oldRight, point.position, plane);
+                       
+            var so2 = new SerializedObject(_currentConnection);
+            so2.Update();
+            Undo.RecordObject(_currentConnection, "Flat Handles");
+            point.leftHandle = oldLeft - point.position;
+            point.rightHandle = oldRight - point.position;
+            so2.ApplyModifiedProperties();
+            _currentConnection.UpdateVisual(true);
+        }
+
+        private void SmoothHandles(bool left, bool right)
+        {
+            var point = _currentConnection.controlPoints[_currentControlPointIndex - 1];
+            
+            var points = _currentConnection.GetControlPoints();
+            var prev = points[_currentControlPointIndex - 1];
+            var next = points[_currentControlPointIndex + 1];
+            var dirLeft = (prev.position - point.position).normalized;
+            var dirRight = (next.position - point.position).normalized;
+
+            var so2 = new SerializedObject(_currentConnection);
+            so2.Update();
+            Undo.RecordObject(_currentConnection, "Smooth Handles");
+            if (left)
+                point.leftHandle = (dirLeft - dirRight / 2f).normalized;
+            if (right)
+                point.rightHandle = (dirRight - dirLeft / 2f).normalized;
+            so2.ApplyModifiedProperties();
+            _currentConnection.UpdateVisual(true);
+        }
+        
+        private void RecalculateHandles(bool left, bool right)
+        {
+            var point = _currentConnection.controlPoints[_currentControlPointIndex - 1];
+            
+            var points = _currentConnection.GetControlPoints();
+            var prev = points[_currentControlPointIndex - 1];
+            var next = points[_currentControlPointIndex + 1];
+            var dirLeft = (prev.position - point.position).normalized;
+            var dirRight = (next.position - point.position).normalized;
+         
+            var so2 = new SerializedObject(_currentConnection);
+            so2.Update();
+            Undo.RecordObject(_currentConnection, "Rectangle Handles");
+            if(left)
+                point.leftHandle = dirLeft;
+            if(right)
+                point.rightHandle = dirRight;
+            so2.ApplyModifiedProperties();
+            _currentConnection.UpdateVisual(true);
+        }
+
     }
 }
 #endif
