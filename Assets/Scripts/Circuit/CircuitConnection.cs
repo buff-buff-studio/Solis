@@ -28,20 +28,20 @@ namespace SolarBuff.Circuit
         private void OnEnable()
         {
             _renderer = GetComponent<CableRenderer>();
-            UpdateVisual();
+            UpdateVisual(true);
         }
         
         private void Update()
         {
             if(a.Owner != null && a.Owner.transform.hasChanged)
             {
-                UpdateVisual();
+                UpdateVisual(true);
                 return;
             }
             
             if(b.Owner != null && b.Owner.transform.hasChanged)
             {
-                UpdateVisual();
+                UpdateVisual(true);
                 return;
             }
         }
@@ -66,19 +66,21 @@ namespace SolarBuff.Circuit
         }
         #endregion
         
-        public void UpdateVisual()
+        public void UpdateVisual(bool reloadPoints)
         {
             if (a != null && b != null)
             {
                 a.Connection = this;
                 b.Connection = this;
-                transform.position = (a.transform.position + b.transform.position) / 2;
                 
-                
-                var points = GetControlPoints();
-                var data = new BezierCurveData(points);
-                _renderer.SetPositions(data.GeneratePoints().ToArray());
-                
+                if (reloadPoints)
+                {
+                    transform.position = (a.transform.position + b.transform.position) / 2;
+                    var points = GetControlPoints();
+                    var data = new BezierCurveData(points);
+                    _renderer.SetPositions(data.GeneratePoints().ToArray());
+                }
+
                 if(Application.isPlaying)
                     _renderer.material.color = Color.Lerp(Color.black, Color.red, a.ReadValue<float>());
             }
@@ -110,12 +112,12 @@ namespace SolarBuff.Circuit
         {
             if (a.type == CircuitPlug.Type.Input)
             {
-                UpdateVisual();
+                UpdateVisual(false);
                 a.Owner.Refresh();
             }
             else
             {
-                UpdateVisual();
+                UpdateVisual(false);
                 b.Owner.Refresh();
             }
         }
