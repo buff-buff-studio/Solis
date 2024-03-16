@@ -33,8 +33,9 @@ namespace SolarBuff.Circuit.Components
         {
             if (!HasAuthority)
                 return;
-            
-            var size = Physics.OverlapSphereNonAlloc(transform.position + new Vector3(0, 0.75f, 0), 0.4f, _results);
+
+            var t = transform;
+            var size = Physics.OverlapSphereNonAlloc(t.position + t.up * 0.75f, 0.4f, _results);
             isOn.Value = size > 0;
         }
         

@@ -38,6 +38,7 @@ namespace SolarBuff.Circuit
             {
                 if (_owner == null)
                     _owner = GetComponentInParent<CircuitComponent>();
+                    
                 return _owner;
             }
         }
@@ -50,7 +51,7 @@ namespace SolarBuff.Circuit
                 return connection.a == this ? connection.b.Owner : connection.a.Owner;
             }
         }
-        
+
         public CircuitPlug OtherPlug
         {
             get

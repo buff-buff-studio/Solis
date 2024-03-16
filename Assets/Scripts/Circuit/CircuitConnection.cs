@@ -1,76 +1,195 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using SolarBuff.Props;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace SolarBuff.Circuit
 {
+    [RequireComponent(typeof(CableRenderer))]
     [ExecuteInEditMode]
     public class CircuitConnection : MonoBehaviour
     {
-        public float currentDisplayValue = 0;
+        private static bool _isQuitting = false;
         
+        [Serializable]
+        public class ControlPoint
+        {
+            public Vector3 position;
+            public Vector3 leftHandle = new Vector3(-1f, 0f, 0f);
+            public Vector3 rightHandle = new Vector3(1f, 0f, 0f);
+        }
+
+        private CableRenderer _renderer;
+    
         public CircuitPlug a;
         public CircuitPlug b;
-
+        public List<ControlPoint> controlPoints = new();
+        
         private void OnEnable()
         {
-            if (a != null && b != null)
+            _renderer = GetComponent<CableRenderer>();
+            UpdateVisual(true);
+        }
+        
+        private void Update()
+        {
+            if(a.Owner != null && a.Owner.transform.hasChanged)
             {
-                a.Connection = this;
-                b.Connection = this;
+                UpdateVisual(true);
+                return;
             }
             
-            Refresh();
-        }
-
-        private void OnValidate()
-        {
-            if (a != null && b != null)
+            if(b.Owner != null && b.Owner.transform.hasChanged)
             {
-                transform.position = (a.transform.position + b.transform.position) / 2;
+                UpdateVisual(true);
+                return;
             }
         }
 
+        #region Path
+        public ControlPoint[] GetControlPoints()
+        {
+            var points = new ControlPoint[controlPoints.Count + 2];
+            points[0] = new ControlPoint {position = a.transform.position};
+            
+            for (var i = 0; i < controlPoints.Count; i++)
+                points[i + 1] = controlPoints[i];
+            
+            points[^1] = new ControlPoint {position = b.transform.position};
+            
+            //Set 0 right handle as dir from 0 to 1
+            points[0].rightHandle = (points[1].position - points[0].position).normalized;
+            //Set last left handle as dir from last to last - 1
+            points[^1].leftHandle = (points[^2].position - points[^1].position).normalized;
+            
+            return points;
+        }
+        #endregion
+        
+        public void UpdateVisual(bool reloadPoints)
+        {
+            if (a != null && b != null)
+            {   
+                if(a.Connection != null && a.Connection != this)
+                {
+                    DestroyImmediate(gameObject);
+                    return;
+                }
+
+                if(b.Connection != null && b.Connection != this)
+                {
+                    DestroyImmediate(gameObject);
+                    return;
+                }
+
+                a.Connection = this;
+                b.Connection = this;
+                
+                if (reloadPoints)
+                {
+                    transform.position = (a.transform.position + b.transform.position) / 2;
+                    var points = GetControlPoints();
+                    var data = new BezierCurveData(points);
+                    _renderer.SetPositions(data.GeneratePoints().ToArray());
+                }
+
+                if(Application.isPlaying)
+                    _renderer.material.color = Color.Lerp(Color.black, Color.red, a.ReadValue<float>());
+            }
+            else
+            {
+                DestroyImmediate(gameObject);
+            }
+        }
+        
+        
         private void OnDisable()
         {
+            if (_isQuitting)
+                return;
+            
             if (a != null)
             {
                 a.Connection = null;
-                a.Owner.Refresh();
+                if(a.Owner != null)
+                    a.Owner.Refresh();
             }
             
             if (b != null)
             {
                 b.Connection = null;
-                b.Owner.Refresh();
+                if(b.Owner != null)
+                    b.Owner.Refresh();
             }
         }
-
-        private void OnDrawGizmos()
+        
+        void OnApplicationQuit () 
         {
-            if (a != null && b != null)
-            {
-                Gizmos.color = Color.Lerp(Color.black, Color.red, currentDisplayValue);
-                Gizmos.DrawLine(a.transform.position, b.transform.position);
-            }
+            _isQuitting = true;
         }
-
+        
         public void Refresh()
         {
             if (a.type == CircuitPlug.Type.Input)
             {
-                UpdateDisplay(b.ReadValue<float>());
+                UpdateVisual(false);
                 a.Owner.Refresh();
             }
             else
             {
-                UpdateDisplay(a.ReadValue<float>());
+                UpdateVisual(false);
                 b.Owner.Refresh();
             }
         }
+    }
 
-        private void UpdateDisplay(float value)
+    public class BezierCurveData
+    {
+        public CircuitConnection.ControlPoint[] points;
+
+        public BezierCurveData(CircuitConnection.ControlPoint[] points)
         {
-            currentDisplayValue = value;
+            this.points = points;
+        }
+        
+        public IEnumerable<Vector3> GeneratePoints()
+        {
+            for (var i = 0; i < points.Length - 1; i++)
+            {
+                var p0 = points[i];
+                var p1 = points[i + 1];
+                
+                //Calculate resolution
+                var resolution = GetResolutionFor(p0, p1);
+                
+                for (var j = 0; j < resolution; j++)
+                {
+                    yield return BezierCurve(p0, p1, j / (float) resolution);
+                }
+                
+                if(i == points.Length - 2)
+                    yield return p1.position;
+            }
+        }
+
+        private static int GetResolutionFor(CircuitConnection.ControlPoint p0, CircuitConnection.ControlPoint p1)
+        {
+            //if both facing handlers are the same, we can use a lower resolution
+            if (p0.rightHandle == p1.leftHandle)
+                return 1;
+            
+            //One for each 0.25f
+            return Mathf.CeilToInt(Vector3.Distance(p0.position, p1.position) / 0.1f);
+        }
+        
+        private static Vector3 BezierCurve(CircuitConnection.ControlPoint p0, CircuitConnection.ControlPoint p1, float t)
+        {
+            return Mathf.Pow(1 - t, 3) * p0.position +
+                   3 * Mathf.Pow(1 - t, 2) * t * (p0.position + p0.rightHandle) +
+                   3 * (1 - t) * Mathf.Pow(t, 2) * (p1.position + p1.leftHandle) +
+                   Mathf.Pow(t, 3) * p1.position;
         }
     }
 }

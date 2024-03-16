@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using NetBuff.Components;
+using UnityEngine;
 
 namespace SolarBuff.Circuit
 {
     public abstract class CircuitComponent : NetworkBehaviour
     {
+        [HideInInspector, SerializeField]
         public List<CircuitPlug> plugs;
 
         protected virtual void OnEnable()
@@ -16,6 +18,16 @@ namespace SolarBuff.Circuit
         protected virtual void OnDisable()
         {
             
+        }
+
+        protected virtual void OnDestroy()
+        {
+            //Destroy all connections
+            foreach (var plug in GetPlugs())
+            {
+                if (plug.Connection == null) continue;
+                Destroy(plug.Connection.gameObject);
+            }
         }
         
         public virtual T ReadOutput<T>(CircuitPlug plug)
@@ -30,6 +42,9 @@ namespace SolarBuff.Circuit
 
         public void Refresh()
         {
+            if (!Application.isPlaying)
+                return;
+            
             OnRefresh();
             
             //Spread through output ports
@@ -72,6 +87,5 @@ namespace SolarBuff.Circuit
         {
             return plugs;
         }
-
     }
 }
