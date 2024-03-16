@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using NetBuff.Components;
+﻿using System.Linq;
 
-namespace SolarBuff.Circuit.Gates
+namespace SolarBuff.Circuit.Components.Gates
 {
     public class CircuitAndGate : CircuitComponent
     {
