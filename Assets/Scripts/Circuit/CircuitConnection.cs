@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using SolarBuff.Props;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace SolarBuff.Circuit
@@ -11,7 +10,7 @@ namespace SolarBuff.Circuit
     [ExecuteInEditMode]
     public class CircuitConnection : MonoBehaviour
     {
-        private static bool _isQuitting = false;
+        private static bool _isQuitting;
         
         [Serializable]
         public class ControlPoint
@@ -44,7 +43,6 @@ namespace SolarBuff.Circuit
             if(b.Owner != null && b.Owner.transform.hasChanged)
             {
                 UpdateVisual(true);
-                return;
             }
         }
 
