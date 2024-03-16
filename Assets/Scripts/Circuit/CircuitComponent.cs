@@ -87,6 +87,5 @@ namespace SolarBuff.Circuit
         {
             return plugs;
         }
-
     }
 }

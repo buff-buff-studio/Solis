@@ -302,7 +302,7 @@ namespace SolarBuff.Circuit.Tools
             if (!_isOnCircuitMode)
                 return;
 
-            if (Selection.count == 1 && Selection.gameObjects[0].TryGetComponent<CircuitConnection>(out var cc))
+            if (Selection.gameObjects.Length == 1 && Selection.gameObjects[0].TryGetComponent<CircuitConnection>(out var cc))
             {
                 if(_action == Action.Idle)
                     _action = Action.EditingConnection;
