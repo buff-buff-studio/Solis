@@ -51,7 +51,7 @@ namespace SolarBuff.Circuit
                 return connection.a == this ? connection.b.Owner : connection.a.Owner;
             }
         }
-        
+
         public CircuitPlug OtherPlug
         {
             get

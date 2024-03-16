@@ -11,6 +11,8 @@ namespace SolarBuff.Circuit
     [ExecuteInEditMode]
     public class CircuitConnection : MonoBehaviour
     {
+        private static bool _isQuitting = false;
+        
         [Serializable]
         public class ControlPoint
         {
@@ -69,7 +71,19 @@ namespace SolarBuff.Circuit
         public void UpdateVisual(bool reloadPoints)
         {
             if (a != null && b != null)
-            {
+            {   
+                if(a.Connection != null && a.Connection != this)
+                {
+                    DestroyImmediate(gameObject);
+                    return;
+                }
+
+                if(b.Connection != null && b.Connection != this)
+                {
+                    DestroyImmediate(gameObject);
+                    return;
+                }
+
                 a.Connection = this;
                 b.Connection = this;
                 
@@ -93,6 +107,9 @@ namespace SolarBuff.Circuit
         
         private void OnDisable()
         {
+            if (_isQuitting)
+                return;
+            
             if (a != null)
             {
                 a.Connection = null;
@@ -106,6 +123,11 @@ namespace SolarBuff.Circuit
                 if(b.Owner != null)
                     b.Owner.Refresh();
             }
+        }
+        
+        void OnApplicationQuit () 
+        {
+            _isQuitting = true;
         }
         
         public void Refresh()

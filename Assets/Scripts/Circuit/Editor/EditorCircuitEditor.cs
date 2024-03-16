@@ -5,7 +5,7 @@ using UnityEngine;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
-namespace SolarBuff.Circuit.Tools
+namespace SolarBuff.Circuit.Editor
 {
     public class EditorCircuitEditor : EditorWindow
     {
@@ -245,8 +245,6 @@ namespace SolarBuff.Circuit.Tools
             _isOnCircuitMode = false;
         }
 
-        private bool reloadDrag = false;
-        
         void OnSceneGUI(SceneView sceneView)
         {
             if (Event.current.type == EventType.DragPerform)
@@ -489,7 +487,7 @@ namespace SolarBuff.Circuit.Tools
 
                     #region Current Cable Editing
                     
-                    var mousePos = RaycastPosition();
+                    var mousePos = RaycastPosition(true);
 
                     var closestPosition = Vector3.zero;
                     var closestSegment = 0;
@@ -671,7 +669,7 @@ namespace SolarBuff.Circuit.Tools
                             var so = new SerializedObject(_currentConnection);
                             so.Update();
                             Undo.RecordObject(_currentConnection, "Move Control Point");
-                            _currentConnection.controlPoints[_currentControlPointIndex - 1].position = Snap(RaycastPosition());
+                            _currentConnection.controlPoints[_currentControlPointIndex - 1].position = Snap(RaycastPosition(false));
                             _currentConnection.UpdateVisual(true);
                             Event.current.Use();
                         }
@@ -708,11 +706,17 @@ namespace SolarBuff.Circuit.Tools
         }
         
 
-        private Vector3 RaycastPosition()
+        private Vector3 RaycastPosition(bool useVertex)
         {
+            if (useVertex && HandleUtility.FindNearestVertex(Event.current.mousePosition, out var pos))
+                return pos;
+
             var ray = HandleUtility.GUIPointToWorldRay(Event.current.mousePosition);
             if (Physics.Raycast(ray, out var hit))
+            {
                 return hit.point;
+            }
+            
             return ray.origin + ray.direction * 10;
         }
 
