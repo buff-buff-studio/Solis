@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor;
 using UnityEngine;
 
 namespace SolarBuff.Circuit
@@ -42,7 +41,7 @@ namespace SolarBuff.Circuit
             _renderer = GetComponent<LineRenderer>();
      
 #if UNITY_EDITOR
-            _renderer.material = AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Cable.mat");
+            _renderer.material = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Cable.mat");
             _renderer.widthCurve = new AnimationCurve(new Keyframe(0, 0.25f), new Keyframe(1, 0.25f));
 #endif
             

@@ -8,7 +8,7 @@ namespace SolarBuff.i18n
 {
     public class LanguageManager : SingletonBehaviour<LanguageManager>
     {
-        private Dictionary<int, string[]> _cache = null;
+        private Dictionary<int, string[]> _cache;
     
         [SerializeField]
         private string currentLanguage = "EnUs";

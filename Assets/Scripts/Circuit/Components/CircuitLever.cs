@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using ExamplePlatformer;
+﻿using ExamplePlatformer;
 using NetBuff.Misc;
 using UnityEngine;
 

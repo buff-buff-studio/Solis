@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using NetBuff;
 using NetBuff.UDP;
@@ -21,7 +20,7 @@ namespace SolarBuff.Interface.Menu
             UpdateList();
         }
 
-        public async void UpdateList()
+        public void UpdateList()
         {
             foreach (Transform child in viewport)
                 Destroy(child.gameObject);

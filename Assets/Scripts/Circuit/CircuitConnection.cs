@@ -1,7 +1,4 @@
-﻿using NetBuff.Components;
-using UnityEngine;
-
-namespace SolarBuff.Circuit
+﻿namespace SolarBuff.Circuit
 {
     public interface ICircuitConnection
     {

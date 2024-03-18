@@ -1,6 +1,4 @@
-using System;
 using ExamplePlatformer;
-using NetBuff;
 using NetBuff.Misc;
 using TMPro;
 using UnityEngine;

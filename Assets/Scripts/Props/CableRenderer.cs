@@ -32,7 +32,7 @@ namespace SolarBuff.Props
 
 		private MeshRenderer _meshRenderer;
 
-		public Material material
+		public Material Material
 		{
 			get => MeshRenderer.material;
 			set => MeshRenderer.material = value;
@@ -81,9 +81,9 @@ namespace SolarBuff.Props
 			sides = Mathf.Max(3, sides);
 		}
 
-		public void SetPositions(Vector3[] positions)
+		public void SetPositions(Vector3[] p)
 		{
-			this.positions = positions;
+			positions = p;
 			GenerateMesh();
 		}
 
@@ -211,10 +211,9 @@ namespace SolarBuff.Props
 			var angle = 0f;
 			var angleStep = (2*Mathf.PI)/sides;
 
-			var t = index / (positions.Length-1f);
 			var radius = radiusOne;
 
-			for (int i = 0; i < sides; i++)
+			for (var i = 0; i < sides; i++)
 			{
 				var x = Mathf.Cos(angle);
 				var y = Mathf.Sin(angle);

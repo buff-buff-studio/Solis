@@ -1,9 +1,7 @@
-﻿using System;
-using NetBuff.Components;
+﻿using NetBuff.Components;
 using NetBuff.Misc;
 using SolarBuff.Data;
 using TMPro;
-using UnityEngine;
 
 namespace SolarBuff
 {
@@ -19,7 +17,7 @@ namespace SolarBuff
             
             WithValues(counter);
             label.text = counter.Value.ToString();
-            counter.OnValueChanged += (o, i) => label.text = i.ToString();
+            counter.OnValueChanged += (_, i) => label.text = i.ToString();
         }
         
         public void Increase()

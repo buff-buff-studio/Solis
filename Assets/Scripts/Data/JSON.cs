@@ -402,6 +402,7 @@ namespace SolarBuff.Data
             throw new Exception($"Invalid JSON at {i}");
         }
         
+        // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
         private static JsonValue ParseNull(string json, ref int i)
         {
             if (i + 4 >= json.Length || json.Substring(i, 4) != "null")
@@ -462,12 +463,12 @@ namespace SolarBuff.Data
         
         public static bool operator ==(JsonNumber a, JsonNumber b)
         {
-            return a.value == b.value;
+            return Math.Abs(a!.value - b!.value) < 0.000001;
         }
         
         public static bool operator !=(JsonNumber a, JsonNumber b)
         {
-            return a.value != b.value;
+            return Math.Abs(a!.value - b!.value) > 0.000001;
         }
         
         public override bool Equals(object obj)
@@ -477,6 +478,7 @@ namespace SolarBuff.Data
         
         public override int GetHashCode()
         {
+            // ReSharper disable once NonReadonlyMemberInGetHashCode
             return value.GetHashCode();
         }
     }
@@ -495,12 +497,12 @@ namespace SolarBuff.Data
         
         public static bool operator ==(JsonBool a, JsonBool b)
         {
-            return a.value == b.value;
+            return a!.value == b!.value;
         }
         
         public static bool operator !=(JsonBool a, JsonBool b)
         {
-            return a.value != b.value;
+            return a!.value != b!.value;
         }
         
         public override bool Equals(object obj)
@@ -510,6 +512,7 @@ namespace SolarBuff.Data
         
         public override int GetHashCode()
         {
+            // ReSharper disable once NonReadonlyMemberInGetHashCode
             return value.GetHashCode();
         }
     }
@@ -533,12 +536,12 @@ namespace SolarBuff.Data
         
         public static bool operator ==(JsonString a, JsonString b)
         {
-            return a.value == b.value;
+            return a!.value == b!.value;
         }
         
         public static bool operator !=(JsonString a, JsonString b)
         {
-            return a.value != b.value;
+            return a!.value != b!.value;
         }
         
         public override bool Equals(object obj)
@@ -548,6 +551,7 @@ namespace SolarBuff.Data
         
         public override int GetHashCode()
         {
+            // ReSharper disable once NonReadonlyMemberInGetHashCode
             return value.GetHashCode();
         }
     }

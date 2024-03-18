@@ -1,8 +1,5 @@
-﻿using System;
-using NetBuff;
-using SolarBuff.Data;
+﻿using NetBuff;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace Game.Menu
 {

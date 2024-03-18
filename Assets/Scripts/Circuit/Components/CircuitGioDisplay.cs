@@ -1,6 +1,4 @@
-using System.Collections.Generic;
 using TMPro;
-using UnityEngine;
 
 namespace SolarBuff.Circuit.Components
 {
