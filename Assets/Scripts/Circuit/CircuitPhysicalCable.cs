@@ -2,13 +2,19 @@
 using System.Collections.Generic;
 using ExamplePlatformer;
 using NetBuff.Components;
+using SolarBuff.Circuit.Components;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace SolarBuff.Circuit
 {
     [RequireComponent(typeof(LineRenderer))]
-    public class CircuitPhysicalCable : NetworkBehaviour
+    [ExecuteInEditMode]
+    public class CircuitPhysicalCable : NetworkBehaviour, ICircuitConnection
     {
+        private static bool _isQuitting;
+        private static readonly Collider[] _Results = new Collider[10];
+        
         [Serializable]
         public struct Node
         {
@@ -31,12 +37,14 @@ namespace SolarBuff.Circuit
         
         public Node Head => nodes[^1];
         public Node Tail => nodes[0];
-
+        
         public Rigidbody Helder
         {
             get => helder;
             set
             {
+                OnDisable();
+                
                 helder = value;
                 if (helder != null)
                 {
@@ -50,6 +58,8 @@ namespace SolarBuff.Circuit
                         Destroy(helderJoint);
                     helderJoint = null;
                 }
+
+                Refresh();
             }
         }
 
@@ -60,16 +70,74 @@ namespace SolarBuff.Circuit
         
         public void OnEnable()
         {
+            if (Application.isPlaying)
+                _renderer = GetComponent<LineRenderer>();
+            
+            Refresh();
+            
+            if (!Application.isPlaying)
+                return;
             GetPacketListener<PlayerPunchActionPacket>().OnServerReceive += OnPlayerPunch;
             InvokeRepeating(nameof(TickCable), 0, 0.05f);
-            _renderer = GetComponent<LineRenderer>();
+        }
+
+        protected virtual void OnDisable()
+        {
+            if(_isQuitting)
+                return;
+            
+            if(PlugA != null)
+            {
+                PlugA.Connection = null;
+                if(PlugA.Owner != null)
+                    PlugA.Owner.Refresh();
+            }
+            
+            if(PlugB != null)
+            {
+                PlugB.Connection = null;
+                if(PlugB.Owner != null)
+                    PlugB.Owner.Refresh();
+            }
+        }
+        
+        protected virtual void OnApplicationQuit () 
+        {
+            _isQuitting = true;
         }
 
         private void OnPlayerPunch(PlayerPunchActionPacket packet, int client)
         {
             var puncher = GetNetworkObject(packet.Id).gameObject.GetComponentInChildren<Rigidbody>();
 
-            Helder = puncher == Helder ? null : puncher;
+            if (Helder == puncher)
+            {
+                Helder = null;
+                
+                //Sphere cast to find all sockets in a radius of 2 to player
+                var size = Physics.OverlapSphereNonAlloc(puncher.transform.position, 1, _Results);
+                for (var i = 0; i < size; i++)
+                {
+                    var hit = _Results[i];
+                    var socket = hit.GetComponent<CircuitSocket>();
+                   
+                    if (socket != null && socket.socket.Connection == null && PlugA != socket.socket)
+                    {
+                        if(socket.socket.type == PlugA.type)
+                            continue;
+                        Helder = socket.socket.GetComponentInParent<Rigidbody>();
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                //check radius
+                if (Vector3.Distance(puncher.transform.position, Head.gameObject.transform.position) > 2f)
+                    return;
+                
+                Helder = puncher;
+            }
         }
 
         public void TickCable()
@@ -142,8 +210,9 @@ namespace SolarBuff.Circuit
         }
 
         private void FixedUpdate()
-        {
-            UpdateVisual();
+        { 
+            if(Application.isPlaying)
+                UpdateVisual();
         }
 
         public void UpdateVisual()
@@ -196,6 +265,58 @@ namespace SolarBuff.Circuit
             if (index != nodes.Count - 1) return;
             if (helderJoint == null) return;
             helderJoint.connectedBody = node.rigidbody;
+        }
+
+        public bool Refresh()
+        {
+            if (_RefreshInternal())
+            {
+                if (PlugA.type == CircuitPlug.Type.Input)
+                {
+                    PlugB.Owner.Refresh();
+                }
+                else
+                {
+                    PlugB.Owner.Refresh();
+                }
+                
+                if(_renderer != null)
+                    _renderer.material.color = Color.Lerp(Color.black, Color.red, PlugA.ReadValue<float>());
+                return true;
+            }
+            
+            if(_renderer != null)
+                _renderer.material.color = Color.black;
+            return false;
+        }
+
+        public CircuitPlug PlugA
+        {
+            get => transform.GetComponentInParent<CircuitPlug>();
+        }
+        
+        public CircuitPlug PlugB
+        {
+            get => helder == null ? null : helder.GetComponent<CircuitPlug>();
+        }
+        
+        private bool _RefreshInternal()
+        {
+            if (PlugA != null && PlugB != null)
+            {
+                PlugA.Connection = this;
+                PlugB.Connection = this;
+
+                return true;
+            }
+            
+            if (PlugA != null && PlugA.Connection as CircuitPhysicalCable == this)
+                PlugA.Connection = null;
+            
+            if (PlugB != null && PlugB.Connection as CircuitPhysicalCable == this)
+                PlugB.Connection = null;
+            
+            return false;
         }
     }
 }

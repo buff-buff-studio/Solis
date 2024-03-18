@@ -1,6 +1,4 @@
-﻿using System;
-using Unity.VisualScripting;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace SolarBuff.Circuit
 {
@@ -23,12 +21,12 @@ namespace SolarBuff.Circuit
         }
 
         public Type type = Type.Output;
-        [SerializeField, HideInInspector]
-        private CircuitConnection connection;
-        public CircuitConnection Connection
+        [SerializeField]
+        private MonoBehaviour connection;
+        public ICircuitConnection Connection
         {
-            get => connection;
-            set => connection = value;
+            get => connection as ICircuitConnection;
+            set => connection = value as MonoBehaviour;
         }
 
         private CircuitComponent _owner;
@@ -47,8 +45,8 @@ namespace SolarBuff.Circuit
         {
             get
             {
-                if (connection == null) return null;
-                return connection.a == this ? connection.b.Owner : connection.a.Owner;
+                if (Connection == null) return null;
+                return Connection.PlugA == this ? Connection.PlugB.Owner : Connection.PlugA.Owner;
             }
         }
 
@@ -56,8 +54,8 @@ namespace SolarBuff.Circuit
         {
             get
             {
-                if (connection == null) return null;
-                return connection.a == this ? connection.b : connection.a;
+                if (Connection == null) return null;
+                return Connection.PlugA == this ? Connection.PlugB : Connection.PlugA;
             }
         }
         

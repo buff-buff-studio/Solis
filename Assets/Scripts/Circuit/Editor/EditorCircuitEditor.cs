@@ -24,7 +24,7 @@ namespace SolarBuff.Circuit.Editor
         private static bool _isOnCircuitMode = true;
         private static Action _action = Action.Idle;
         private CircuitPlug _currentPlug;
-        private CircuitConnection _currentConnection;
+        private CircuitStaticCable _currentStaticCable;
         private int _currentControlPointIndex = -1;
         private GameObject _mouseOverObject;
         private Vector2 _scrollPos;
@@ -63,11 +63,11 @@ namespace SolarBuff.Circuit.Editor
                 //Button to smooth path
                 if (GUILayout.Button("Straighten Path"))
                 {
-                    var so2 = new SerializedObject(_currentConnection);
+                    var so2 = new SerializedObject(_currentStaticCable);
                     so2.Update();
-                    Undo.RecordObject(_currentConnection, "Straighten Path");
+                    Undo.RecordObject(_currentStaticCable, "Straighten Path");
                     
-                    var points = _currentConnection.GetControlPoints();
+                    var points = _currentStaticCable.GetControlPoints();
 
                     for (var i = 1; i < points.Length - 1; i++)
                     {
@@ -83,20 +83,20 @@ namespace SolarBuff.Circuit.Editor
                     }
                     
                     so2.ApplyModifiedProperties();
-                    _currentConnection.UpdateVisual(true);
+                    _currentStaticCable.RefreshVisual(true);
                 }
                 
                 //Create info box showing the controls
                 EditorGUILayout.EndVertical();
 
-                if (_currentControlPointIndex > 0 && _currentConnection != null && _currentConnection.controlPoints.Count > 0)
+                if (_currentControlPointIndex > 0 && _currentStaticCable != null && _currentStaticCable.controlPoints.Count > 0)
                 {
                     EditorGUILayout.Space();
                     EditorGUILayout.BeginVertical(EditorStyles.helpBox);
                     EditorGUILayout.LabelField("Control Point", EditorStyles.boldLabel);
 
                     #region Fields
-                    var point = _currentConnection.controlPoints[_currentControlPointIndex - 1];
+                    var point = _currentStaticCable.controlPoints[_currentControlPointIndex - 1];
                     var oldPos = point.position;
                     var oldLeft = point.leftHandle + point.position;
                     var oldRight = point.rightHandle + point.position;
@@ -143,30 +143,30 @@ namespace SolarBuff.Circuit.Editor
                     
                     if (newPos != oldPos)
                     {
-                        var so2 = new SerializedObject(_currentConnection);
+                        var so2 = new SerializedObject(_currentStaticCable);
                         so2.Update();
-                        Undo.RecordObject(_currentConnection, "Move Control Point");
+                        Undo.RecordObject(_currentStaticCable, "Move Control Point");
                         point.position = Snap(newPos);
                         so2.ApplyModifiedProperties();
-                        _currentConnection.UpdateVisual(true);
+                        _currentStaticCable.RefreshVisual(true);
                     }
                     else if (newLeft != oldLeft)
                     {
-                        var so2 = new SerializedObject(_currentConnection);
+                        var so2 = new SerializedObject(_currentStaticCable);
                         so2.Update();
-                        Undo.RecordObject(_currentConnection, "Move Left Handle");
+                        Undo.RecordObject(_currentStaticCable, "Move Left Handle");
                         point.leftHandle = newLeft - point.position;
                         so2.ApplyModifiedProperties();
-                        _currentConnection.UpdateVisual(true);
+                        _currentStaticCable.RefreshVisual(true);
                     }
                     else if (newRight != oldRight)
                     {
-                        var so2 = new SerializedObject(_currentConnection);
+                        var so2 = new SerializedObject(_currentStaticCable);
                         so2.Update();
-                        Undo.RecordObject(_currentConnection, "Move Right Handle");
+                        Undo.RecordObject(_currentStaticCable, "Move Right Handle");
                         point.rightHandle = newRight - point.position;
                         so2.ApplyModifiedProperties();
-                        _currentConnection.UpdateVisual(true);
+                        _currentStaticCable.RefreshVisual(true);
                     }
                     
                     EditorGUILayout.EndVertical();
@@ -300,15 +300,15 @@ namespace SolarBuff.Circuit.Editor
             if (!_isOnCircuitMode)
                 return;
 
-            if (Selection.gameObjects.Length == 1 && Selection.gameObjects[0].TryGetComponent<CircuitConnection>(out var cc))
+            if (Selection.gameObjects.Length == 1 && Selection.gameObjects[0].TryGetComponent<CircuitStaticCable>(out var cc))
             {
                 if(_action == Action.Idle)
                     _action = Action.EditingConnection;
-                _currentConnection = cc;
+                _currentStaticCable = cc;
             }
             else if(_action != Action.CreatingConnection)
             {
-                _currentConnection = null;
+                _currentStaticCable = null;
                 _currentControlPointIndex = -1;
                 _action = Action.Idle;
             }
@@ -340,7 +340,7 @@ namespace SolarBuff.Circuit.Editor
             switch (_action)
             {
                 case Action.Idle:
-                    if (_mouseOverObject != null && _mouseOverObject.TryGetComponent<CircuitConnection>(out var con2))
+                    if (_mouseOverObject != null && _mouseOverObject.TryGetComponent<CircuitStaticCable>(out var con2))
                     {
                         var cps = con2.GetControlPoints();
                         for(var i = 1; i < cps.Length; i++)
@@ -359,17 +359,24 @@ namespace SolarBuff.Circuit.Editor
                         {
                             _currentPlug = mouseOverPlug;
 
-                            if (_currentPlug.Connection != null)
+                            try
                             {
-                                Undo.DestroyObjectImmediate(_currentPlug.Connection.gameObject);
+                                if (_currentPlug.Connection != null)
+                                {
+                                    Undo.DestroyObjectImmediate((_currentPlug.Connection as MonoBehaviour)!.gameObject);
+                                }
                             }
-                            
+                            catch
+                            {
+                                // ignored
+                            }
+
                             _action = Action.CreatingConnection;
                             Event.current.Use();
                         }
                         else
                         {
-                            if (_mouseOverObject != null && _mouseOverObject.TryGetComponent<CircuitConnection>(out var con))
+                            if (_mouseOverObject != null && _mouseOverObject.TryGetComponent<CircuitStaticCable>(out var con))
                             {
                                 Selection.activeGameObject = _mouseOverObject;
                                 UnityEditor.Tools.current = Tool.None;
@@ -418,14 +425,14 @@ namespace SolarBuff.Circuit.Editor
                     break;
             
                 case Action.EditingConnection:
-                    if (_currentConnection == null)
+                    if (_currentStaticCable == null)
                     {
                         _action = Action.Idle;
                         break;
                     }
                     
                     #region Current Connection Handles
-                    var controlPoints = _currentConnection.GetControlPoints();
+                    var controlPoints = _currentStaticCable.GetControlPoints();
                     
                     if (_currentControlPointIndex <= 0)
                         _currentControlPointIndex = -1;
@@ -448,19 +455,21 @@ namespace SolarBuff.Circuit.Editor
                         
                         if (newLeftHandlePosition != leftHandlePos)
                         {
-                            var so = new SerializedObject(_currentConnection);
+                            var so = new SerializedObject(_currentStaticCable);
                             so.Update();
-                            Undo.RecordObject(_currentConnection, "Move Left Handle");
+                            Undo.RecordObject(_currentStaticCable, "Move Left Handle");
                             
                             point.leftHandle = newLeftHandlePosition - point.position;
+                            _currentStaticCable.RefreshVisual(true);
                         }
                         else if (newRightHandlePosition != rightHandlePos)
                         {
-                            var so = new SerializedObject(_currentConnection);
+                            var so = new SerializedObject(_currentStaticCable);
                             so.Update();
-                            Undo.RecordObject(_currentConnection, "Move Right Handle");
+                            Undo.RecordObject(_currentStaticCable, "Move Right Handle");
                             
                             point.rightHandle = newRightHandlePosition - point.position;
+                            _currentStaticCable.RefreshVisual(true);
                         }
                         
                         if (HandleUtility.DistanceToCircle(leftHandlePos, 0.15f) < 0.25f || HandleUtility.DistanceToCircle(rightHandlePos, 0.15f) < 0.25f)
@@ -471,7 +480,7 @@ namespace SolarBuff.Circuit.Editor
                     #endregion
 
                     #region Show If Hovering Other Cable
-                    if (!onHandle && _mouseOverObject != null && _mouseOverObject.TryGetComponent<CircuitConnection>(out var con3))
+                    if (!onHandle && _mouseOverObject != null && _mouseOverObject.TryGetComponent<CircuitStaticCable>(out var con3))
                     {
                         var cps = con3.GetControlPoints();
                         for(var i = 1; i < cps.Length; i++)
@@ -549,10 +558,10 @@ namespace SolarBuff.Circuit.Editor
                             var pos = Handles.PositionHandle(controlPoints[i].position, Quaternion.identity);
                             if (pos != controlPoints[i].position)
                             {
-                                var so = new SerializedObject(_currentConnection);
+                                var so = new SerializedObject(_currentStaticCable);
                                 so.Update();
-                                Undo.RecordObject(_currentConnection, "Move Control Point");
-                                _currentConnection.controlPoints[i - 1].position = Snap(pos);
+                                Undo.RecordObject(_currentStaticCable, "Move Control Point");
+                                _currentStaticCable.controlPoints[i - 1].position = Snap(pos);
                             }
                         }
                     }
@@ -572,18 +581,18 @@ namespace SolarBuff.Circuit.Editor
                                 if (Event.current.type == EventType.MouseDown && Event.current.button == 0)
                                 {
                                     //add undo
-                                    var so = new SerializedObject(_currentConnection);
+                                    var so = new SerializedObject(_currentStaticCable);
                                     so.Update();
-                                    Undo.RecordObject(_currentConnection, "Add Control Point");
+                                    Undo.RecordObject(_currentStaticCable, "Add Control Point");
                                     
                                     var dir = controlPoints[closestSegment].position - controlPoints[closestSegment + 1].position;
                                 
-                                    var point = new CircuitConnection.ControlPoint { position = closestPosition, leftHandle = dir.normalized, rightHandle = -dir.normalized };
-                                    _currentConnection.controlPoints.Insert(closestSegment, point);
+                                    var point = new CircuitStaticCable.ControlPoint { position = closestPosition, leftHandle = dir.normalized, rightHandle = -dir.normalized };
+                                    _currentStaticCable.controlPoints.Insert(closestSegment, point);
                                     _action = Action.MovingControlPoint;
                                     _currentControlPointIndex = closestSegment + 1;
                                     so.ApplyModifiedProperties();
-                                    _currentConnection.UpdateVisual(true);
+                                    _currentStaticCable.RefreshVisual(true);
                                     Event.current.Use();
                                 }
                             }
@@ -608,14 +617,14 @@ namespace SolarBuff.Circuit.Editor
                     {
                         if (Event.current.keyCode == KeyCode.Backspace)
                         {
-                            var so = new SerializedObject(_currentConnection);
+                            var so = new SerializedObject(_currentStaticCable);
                             so.Update();
-                            Undo.RecordObject(_currentConnection, "Delete Control Point");
-                            _currentConnection.controlPoints.RemoveAt(_currentControlPointIndex - 1);
+                            Undo.RecordObject(_currentStaticCable, "Delete Control Point");
+                            _currentStaticCable.controlPoints.RemoveAt(_currentControlPointIndex - 1);
                             _currentControlPointIndex--;
                             so.ApplyModifiedProperties();
                             Event.current.Use();
-                            _currentConnection.UpdateVisual(true);
+                            _currentStaticCable.RefreshVisual(true);
                         }
                         //if press f, focus onto it
                         if (Event.current.keyCode == KeyCode.F)
@@ -643,9 +652,9 @@ namespace SolarBuff.Circuit.Editor
                     #endregion
                     
                     #region Change Selected
-                    if (!onHandle && Event.current.type == EventType.MouseDown && Event.current.button == 0 && _mouseOverObject != _currentConnection.gameObject)
+                    if (!onHandle && Event.current.type == EventType.MouseDown && Event.current.button == 0 && _mouseOverObject != _currentStaticCable.gameObject)
                     {
-                        if (_mouseOverObject != null && _mouseOverObject.TryGetComponent<CircuitConnection>(out var con))
+                        if (_mouseOverObject != null && _mouseOverObject.TryGetComponent<CircuitStaticCable>(out var con))
                         {
                             Selection.activeGameObject = _mouseOverObject;
                             UnityEditor.Tools.current = Tool.None;
@@ -660,17 +669,17 @@ namespace SolarBuff.Circuit.Editor
                     break;
 
                 case Action.MovingControlPoint:
-                    if (_currentConnection == null)
+                    if (_currentStaticCable == null)
                         _action = Action.Idle;
                     else
                     {
                         if (Event.current.type == EventType.MouseDrag && Event.current.button == 0)
                         {
-                            var so = new SerializedObject(_currentConnection);
+                            var so = new SerializedObject(_currentStaticCable);
                             so.Update();
-                            Undo.RecordObject(_currentConnection, "Move Control Point");
-                            _currentConnection.controlPoints[_currentControlPointIndex - 1].position = Snap(RaycastPosition(false));
-                            _currentConnection.UpdateVisual(true);
+                            Undo.RecordObject(_currentStaticCable, "Move Control Point");
+                            _currentStaticCable.controlPoints[_currentControlPointIndex - 1].position = Snap(RaycastPosition(false));
+                            _currentStaticCable.RefreshVisual(true);
                             Event.current.Use();
                         }
                         else if (Event.current.type == EventType.MouseUp)
@@ -735,13 +744,13 @@ namespace SolarBuff.Circuit.Editor
         }
 
 
-        public CircuitConnection CreateConnection(CircuitPlug a, CircuitPlug b)
+        public CircuitStaticCable CreateConnection(CircuitPlug a, CircuitPlug b)
         {
             var go = new GameObject("Connection");
             go.SetActive(false);
-            var con = go.AddComponent<CircuitConnection>();
-            con.a = a;
-            con.b = b;
+            var con = go.AddComponent<CircuitStaticCable>();
+            con.plugA = a;
+            con.plugB = b;
             go.transform.parent = a.transform;
             go.SetActive(true);
             Undo.RegisterCreatedObjectUndo(go, "Create Connection");
@@ -750,12 +759,12 @@ namespace SolarBuff.Circuit.Editor
 
         private void HandlesPlain()
         {
-            var point = _currentConnection.controlPoints[_currentControlPointIndex - 1];
+            var point = _currentStaticCable.controlPoints[_currentControlPointIndex - 1];
             
             var oldLeft = point.leftHandle + point.position;
             var oldRight = point.rightHandle + point.position;
             
-            var points = _currentConnection.GetControlPoints();
+            var points = _currentStaticCable.GetControlPoints();
             var prev = points[_currentControlPointIndex - 1];
             var next = points[_currentControlPointIndex + 1];
             var dirLeft = (prev.position - point.position).normalized;
@@ -766,55 +775,55 @@ namespace SolarBuff.Circuit.Editor
             oldLeft = GetPointOnPlane(oldLeft, point.position, plane);
             oldRight = GetPointOnPlane(oldRight, point.position, plane);
                        
-            var so2 = new SerializedObject(_currentConnection);
+            var so2 = new SerializedObject(_currentStaticCable);
             so2.Update();
-            Undo.RecordObject(_currentConnection, "Flat Handles");
+            Undo.RecordObject(_currentStaticCable, "Flat Handles");
             point.leftHandle = oldLeft - point.position;
             point.rightHandle = oldRight - point.position;
             so2.ApplyModifiedProperties();
-            _currentConnection.UpdateVisual(true);
+            _currentStaticCable.RefreshVisual(true);
         }
 
         private void SmoothHandles(bool left, bool right)
         {
-            var point = _currentConnection.controlPoints[_currentControlPointIndex - 1];
+            var point = _currentStaticCable.controlPoints[_currentControlPointIndex - 1];
             
-            var points = _currentConnection.GetControlPoints();
+            var points = _currentStaticCable.GetControlPoints();
             var prev = points[_currentControlPointIndex - 1];
             var next = points[_currentControlPointIndex + 1];
             var dirLeft = (prev.position - point.position).normalized;
             var dirRight = (next.position - point.position).normalized;
 
-            var so2 = new SerializedObject(_currentConnection);
+            var so2 = new SerializedObject(_currentStaticCable);
             so2.Update();
-            Undo.RecordObject(_currentConnection, "Smooth Handles");
+            Undo.RecordObject(_currentStaticCable, "Smooth Handles");
             if (left)
                 point.leftHandle = (dirLeft - dirRight / 2f).normalized;
             if (right)
                 point.rightHandle = (dirRight - dirLeft / 2f).normalized;
             so2.ApplyModifiedProperties();
-            _currentConnection.UpdateVisual(true);
+            _currentStaticCable.RefreshVisual(true);
         }
         
         private void RecalculateHandles(bool left, bool right)
         {
-            var point = _currentConnection.controlPoints[_currentControlPointIndex - 1];
+            var point = _currentStaticCable.controlPoints[_currentControlPointIndex - 1];
             
-            var points = _currentConnection.GetControlPoints();
+            var points = _currentStaticCable.GetControlPoints();
             var prev = points[_currentControlPointIndex - 1];
             var next = points[_currentControlPointIndex + 1];
             var dirLeft = (prev.position - point.position).normalized;
             var dirRight = (next.position - point.position).normalized;
          
-            var so2 = new SerializedObject(_currentConnection);
+            var so2 = new SerializedObject(_currentStaticCable);
             so2.Update();
-            Undo.RecordObject(_currentConnection, "Rectangle Handles");
+            Undo.RecordObject(_currentStaticCable, "Rectangle Handles");
             if(left)
                 point.leftHandle = dirLeft;
             if(right)
                 point.rightHandle = dirRight;
             so2.ApplyModifiedProperties();
-            _currentConnection.UpdateVisual(true);
+            _currentStaticCable.RefreshVisual(true);
         }
 
     }

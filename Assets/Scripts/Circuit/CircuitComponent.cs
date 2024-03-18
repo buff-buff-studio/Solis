@@ -7,8 +7,8 @@ namespace SolarBuff.Circuit
 {
     public abstract class CircuitComponent : NetworkBehaviour
     {
-        [HideInInspector, SerializeField]
-        public List<CircuitPlug> plugs;
+        [SerializeField]
+        public List<CircuitPlug> plugs = new();
 
         protected virtual void OnEnable()
         {
@@ -26,7 +26,7 @@ namespace SolarBuff.Circuit
             foreach (var plug in GetPlugs())
             {
                 if (plug.Connection == null) continue;
-                Destroy(plug.Connection.gameObject);
+                Destroy((plug.Connection as MonoBehaviour)!.gameObject);
             }
         }
         
