@@ -737,7 +737,6 @@ namespace SolarBuff.Circuit.Editor
 
         public CircuitConnection CreateConnection(CircuitPlug a, CircuitPlug b)
         {
-            //Undo create
             var go = new GameObject("Connection");
             go.SetActive(false);
             var con = go.AddComponent<CircuitConnection>();
