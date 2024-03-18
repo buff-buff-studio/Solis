@@ -42,8 +42,10 @@ namespace SolarBuff.Circuit
 
         public void Refresh()
         {
+            #if UNITY_EDITOR
             if (!Application.isPlaying)
                 return;
+            #endif
             
             OnRefresh();
             

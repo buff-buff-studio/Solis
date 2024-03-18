@@ -3,7 +3,6 @@ using System;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
-using Random = UnityEngine.Random;
 
 namespace SolarBuff.Circuit.Editor
 {
@@ -263,7 +262,7 @@ namespace SolarBuff.Circuit.Editor
                             if (Physics.Raycast(ray, out var hit2))
                             {
                                 var go = PrefabUtility.InstantiatePrefab(_lastPrefab) as GameObject;
-                                go.transform.position = hit2.point;
+                                go!.transform.position = hit2.point;
 
                                 var ax = Mathf.Abs(hit2.normal.x);
                                 var ay = Mathf.Abs(hit2.normal.y);
@@ -376,10 +375,10 @@ namespace SolarBuff.Circuit.Editor
                         }
                         else
                         {
-                            if (_mouseOverObject != null && _mouseOverObject.TryGetComponent<CircuitStaticCable>(out var con))
+                            if (_mouseOverObject != null && _mouseOverObject.TryGetComponent<CircuitStaticCable>(out _))
                             {
                                 Selection.activeGameObject = _mouseOverObject;
-                                UnityEditor.Tools.current = Tool.None;
+                                Tools.current = Tool.None;
                                 
                                 _action = Action.EditingConnection;
                                 _currentControlPointIndex = -1;
@@ -662,10 +661,10 @@ namespace SolarBuff.Circuit.Editor
                     #region Change Selected
                     if (!onHandle && Event.current.type == EventType.MouseDown && Event.current.button == 0 && _mouseOverObject != _currentStaticCable.gameObject)
                     {
-                        if (_mouseOverObject != null && _mouseOverObject.TryGetComponent<CircuitStaticCable>(out var con))
+                        if (_mouseOverObject != null && _mouseOverObject.TryGetComponent<CircuitStaticCable>(out _))
                         {
                             Selection.activeGameObject = _mouseOverObject;
-                            UnityEditor.Tools.current = Tool.None;
+                            Tools.current = Tool.None;
                             _action = Action.EditingConnection;
                             _currentControlPointIndex = -1;
                             Event.current.Use();

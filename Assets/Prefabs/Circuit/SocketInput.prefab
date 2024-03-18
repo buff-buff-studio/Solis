@@ -21,13 +21,19 @@ PrefabInstance:
     - target: {fileID: 2640890269513027381, guid: 861d3f611ac1d3f41bf4a4c5e00750bb,
         type: 3}
       propertyPath: id.low
-      value: -823510882
+      value: 431523422
       objectReference: {fileID: 0}
     - target: {fileID: 2640890269513027381, guid: 861d3f611ac1d3f41bf4a4c5e00750bb,
         type: 3}
       propertyPath: id.high
-      value: 324338253
+      value: 694252102
       objectReference: {fileID: 0}
+    - target: {fileID: 2744020603395624998, guid: 861d3f611ac1d3f41bf4a4c5e00750bb,
+        type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: -1714506864129455425, guid: b5e8f40590f44a8419dadbbe3f18c935,
+        type: 3}
     - target: {fileID: 4672662243009014871, guid: 861d3f611ac1d3f41bf4a4c5e00750bb,
         type: 3}
       propertyPath: type
@@ -98,11 +104,33 @@ PrefabInstance:
       propertyPath: socket
       value: 
       objectReference: {fileID: 2464629848213342504}
+    - target: {fileID: 6105806641143379817, guid: 861d3f611ac1d3f41bf4a4c5e00750bb,
+        type: 3}
+      propertyPath: socketFilter
+      value: 
+      objectReference: {fileID: 4969729297943475545}
+    - target: {fileID: 6105806641143379817, guid: 861d3f611ac1d3f41bf4a4c5e00750bb,
+        type: 3}
+      propertyPath: socketMeshes.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6105806641143379817, guid: 861d3f611ac1d3f41bf4a4c5e00750bb,
+        type: 3}
+      propertyPath: 'socketMeshes.Array.data[0]'
+      value: 
+      objectReference: {fileID: -1714506864129455425, guid: b5e8f40590f44a8419dadbbe3f18c935,
+        type: 3}
+    - target: {fileID: 6105806641143379817, guid: 861d3f611ac1d3f41bf4a4c5e00750bb,
+        type: 3}
+      propertyPath: 'socketMeshes.Array.data[1]'
+      value: 
+      objectReference: {fileID: 1251714193204932281, guid: b5e8f40590f44a8419dadbbe3f18c935,
+        type: 3}
     - target: {fileID: 9085572907675155927, guid: 861d3f611ac1d3f41bf4a4c5e00750bb,
         type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: b190d795f8370084f9d92b05414b8ffc, type: 2}
+      objectReference: {fileID: 2100000, guid: d1d7299f1fba0ec46b39ba452b650171, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -132,3 +160,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ece84b605ed8445bb12ccb09880329f3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!33 &4969729297943475545 stripped
+MeshFilter:
+  m_CorrespondingSourceObject: {fileID: 2744020603395624998, guid: 861d3f611ac1d3f41bf4a4c5e00750bb,
+    type: 3}
+  m_PrefabInstance: {fileID: 7128281511374775679}
+  m_PrefabAsset: {fileID: 0}

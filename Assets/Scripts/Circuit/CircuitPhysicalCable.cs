@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using ExamplePlatformer;
 using NetBuff.Components;
 using NetBuff.Interface;
@@ -32,7 +33,8 @@ namespace SolarBuff.Circuit
 
         [Header("REFERENCES")]
         public GameObject nodePrefab;
-        public GameObject connectorPrefab;
+        public GameObject connectorPrefabInput;
+        public GameObject connectorPrefabOutput;
       
         [Header("STATE")]
         public List<Node> nodes = new();
@@ -67,7 +69,7 @@ namespace SolarBuff.Circuit
             }
         }
 
-        [SerializeField]
+        [HideInInspector, SerializeField]
         private HingeJoint helderJoint;
         
         [HideInInspector, SerializeField]
@@ -77,13 +79,18 @@ namespace SolarBuff.Circuit
         
         public void OnEnable()
         {
-            if (Application.isPlaying)
+            #if UNITY_EDITOR
+            if (Application.isPlaying)  
                 _renderer = GetComponent<LineRenderer>();
+            #else
+            _renderer = GetComponent<LineRenderer>();
+            #endif
             
             Refresh();
-            
+            #if UNITY_EDITOR
             if (!Application.isPlaying)
                 return;
+            #endif
             GetPacketListener<PlayerPunchActionPacket>().OnServerReceive += OnPlayerPunch;
             InvokeRepeating(nameof(TickCable), 0, 0.05f);
         }
@@ -132,6 +139,11 @@ namespace SolarBuff.Circuit
                     {
                         if(socket.socket.type == PlugA.type)
                             continue;
+
+                        //Has cable
+                        if (socket.GetComponentInChildren<CircuitPhysicalCable>() != null)
+                            return;
+                        
                         Helder = socket.socket.GetComponentInParent<Rigidbody>();
                         break;
                     }
@@ -158,7 +170,7 @@ namespace SolarBuff.Circuit
                     pos += Vector3.forward * nodeDistance;
                 }
                 
-                connector = Instantiate(connectorPrefab, Vector3.one, Quaternion.identity, transform);
+                connector = Instantiate(PlugA.type == CircuitPlug.Type.Input ? connectorPrefabOutput : connectorPrefabInput, Vector3.one, Quaternion.identity, transform);
                 Helder = helder;
             }
 
@@ -219,14 +231,20 @@ namespace SolarBuff.Circuit
 
         private void FixedUpdate()
         { 
+            #if UNITY_EDITOR
             if(Application.isPlaying)
                 UpdateVisual();
+            #else
+            UpdateVisual();
+            #endif
         }
 
         private void Update()
         {
+            #if UNITY_EDITOR
             if (!Application.isPlaying)
                 return;
+            #endif
             if(nodes.Count < 2)
                 return;
             
@@ -243,15 +261,25 @@ namespace SolarBuff.Circuit
                 var ht = helder.transform;
                 var pos = ht.position;
                 var fw = ht.forward;
-                connector.transform.position = pos;
-                connector.transform.forward =-fw;
+                var dt = Time.deltaTime * 50f;
+                connector.transform.position = Vector3.Lerp(connector.transform.position, pos, dt);
+                //connector.transform.forward =-fw;
+                connector.transform.rotation = Quaternion.Lerp(connector.transform.rotation, Quaternion.LookRotation(-fw), dt);
             }
         }
 
         public void UpdateVisual()
         {
-            _renderer.positionCount = nodes.Count;
-            _renderer.SetPositions(nodes.ConvertAll(n => n.gameObject.transform.position).ToArray());
+            var positions = nodes.ConvertAll(n => n.gameObject.transform.position).ToArray();
+
+            if (connector != null)
+            {
+                var position = connector.transform.position;
+                positions[^1] = position - connector.transform.forward * 0.4f;
+            }
+
+            _renderer.positionCount = positions.Length;
+            _renderer.SetPositions(positions);
         }
 
         private void _CreateNode(Vector3 position, int index)
@@ -261,7 +289,7 @@ namespace SolarBuff.Circuit
             {
                 gameObject = go,
                 rigidbody = go.GetComponent<Rigidbody>(),
-                joint = go.GetComponent<SpringJoint>()
+                joint = go.GetComponent<Joint>()
             };
 
             var hasPrev = index < nodes.Count;
@@ -306,7 +334,7 @@ namespace SolarBuff.Circuit
             {
                 if (PlugA.type == CircuitPlug.Type.Input)
                 {
-                    PlugB.Owner.Refresh();
+                    PlugA.Owner.Refresh();
                 }
                 else
                 {
@@ -406,7 +434,6 @@ namespace SolarBuff.Circuit
     {
         public NetworkId Id { get; set; }
         public NetworkId Holder { get; set; }
-        
         public Vector3[] Nodes { get; set; }
         
         public void Serialize(BinaryWriter writer)
