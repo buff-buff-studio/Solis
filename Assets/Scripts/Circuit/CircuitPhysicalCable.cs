@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using ExamplePlatformer;
 using NetBuff.Components;
 using SolarBuff.Circuit.Components;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace SolarBuff.Circuit
@@ -30,6 +29,7 @@ namespace SolarBuff.Circuit
 
         [Header("REFERENCES")]
         public GameObject nodePrefab;
+        public GameObject connectorPrefab;
       
         [Header("STATE")]
         public List<Node> nodes = new();
@@ -45,18 +45,16 @@ namespace SolarBuff.Circuit
             {
                 OnDisable();
                 
+                if(helderJoint != null)
+                    Destroy(helderJoint);
+                helderJoint = null;
+                
                 helder = value;
                 if (helder != null)
                 {
                     helderJoint = helder.gameObject.AddComponent<HingeJoint>();
                     helderJoint.anchor = Vector3.zero;
                     helderJoint.connectedBody = Head.rigidbody;
-                }
-                else
-                {
-                    if(helderJoint != null)
-                        Destroy(helderJoint);
-                    helderJoint = null;
                 }
 
                 Refresh();
@@ -65,6 +63,9 @@ namespace SolarBuff.Circuit
 
         [HideInInspector, SerializeField]
         private HingeJoint helderJoint;
+        
+        [HideInInspector, SerializeField]
+        private GameObject connector;
         
         private LineRenderer _renderer;
         
@@ -114,7 +115,6 @@ namespace SolarBuff.Circuit
             {
                 Helder = null;
                 
-                //Sphere cast to find all sockets in a radius of 2 to player
                 var size = Physics.OverlapSphereNonAlloc(puncher.transform.position, 1, _Results);
                 for (var i = 0; i < size; i++)
                 {
@@ -151,6 +151,7 @@ namespace SolarBuff.Circuit
                     pos += Vector3.forward * nodeDistance;
                 }
                 
+                connector = Instantiate(connectorPrefab, Vector3.one, Quaternion.identity, transform);
                 Helder = helder;
             }
 
@@ -219,6 +220,26 @@ namespace SolarBuff.Circuit
         {
             _renderer.positionCount = nodes.Count;
             _renderer.SetPositions(nodes.ConvertAll(n => n.gameObject.transform.position).ToArray());
+            
+            if(nodes.Count < 2)
+                return;
+            var head = Head.gameObject.transform.position;
+
+            if(helder == null)
+            {
+                var before = nodes[^2].gameObject.transform.position;
+                connector.transform.position = head;
+                connector.transform.forward = (head - before).normalized;
+            }
+            else
+            {
+                var ht = helder.transform;
+                var pos = ht.position;
+                var fw = ht.forward;
+                connector.transform.position = pos + fw * 0.5f;
+                connector.transform.forward = -fw;
+            }
+                
         }
 
         private void _CreateNode(Vector3 position, int index)
@@ -245,7 +266,6 @@ namespace SolarBuff.Circuit
                 if (hasPrev)
                 {
                     prevOnPos.joint.connectedBody = node.rigidbody;
-                    //prevOnPos.rigidbody.isKinematic = false;
                 }
                 
                 cj.autoConfigureConnectedAnchor = false;
@@ -264,6 +284,7 @@ namespace SolarBuff.Circuit
 
             if (index != nodes.Count - 1) return;
             if (helderJoint == null) return;
+            
             helderJoint.connectedBody = node.rigidbody;
         }
 
