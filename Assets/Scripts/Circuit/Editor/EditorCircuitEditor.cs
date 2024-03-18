@@ -496,8 +496,6 @@ namespace SolarBuff.Circuit.Editor
 
                     #region Current Cable Editing
                     
-                    var mousePos = RaycastPosition();
-
                     var closestPosition = Vector3.zero;
                     var closestSegment = 0;
                     var closestDistance = float.MaxValue;
@@ -512,16 +510,21 @@ namespace SolarBuff.Circuit.Editor
                                 Handles.color = Color.yellow;
                                 Handles.DrawLine(controlPoints[i - 1].position, controlPoints[i].position);
                             }
-                            
-                            var p = ClosestPointOnLineSegment(controlPoints[i - 1].position, controlPoints[i].position, mousePos); 
-                            var d = Vector3.Distance(p, mousePos);
-                            if (d < closestDistance)
+
+                            for (var j = 1; j < 10; j ++)
                             {
-                                closestPosition = p;
-                                closestSegment = i - 1;
-                                closestDistance = d;
+                                var mousePos = RaycastPosition(j);
+                                var p = ClosestPointOnLineSegment(controlPoints[i - 1].position,
+                                    controlPoints[i].position, mousePos);
+                                var d = Vector3.Distance(p, mousePos);
+                                if (d < closestDistance)
+                                {
+                                    closestPosition = p;
+                                    closestSegment = i - 1;
+                                    closestDistance = d;
+                                }
                             }
-                            
+
                             if (i < controlPoints.Length - 1)
                             {
                                 if (HandleUtility.DistanceToCircle(controlPoints[i].position, 0.15f) < 0.25f)
@@ -596,6 +599,7 @@ namespace SolarBuff.Circuit.Editor
                                     Event.current.Use();
                                 }
                             }
+                            
                         }
                         else
                         {
@@ -613,40 +617,44 @@ namespace SolarBuff.Circuit.Editor
                         }
                     }
 
-                    if (Event.current.type == EventType.KeyDown && _currentControlPointIndex != -1)
+                    if (Event.current.type == EventType.KeyDown)
                     {
-                        if (Event.current.keyCode == KeyCode.Backspace)
+                        if (_currentControlPointIndex != -1)
                         {
-                            var so = new SerializedObject(_currentStaticCable);
-                            so.Update();
-                            Undo.RecordObject(_currentStaticCable, "Delete Control Point");
-                            _currentStaticCable.controlPoints.RemoveAt(_currentControlPointIndex - 1);
-                            _currentControlPointIndex--;
-                            so.ApplyModifiedProperties();
-                            Event.current.Use();
-                            _currentStaticCable.RefreshVisual(true);
-                        }
-                        //if press f, focus onto it
-                        if (Event.current.keyCode == KeyCode.F)
-                        {
-                            var pos = controlPoints[_currentControlPointIndex].position;
-                            SceneView.lastActiveSceneView.LookAt(pos);
-                            Event.current.Use();
-                        }
-                        
-                        //if pres sleft, go to previous
-                        if (Event.current.keyCode == KeyCode.LeftArrow)
-                        {
-                            _currentControlPointIndex = Mathf.Max(1, _currentControlPointIndex - 1);
-                            Event.current.Use();
-                        }
-                        
-                        
-                        //if press sright, go to next
-                        if (Event.current.keyCode == KeyCode.RightArrow)
-                        {
-                            _currentControlPointIndex = Mathf.Min(controlPoints.Length - 2, _currentControlPointIndex + 1);
-                            Event.current.Use();
+                            if (Event.current.keyCode == KeyCode.Backspace)
+                            {
+                                var so = new SerializedObject(_currentStaticCable);
+                                so.Update();
+                                Undo.RecordObject(_currentStaticCable, "Delete Control Point");
+                                _currentStaticCable.controlPoints.RemoveAt(_currentControlPointIndex - 1);
+                                _currentControlPointIndex--;
+                                so.ApplyModifiedProperties();
+                                Event.current.Use();
+                                _currentStaticCable.RefreshVisual(true);
+                            }
+
+                            //if press f, focus onto it
+                            if (Event.current.keyCode == KeyCode.F)
+                            {
+                                var pos = controlPoints[_currentControlPointIndex].position;
+                                SceneView.lastActiveSceneView.LookAt(pos);
+                                Event.current.Use();
+                            }
+
+                            //if pres sleft, go to previous
+                            if (Event.current.keyCode == KeyCode.LeftArrow)
+                            {
+                                _currentControlPointIndex = Mathf.Max(1, _currentControlPointIndex - 1);
+                                Event.current.Use();
+                            }
+                            
+                            //if press sright, go to next
+                            if (Event.current.keyCode == KeyCode.RightArrow)
+                            {
+                                _currentControlPointIndex = Mathf.Min(controlPoints.Length - 2,
+                                    _currentControlPointIndex + 1);
+                                Event.current.Use();
+                            }
                         }
                     }
                     #endregion
@@ -678,7 +686,7 @@ namespace SolarBuff.Circuit.Editor
                             var so = new SerializedObject(_currentStaticCable);
                             so.Update();
                             Undo.RecordObject(_currentStaticCable, "Move Control Point");
-                            _currentStaticCable.controlPoints[_currentControlPointIndex - 1].position = Snap(RaycastPosition());
+                            _currentStaticCable.controlPoints[_currentControlPointIndex - 1].position = Snap(RaycastPosition(20));
                             _currentStaticCable.RefreshVisual(true);
                             Event.current.Use();
                         }
@@ -715,15 +723,15 @@ namespace SolarBuff.Circuit.Editor
         }
         
 
-        private Vector3 RaycastPosition()
+        private Vector3 RaycastPosition(float maxDistance)
         {
             var ray = HandleUtility.GUIPointToWorldRay(Event.current.mousePosition);
-            if (Physics.Raycast(ray, out var hit))
+            if (Physics.Raycast(ray, out var hit, maxDistance))
             {
                 return hit.point - ray.direction * 0.125f;
             }
             
-            return ray.origin + ray.direction * 10;
+            return ray.origin + ray.direction * maxDistance;
         }
 
         private Vector3 ClosestPointOnLineSegment(Vector3 a, Vector3 b, Vector3 p)
