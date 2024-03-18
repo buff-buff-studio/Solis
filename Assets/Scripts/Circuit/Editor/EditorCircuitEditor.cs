@@ -411,7 +411,7 @@ namespace SolarBuff.Circuit.Editor
                         }
                         case EventType.MouseDown when Event.current.button == 0:
                         {
-                            if (mouseOverPlug != null && mouseOverPlug.type != _currentPlug.type)
+                            if (mouseOverPlug != null && mouseOverPlug.type != _currentPlug.type && mouseOverPlug.Connection == null)
                             {
                                 CreateConnection(_currentPlug, mouseOverPlug);
                             }
