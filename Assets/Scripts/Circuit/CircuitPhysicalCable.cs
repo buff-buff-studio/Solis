@@ -7,6 +7,7 @@ using NetBuff.Components;
 using NetBuff.Interface;
 using NetBuff.Misc;
 using SolarBuff.Circuit.Components;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace SolarBuff.Circuit
@@ -404,12 +405,14 @@ namespace SolarBuff.Circuit
                 
                 for (var i = 0; i < nodes.Count; i++)
                 {
-                    nodes[i].gameObject.transform.position = p.Nodes[i];
+                    var h3 = p.Nodes[i];
+                    nodes[i].gameObject.transform.position = new Vector3(h3.x, h3.y, h3.z);
                 }
 
                 while (nodes.Count < p.Nodes.Length)
                 {
-                    _CreateNode(p.Nodes[nodes.Count], nodes.Count);
+                    var h3 = p.Nodes[nodes.Count];
+                    _CreateNode(new Vector3(h3.x, h3.y, h3.z), nodes.Count);
                 }
                 
                 Refresh();
@@ -423,7 +426,11 @@ namespace SolarBuff.Circuit
             {
                 Id = Id,
                 Holder = helder == null ? NetworkId.Empty : helder.GetComponentInParent<NetworkIdentity>().Id,
-                Nodes = nodes.ConvertAll(n => n.gameObject.transform.position).ToArray()
+                Nodes = nodes.ConvertAll(n =>
+                {
+                    var pos = n.gameObject.transform.position;
+                    return new half3((half) pos.x, (half) pos.y, (half) pos.z);
+                }).ToArray()
             };
         }
 
@@ -434,7 +441,7 @@ namespace SolarBuff.Circuit
     {
         public NetworkId Id { get; set; }
         public NetworkId Holder { get; set; }
-        public Vector3[] Nodes { get; set; }
+        public half3[] Nodes { get; set; }
         
         public void Serialize(BinaryWriter writer)
         {
@@ -444,9 +451,9 @@ namespace SolarBuff.Circuit
             writer.Write(Nodes.Length);
             foreach (var node in Nodes)
             {
-                writer.Write(node.x);
-                writer.Write(node.y);
-                writer.Write(node.z);
+                writer.Write(node.x.value);
+                writer.Write(node.y.value);
+                writer.Write(node.z.value);
             }
         }
 
@@ -456,10 +463,11 @@ namespace SolarBuff.Circuit
             Holder = NetworkId.Read(reader);
             
             var count = reader.ReadInt32();
-            Nodes = new Vector3[count];
+            Nodes = new half3[count];
             for (var i = 0; i < count; i++)
             {
-                Nodes[i] = new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+                Nodes[i] = new half3(new half { value = reader.ReadUInt16() }, new half { value = reader.ReadUInt16() },
+                    new half { value = reader.ReadUInt16() });
             }
         }
     }
