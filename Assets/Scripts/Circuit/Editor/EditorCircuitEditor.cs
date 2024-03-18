@@ -496,7 +496,7 @@ namespace SolarBuff.Circuit.Editor
 
                     #region Current Cable Editing
                     
-                    var mousePos = RaycastPosition(true);
+                    var mousePos = RaycastPosition();
 
                     var closestPosition = Vector3.zero;
                     var closestSegment = 0;
@@ -678,7 +678,7 @@ namespace SolarBuff.Circuit.Editor
                             var so = new SerializedObject(_currentStaticCable);
                             so.Update();
                             Undo.RecordObject(_currentStaticCable, "Move Control Point");
-                            _currentStaticCable.controlPoints[_currentControlPointIndex - 1].position = Snap(RaycastPosition(false));
+                            _currentStaticCable.controlPoints[_currentControlPointIndex - 1].position = Snap(RaycastPosition());
                             _currentStaticCable.RefreshVisual(true);
                             Event.current.Use();
                         }
@@ -715,15 +715,12 @@ namespace SolarBuff.Circuit.Editor
         }
         
 
-        private Vector3 RaycastPosition(bool useVertex)
+        private Vector3 RaycastPosition()
         {
-            if (useVertex && HandleUtility.FindNearestVertex(Event.current.mousePosition, out var pos))
-                return pos;
-
             var ray = HandleUtility.GUIPointToWorldRay(Event.current.mousePosition);
             if (Physics.Raycast(ray, out var hit))
             {
-                return hit.point;
+                return hit.point - ray.direction * 0.125f;
             }
             
             return ray.origin + ray.direction * 10;

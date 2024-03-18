@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using ExamplePlatformer;
 using NetBuff.Components;
+using NetBuff.Interface;
+using NetBuff.Misc;
 using SolarBuff.Circuit.Components;
 using UnityEngine;
 
@@ -56,12 +59,15 @@ namespace SolarBuff.Circuit
                     helderJoint.anchor = Vector3.zero;
                     helderJoint.connectedBody = Head.rigidbody;
                 }
+                
+                if(HasAuthority)
+                    ServerBroadcastPacket(CreatePacket());
 
                 Refresh();
             }
         }
 
-        [HideInInspector, SerializeField]
+        [SerializeField]
         private HingeJoint helderJoint;
         
         [HideInInspector, SerializeField]
@@ -344,6 +350,90 @@ namespace SolarBuff.Circuit
                 PlugB.Connection = null;
             
             return false;
+        }
+
+        #region Networking
+
+        public override void OnClientConnected(int clientId)
+        {
+            ServerSendPacket(CreatePacket(), clientId, true);
+        }
+
+        public override void OnClientReceivePacket(IOwnedPacket packet)
+        {
+            if(packet is PhysicalCablePacket p)
+            {
+                if (HasAuthority)
+                    return;
+                
+                Helder = p.Holder == NetworkId.Empty ? null : GetNetworkObject(p.Holder).GetComponentInChildren<Rigidbody>();
+                
+                while (nodes.Count > p.Nodes.Length)
+                {
+                    Destroy(nodes[^1].gameObject);
+                    nodes.RemoveAt(nodes.Count - 1);
+                }
+                
+                for (var i = 0; i < nodes.Count; i++)
+                {
+                    nodes[i].gameObject.transform.position = p.Nodes[i];
+                }
+
+                while (nodes.Count < p.Nodes.Length)
+                {
+                    _CreateNode(p.Nodes[nodes.Count], nodes.Count);
+                }
+                
+                Refresh();
+            }
+        }
+
+
+        private PhysicalCablePacket CreatePacket()
+        {
+            return new PhysicalCablePacket
+            {
+                Id = Id,
+                Holder = helder == null ? NetworkId.Empty : helder.GetComponentInParent<NetworkIdentity>().Id,
+                Nodes = nodes.ConvertAll(n => n.gameObject.transform.position).ToArray()
+            };
+        }
+
+        #endregion
+    }
+    
+    public class PhysicalCablePacket : IOwnedPacket
+    {
+        public NetworkId Id { get; set; }
+        public NetworkId Holder { get; set; }
+        
+        public Vector3[] Nodes { get; set; }
+        
+        public void Serialize(BinaryWriter writer)
+        {
+            Id.Serialize(writer);
+            Holder.Serialize(writer);
+            
+            writer.Write(Nodes.Length);
+            foreach (var node in Nodes)
+            {
+                writer.Write(node.x);
+                writer.Write(node.y);
+                writer.Write(node.z);
+            }
+        }
+
+        public void Deserialize(BinaryReader reader)
+        {
+            Id = NetworkId.Read(reader);
+            Holder = NetworkId.Read(reader);
+            
+            var count = reader.ReadInt32();
+            Nodes = new Vector3[count];
+            for (var i = 0; i < count; i++)
+            {
+                Nodes[i] = new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+            }
         }
     }
 }

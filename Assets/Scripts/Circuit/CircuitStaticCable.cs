@@ -132,7 +132,7 @@ namespace SolarBuff.Circuit
                     _renderer.SetPositions(data.GeneratePoints().ToArray());
                 }
 
-                if (Application.isPlaying)
+                if (Application.isPlaying && _renderer != null)
                     _renderer.material.color = Color.Lerp(Color.black, Color.red, plugA.ReadValue<float>());
             }
         }
@@ -161,13 +161,13 @@ namespace SolarBuff.Circuit
         {
             if (plugA != null && plugB != null)
             {
-                if (plugA.Connection != null && plugA.Connection != this)
+                if (plugA.Connection != null && !ReferenceEquals(plugA.Connection, this))
                 {
                     DestroyImmediate(gameObject);
                     return false;
                 }
 
-                if (plugB.Connection != null && plugB.Connection != this)
+                if (plugB.Connection != null && !ReferenceEquals(plugB.Connection, this))
                 {
                     DestroyImmediate(gameObject);
                     return false;
