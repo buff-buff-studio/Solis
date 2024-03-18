@@ -1,13 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using SolarBuff.Props;
 using UnityEditor;
 using UnityEngine;
-
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace SolarBuff.Circuit
 {
@@ -21,8 +16,8 @@ namespace SolarBuff.Circuit
         public class ControlPoint
         {
             public Vector3 position;
-            public Vector3 leftHandle = new Vector3(-1f, 0f, 0f);
-            public Vector3 rightHandle = new Vector3(1f, 0f, 0f);
+            public Vector3 leftHandle = new(-1f, 0f, 0f);
+            public Vector3 rightHandle = new(1f, 0f, 0f);
         }
 
         private LineRenderer _renderer;
@@ -41,8 +36,7 @@ namespace SolarBuff.Circuit
         {
             get => plugB;
         }
-
-       
+        
         private void OnEnable()
         {
             _renderer = GetComponent<LineRenderer>();
@@ -51,7 +45,6 @@ namespace SolarBuff.Circuit
             _renderer.material = AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Cable.mat");
             _renderer.widthCurve = new AnimationCurve(new Keyframe(0, 0.25f), new Keyframe(1, 0.25f));
 #endif
-
             
             if(_RefreshInternal())
                 RefreshVisual(true);
