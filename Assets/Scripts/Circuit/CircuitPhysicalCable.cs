@@ -40,7 +40,9 @@ namespace SolarBuff.Circuit
         [Header("STATE")]
         public List<Node> nodes = new();
         public Rigidbody helder;
-        
+        [SerializeField]
+        private GameObject connector;
+
         public Node Head => nodes[^1];
         public Node Tail => nodes[0];
         
@@ -72,9 +74,6 @@ namespace SolarBuff.Circuit
 
         [HideInInspector, SerializeField]
         private HingeJoint helderJoint;
-        
-        [HideInInspector, SerializeField]
-        private GameObject connector;
         
         private LineRenderer _renderer;
         
@@ -170,6 +169,9 @@ namespace SolarBuff.Circuit
                     _CreateNode(pos, i);
                     pos += Vector3.forward * nodeDistance;
                 }
+                
+                if(connector != null)
+                    DestroyImmediate(connector);
                 
                 connector = Instantiate(PlugA.type == CircuitPlug.Type.Input ? connectorPrefabOutput : connectorPrefabInput, Vector3.one, Quaternion.identity, transform);
                 Helder = helder;
@@ -273,7 +275,7 @@ namespace SolarBuff.Circuit
         {
             var positions = nodes.ConvertAll(n => n.gameObject.transform.position).ToArray();
 
-            if (connector != null)
+            if (connector != null && positions.Length > 0)
             {
                 var position = connector.transform.position;
                 positions[^1] = position - connector.transform.forward * 0.4f;
