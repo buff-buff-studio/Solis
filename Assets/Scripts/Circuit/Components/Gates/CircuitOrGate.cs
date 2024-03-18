@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 
-namespace SolarBuff.Circuit.Gates
+namespace SolarBuff.Circuit.Components.Gates
 {
     public class CircuitOrGate : CircuitComponent
     {
