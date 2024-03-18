@@ -2,11 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using SolarBuff.Props;
+using UnityEditor;
 using UnityEngine;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace SolarBuff.Circuit
 {
-    [RequireComponent(typeof(CableRenderer))]
+    [RequireComponent(typeof(LineRenderer))]
     [ExecuteInEditMode]
     public class CircuitStaticCable : MonoBehaviour, ICircuitConnection
     {
@@ -20,7 +25,7 @@ namespace SolarBuff.Circuit
             public Vector3 rightHandle = new Vector3(1f, 0f, 0f);
         }
 
-        private CableRenderer _renderer;
+        private LineRenderer _renderer;
         
         public List<ControlPoint> controlPoints = new();
         
@@ -40,7 +45,13 @@ namespace SolarBuff.Circuit
        
         private void OnEnable()
         {
-            _renderer = GetComponent<CableRenderer>();
+            _renderer = GetComponent<LineRenderer>();
+     
+#if UNITY_EDITOR
+            _renderer.material = AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Cable.mat");
+            _renderer.widthCurve = new AnimationCurve(new Keyframe(0, 0.25f), new Keyframe(1, 0.25f));
+#endif
+
             
             if(_RefreshInternal())
                 RefreshVisual(true);
@@ -116,6 +127,8 @@ namespace SolarBuff.Circuit
                     transform.position = (plugA.transform.position + plugB.transform.position) / 2;
                     var points = GetControlPoints();
                     var data = new BezierCurveData(points);
+                    
+                    _renderer.positionCount = data.GeneratePoints().Count();
                     _renderer.SetPositions(data.GeneratePoints().ToArray());
                 }
 

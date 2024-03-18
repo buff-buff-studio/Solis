@@ -114,13 +114,14 @@ namespace SolarBuff.Circuit
             if (Helder == puncher)
             {
                 Helder = null;
-                
-                var size = Physics.OverlapSphereNonAlloc(puncher.transform.position, 1, _Results);
+
+                var transform1 = puncher.transform;
+                var size = Physics.OverlapSphereNonAlloc(transform1.position + transform1.forward * 0.5f + new Vector3(0, 0.5f, 0), 1.5f, _Results);
                 for (var i = 0; i < size; i++)
                 {
                     var hit = _Results[i];
                     var socket = hit.GetComponent<CircuitSocket>();
-                   
+                    
                     if (socket != null && socket.socket.Connection == null && PlugA != socket.socket)
                     {
                         if(socket.socket.type == PlugA.type)
@@ -216,13 +217,13 @@ namespace SolarBuff.Circuit
                 UpdateVisual();
         }
 
-        public void UpdateVisual()
+        private void Update()
         {
-            _renderer.positionCount = nodes.Count;
-            _renderer.SetPositions(nodes.ConvertAll(n => n.gameObject.transform.position).ToArray());
-            
+            if (!Application.isPlaying)
+                return;
             if(nodes.Count < 2)
                 return;
+            
             var head = Head.gameObject.transform.position;
 
             if(helder == null)
@@ -236,10 +237,15 @@ namespace SolarBuff.Circuit
                 var ht = helder.transform;
                 var pos = ht.position;
                 var fw = ht.forward;
-                connector.transform.position = pos + fw * 0.5f;
-                connector.transform.forward = -fw;
+                connector.transform.position = pos;
+                connector.transform.forward =-fw;
             }
-                
+        }
+
+        public void UpdateVisual()
+        {
+            _renderer.positionCount = nodes.Count;
+            _renderer.SetPositions(nodes.ConvertAll(n => n.gameObject.transform.position).ToArray());
         }
 
         private void _CreateNode(Vector3 position, int index)
