@@ -533,7 +533,8 @@ namespace SolarBuff.Circuit.Editor
                                     if (Event.current.type == EventType.Repaint)
                                     {
                                         Handles.color = Color.red;
-                                        Handles.SphereHandleCap(0, controlPoints[i].position, Quaternion.identity, 0.25f, EventType.Repaint);
+                                        Handles.SphereHandleCap(0, controlPoints[i].position, Quaternion.identity,
+                                            0.25f, EventType.Repaint);
                                         Handles.color = Color.yellow;
                                     }
                                 }
@@ -543,27 +544,30 @@ namespace SolarBuff.Circuit.Editor
                                     if (_currentControlPointIndex == i)
                                     {
                                         Handles.color = Color.green;
-                                        Handles.SphereHandleCap(0, controlPoints[i].position, Quaternion.identity, 0.25f, EventType.Repaint);
+                                        Handles.SphereHandleCap(0, controlPoints[i].position, Quaternion.identity,
+                                            0.25f, EventType.Repaint);
                                     }
                                     else
                                     {
                                         Handles.color = Color.yellow;
-                                        Handles.SphereHandleCap(0, controlPoints[i].position, Quaternion.identity, 0.15f, EventType.Repaint);
+                                        Handles.SphereHandleCap(0, controlPoints[i].position, Quaternion.identity,
+                                            0.15f, EventType.Repaint);
                                     }
                                 }
-                            }
-                        }
-                        
-                        //Hold shift to see handles
-                        if (Event.current.shift)
-                        {
-                            var pos = Handles.PositionHandle(controlPoints[i].position, Quaternion.identity);
-                            if (pos != controlPoints[i].position)
-                            {
-                                var so = new SerializedObject(_currentStaticCable);
-                                so.Update();
-                                Undo.RecordObject(_currentStaticCable, "Move Control Point");
-                                _currentStaticCable.controlPoints[i - 1].position = Snap(pos);
+                                
+                                //Hold shift to see handles
+                                if (Event.current.shift)
+                                {
+                                    var pos = Handles.PositionHandle(controlPoints[i].position, Quaternion.identity);
+                                    if (pos != controlPoints[i].position)
+                                    {
+                                        var so = new SerializedObject(_currentStaticCable);
+                                        so.Update();
+                                        Undo.RecordObject(_currentStaticCable, "Move Control Point");
+                                        _currentStaticCable.controlPoints[i - 1].position = Snap(pos);
+                                        _currentStaticCable.RefreshVisual(true);
+                                    }
+                                }
                             }
                         }
                     }

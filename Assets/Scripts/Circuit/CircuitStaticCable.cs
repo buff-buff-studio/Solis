@@ -84,14 +84,20 @@ namespace SolarBuff.Circuit
         
         private void Update()
         {
-            if(plugA.Owner != null && plugA.Owner.transform.hasChanged)
+            if(plugA == null || plugB == null)
+            {
+                DestroyImmediate(gameObject);
+                return;
+            }
+            
+            if (plugA.Owner != null && plugA.Owner.transform.hasChanged)
             {
                 RefreshVisual(true);
                 plugA.Owner.transform.hasChanged = false;
                 return;
             }
-            
-            if(plugB.Owner != null && plugB.Owner.transform.hasChanged)
+
+            if (plugB.Owner != null && plugB.Owner.transform.hasChanged)
             {
                 RefreshVisual(true);
                 plugB.Owner.transform.hasChanged = false;
