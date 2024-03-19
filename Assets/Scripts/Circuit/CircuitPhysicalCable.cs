@@ -51,6 +51,7 @@ namespace SolarBuff.Circuit
 
         public Node Head => nodes[^1];
         public Node Tail => nodes[0];
+        public GameObject Connector => connector;
         
         public Rigidbody Helder
         {
@@ -97,7 +98,7 @@ namespace SolarBuff.Circuit
             if (!Application.isPlaying)
                 return;
             #endif
-            Debug.Log("Cable enabled");
+            
             GetPacketListener<PlayerPunchActionPacket>().OnServerReceive += OnPlayerPunch;
             InvokeRepeating(nameof(TickCable), 0, 0.25f);
         }

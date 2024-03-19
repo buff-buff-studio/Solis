@@ -1,6 +1,8 @@
 ﻿#if UNITY_EDITOR
 using System;
+using System.Linq;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -50,6 +52,28 @@ namespace SolarBuff.Circuit.Editor
             so.Update();
             EditorGUILayout.PropertyField(so.FindProperty("gridUnit"));
             so.ApplyModifiedProperties();
+            #endregion
+
+            #region Current Physical Cable
+
+            if (Selection.gameObjects.Length == 1)
+            {
+                var physicalCable = Selection.gameObjects[0].GetComponentInParent<CircuitPhysicalCable>();
+                if (physicalCable != null)
+                {
+                    //draw inspector for the physical cable
+                    EditorGUILayout.Space();
+                    EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                    EditorGUILayout.LabelField("Physical Cable", EditorStyles.boldLabel);
+                    var so2 = new SerializedObject(physicalCable);
+                    so2.Update();
+                    EditorGUILayout.PropertyField(so2.FindProperty("helder"));
+                    so2.ApplyModifiedProperties();
+                    EditorGUILayout.EndVertical();
+                }
+            }
+            
+
             #endregion
 
             #region Current Selection Options
@@ -313,8 +337,40 @@ namespace SolarBuff.Circuit.Editor
             }
             
             CircuitPlug mouseOverPlug = null;
+
+
+            CircuitPlug[] plugs = null;
+            CircuitPhysicalCable[] physicalCables = null;
             
-            foreach (var plug in FindObjectsByType<CircuitPlug>(FindObjectsSortMode.None))
+            if(PrefabStageUtility.GetCurrentPrefabStage() != null)
+            {
+                var prefab = PrefabStageUtility.GetCurrentPrefabStage().prefabContentsRoot;
+                plugs = prefab.GetComponentsInChildren<CircuitPlug>();
+                physicalCables = prefab.GetComponentsInChildren<CircuitPhysicalCable>();
+            }
+            else
+            {
+                plugs = FindObjectsByType<CircuitPlug>(FindObjectsSortMode.None);
+                physicalCables = FindObjectsByType<CircuitPhysicalCable>(FindObjectsSortMode.None);
+            }
+
+            if (Event.current.type == EventType.Repaint)
+            {
+                Handles.color = Color.blue;
+                foreach (var pc in physicalCables)
+                {
+                    if (pc.helder != null)
+                    {
+                        Handles.DrawDottedLine(pc.transform.position, pc.helder.position, 2);
+                    }
+                }
+                
+                //get all renderers[] in children of pc.Connector if pc.Connection != null, then join into a array
+                var renderers = physicalCables.SelectMany(x => x.Connector ? x.Connector.GetComponentsInChildren<Renderer>() : Array.Empty<Renderer>()).ToArray();
+                Handles.DrawOutline(renderers, Color.blue, 0f);
+            }
+
+            foreach (var plug in plugs)
             {
                 var pos = plug.transform.position;
                 
@@ -335,6 +391,8 @@ namespace SolarBuff.Circuit.Editor
             {
                 _mouseOverObject = HandleUtility.PickGameObject(Event.current.mousePosition, false);
             }
+            
+            
             
             switch (_action)
             {
@@ -494,7 +552,6 @@ namespace SolarBuff.Circuit.Editor
                     #endregion
 
                     #region Current Cable Editing
-                    
                     var closestPosition = Vector3.zero;
                     var closestSegment = 0;
                     var closestDistance = float.MaxValue;
