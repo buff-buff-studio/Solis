@@ -1,12 +1,10 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
-using NetBuff;
 using NetBuff.Components;
 using NetBuff.Interface;
 using NetBuff.Misc;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 namespace ExamplePlatformer
