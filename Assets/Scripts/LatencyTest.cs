@@ -11,27 +11,22 @@ namespace SolarBuff
     {
         public Vector3 pointA = new(5, 0, 5);
         public Vector3 pointB = new(-5, 0, 5);
-
-        private void OnEnable()
-        {
-            GetPacketListener<TestPacket>().OnClientReceive += OnClientReceive;
-        }
-
-        private void OnClientReceive(TestPacket packet)
+        
+        public override void OnClientReceivePacket(IOwnedPacket packet)
         {
             if (!HasAuthority)
                 return;
             
-            //transform.position = packet.Position;
+            transform.position = ((TestPacket)packet).Position;
         }
-
+        
         public void FixedUpdate()
         {
             if (!HasAuthority)
                 return;
-
+            
             transform.position = Vector3.Lerp(pointA, pointB, Mathf.PingPong(Time.time, 1));
-            ServerBroadcastPacket(new TestPacket
+            SendPacket(new TestPacket
             {
                 Position = transform.position,
                 Id = Id
