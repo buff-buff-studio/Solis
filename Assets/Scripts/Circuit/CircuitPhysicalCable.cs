@@ -8,6 +8,7 @@ using NetBuff.Misc;
 using SolarBuff.Circuit.Components;
 using Unity.Mathematics;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace SolarBuff.Circuit
 {
@@ -35,6 +36,12 @@ namespace SolarBuff.Circuit
         public GameObject nodePrefab;
         public GameObject connectorPrefabInput;
         public GameObject connectorPrefabOutput;
+        public GameObject prefabShockVFX;
+        
+        [SerializeField, HideInInspector]
+        public ParticleSystem shockVFX;
+        [SerializeField, HideInInspector]
+        public ParticleSystem connectorShockVFX;
       
         [Header("STATE")]
         public List<Node> nodes = new();
@@ -90,14 +97,17 @@ namespace SolarBuff.Circuit
             if (!Application.isPlaying)
                 return;
             #endif
+            Debug.Log("Cable enabled");
             GetPacketListener<PlayerPunchActionPacket>().OnServerReceive += OnPlayerPunch;
-            InvokeRepeating(nameof(TickCable), 0, 0.05f);
+            InvokeRepeating(nameof(TickCable), 0, 0.25f);
         }
 
         protected virtual void OnDisable()
         {
             if(_isQuitting)
                 return;
+            
+            CancelInvoke(nameof(ShockEffects));
             
             if(PlugA != null)
             {
@@ -117,6 +127,28 @@ namespace SolarBuff.Circuit
         protected virtual void OnApplicationQuit () 
         {
             _isQuitting = true;
+        }
+        
+        private void ShockEffects()
+        {
+            if (!PlugA.Owner.IsHighVoltage(PlugA))
+                return;
+
+            if (shockVFX == null)
+                shockVFX = Instantiate(prefabShockVFX, transform).GetComponent<ParticleSystem>();
+
+            if(connectorShockVFX == null)
+                connectorShockVFX = Instantiate(prefabShockVFX, transform).GetComponent<ParticleSystem>();
+
+            var pos = nodes[Random.Range(0, nodes.Count)].gameObject.transform.position;
+            shockVFX.transform.position = pos;
+            shockVFX.Play();
+
+            if (PlugB == null)
+            {
+                connectorShockVFX.transform.position = connector.transform.position;
+                connectorShockVFX.Play();
+            }
         }
 
         private void OnPlayerPunch(PlayerPunchActionPacket packet, int client)
@@ -175,6 +207,8 @@ namespace SolarBuff.Circuit
                 connector = Instantiate(PlugA.type == CircuitPlug.Type.Input ? connectorPrefabOutput : connectorPrefabInput, Vector3.one, Quaternion.identity, transform);
                 Helder = helder;
             }
+
+            ShockEffects();
 
             if (nodes.Count > minNodeCount || Helder != null)
             {

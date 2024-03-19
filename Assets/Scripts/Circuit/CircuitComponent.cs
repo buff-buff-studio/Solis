@@ -35,6 +35,11 @@ namespace SolarBuff.Circuit
             return default;
         }
         
+        public virtual bool IsHighVoltage(CircuitPlug plug)
+        {
+            return false;
+        }
+        
         protected virtual void OnRefresh()
         {
             

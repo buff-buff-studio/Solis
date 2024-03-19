@@ -17,6 +17,11 @@ namespace SolarBuff.Circuit.Components
             return exit == plug ? socket.ReadValue<T>() : exit.ReadValue<T>();
         }
 
+        public override bool IsHighVoltage(CircuitPlug plug)
+        {
+            return plug == exit ? socket.IsHighVoltage() : exit.IsHighVoltage();
+        }
+
         protected override void OnRefresh()
         {
             #if UNITY_EDITOR

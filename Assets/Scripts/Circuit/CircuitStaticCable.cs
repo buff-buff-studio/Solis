@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace SolarBuff.Circuit
 {
@@ -21,11 +22,15 @@ namespace SolarBuff.Circuit
 
         private LineRenderer _renderer;
         
-        public List<ControlPoint> controlPoints = new();
-        
+        [Header("REFERENCES")]
         public CircuitPlug plugA;
         public CircuitPlug plugB;
+        public GameObject prefabShockVFX;
+        public ParticleSystem shockVFX;
         
+        [Header("STATE")]
+        public List<ControlPoint> controlPoints = new();
+
         public CircuitPlug PlugA
         {
             get => plugA;
@@ -43,10 +48,13 @@ namespace SolarBuff.Circuit
 #if UNITY_EDITOR
             _renderer.material = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Cable.mat");
             _renderer.widthCurve = new AnimationCurve(new Keyframe(0, 0.25f), new Keyframe(1, 0.25f));
+            prefabShockVFX = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/VFX/Shock.prefab");
 #endif
             
             if(_RefreshInternal())
                 RefreshVisual(true);
+            
+            InvokeRepeating(nameof(ShockEffects), 0f, 0.25f);
         }
         
         protected virtual void OnDisable()
@@ -54,6 +62,8 @@ namespace SolarBuff.Circuit
             if(_isQuitting)
                 return;
             
+            CancelInvoke(nameof(ShockEffects));
+
             if(plugA != null)
             {
                 plugA.Connection = null;
@@ -73,15 +83,35 @@ namespace SolarBuff.Circuit
         {
             _isQuitting = true;
         }
-        
+
+        private void ShockEffects()
+        {
+            if(!Application.isPlaying)
+                return;
+            
+            if (!plugA.IsHighVoltage())
+                return;
+            
+            if (shockVFX == null)
+                shockVFX = Instantiate(prefabShockVFX, transform).GetComponent<ParticleSystem>(); 
+ 
+            var points = GetControlPoints();
+            var ri = Random.Range(0, points.Length - 1);
+            var pos = BezierCurveData.BezierCurve(points[ri], points[ri + 1], Random.Range(0f, 1f));
+            
+
+            shockVFX.transform.position = pos;
+            shockVFX.Play();
+        }
+
         private void Update()
         {
-            if(plugA == null || plugB == null)
+            if (plugA == null || plugB == null)
             {
                 DestroyImmediate(gameObject);
                 return;
             }
-            
+
             if (plugA.Owner != null && plugA.Owner.transform.hasChanged)
             {
                 RefreshVisual(true);
@@ -221,7 +251,7 @@ namespace SolarBuff.Circuit
             return Mathf.CeilToInt(Vector3.Distance(p0.position, p1.position) / 0.1f);
         }
         
-        private static Vector3 BezierCurve(CircuitStaticCable.ControlPoint p0, CircuitStaticCable.ControlPoint p1, float t)
+        public static Vector3 BezierCurve(CircuitStaticCable.ControlPoint p0, CircuitStaticCable.ControlPoint p1, float t)
         {
             return Mathf.Pow(1 - t, 3) * p0.position +
                    3 * Mathf.Pow(1 - t, 2) * t * (p0.position + p0.rightHandle) +

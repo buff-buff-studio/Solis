@@ -21,7 +21,7 @@ namespace SolarBuff.Circuit
         }
 
         public Type type = Type.Output;
-        [SerializeField]
+        [SerializeField, HideInInspector]
         private MonoBehaviour connection;
         public ICircuitConnection Connection
         {
@@ -81,6 +81,19 @@ namespace SolarBuff.Circuit
                 Type.Input => Other.ReadOutput<T>(OtherPlug),
                 Type.Output => Owner.ReadOutput<T>(this),
                 _ => default
+            };
+        }
+        
+        public bool IsHighVoltage()
+        {
+            if(Connection == null)
+                return false;
+            
+            return type switch
+            {
+                Type.Input => Other.IsHighVoltage(OtherPlug),
+                Type.Output => Owner.IsHighVoltage(this),
+                _ => false
             };
         }
     }
