@@ -7,6 +7,7 @@ using NetBuff.Interface;
 using NetBuff.Misc;
 using SolarBuff.Circuit.Components;
 using Unity.Mathematics;
+using Unity.VisualScripting;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -48,6 +49,18 @@ namespace SolarBuff.Circuit
         public Rigidbody helder;
         [SerializeField]
         private GameObject connector;
+        
+        public CircuitPlug PlugA
+        {
+            get => transform.GetComponentInParent<CircuitPlug>();
+        }
+        
+        public CircuitPlug PlugB
+        {
+            get => helder == null ? null : helder.GetComponent<CircuitPlug>();
+        }
+
+        private CircuitPlug _lastPlugB;
 
         public Node Head => nodes[^1];
         public Node Tail => nodes[0];
@@ -102,7 +115,7 @@ namespace SolarBuff.Circuit
             GetPacketListener<PlayerPunchActionPacket>().OnServerReceive += OnPlayerPunch;
             InvokeRepeating(nameof(TickCable), 0, 0.25f);
         }
-
+        
         protected virtual void OnDisable()
         {
             if(_isQuitting)
@@ -162,6 +175,10 @@ namespace SolarBuff.Circuit
 
                 var transform1 = puncher.transform;
                 var size = Physics.OverlapSphereNonAlloc(transform1.position + transform1.forward * 0.5f + new Vector3(0, 0.5f, 0), 1.5f, _Results);
+                
+                var closestSocket = default(CircuitSocket);
+                var closestDistance = float.MaxValue;
+                
                 for (var i = 0; i < size; i++)
                 {
                     var hit = _Results[i];
@@ -176,15 +193,21 @@ namespace SolarBuff.Circuit
                         if (socket.GetComponentInChildren<CircuitPhysicalCable>() != null)
                             return;
                         
-                        Helder = socket.socket.GetComponentInParent<Rigidbody>();
-                        break;
+                        var distance = Vector3.Distance(puncher.transform.position, socket.transform.position);
+                        if (distance < closestDistance)
+                        {
+                            closestSocket = socket;
+                            closestDistance = distance;
+                        }
                     }
                 }
+                
+                if(closestSocket != null)
+                    Helder = closestSocket.socket.GetComponentInParent<Rigidbody>();
             }
             else
             {
-                //check radius
-                if (Vector3.Distance(puncher.transform.position, Head.gameObject.transform.position) > 2f)
+                if (Vector3.Distance(puncher.transform.position, Head.gameObject.transform.position) > 1.25f)
                     return;
                 
                 Helder = puncher;
@@ -386,16 +409,6 @@ namespace SolarBuff.Circuit
             if(_renderer != null)
                 _renderer.material.color = Color.black;
             return false;
-        }
-
-        public CircuitPlug PlugA
-        {
-            get => transform.GetComponentInParent<CircuitPlug>();
-        }
-        
-        public CircuitPlug PlugB
-        {
-            get => helder == null ? null : helder.GetComponent<CircuitPlug>();
         }
         
         private bool _RefreshInternal()

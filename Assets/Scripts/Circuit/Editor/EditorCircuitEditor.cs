@@ -339,8 +339,8 @@ namespace SolarBuff.Circuit.Editor
             CircuitPlug mouseOverPlug = null;
 
 
-            CircuitPlug[] plugs = null;
-            CircuitPhysicalCable[] physicalCables = null;
+            CircuitPlug[] plugs;
+            CircuitPhysicalCable[] physicalCables;
             
             if(PrefabStageUtility.GetCurrentPrefabStage() != null)
             {
@@ -375,7 +375,7 @@ namespace SolarBuff.Circuit.Editor
                 var pos = plug.transform.position;
                 
                 Handles.color = plug.type == CircuitPlug.Type.Input ? Color.green : Color.red;
-               
+
                 if (HandleUtility.DistanceToCircle(pos, 0.15f) < 0.25f)
                 {
                     Handles.color = Color.yellow;
@@ -418,7 +418,7 @@ namespace SolarBuff.Circuit.Editor
 
                             try
                             {
-                                if (_currentPlug.Connection != null)
+                                if (_currentPlug.Connection != null && _currentPlug.Connection is not CircuitPhysicalCable)
                                 {
                                     Undo.DestroyObjectImmediate((_currentPlug.Connection as MonoBehaviour)!.gameObject);
                                 }
@@ -809,7 +809,7 @@ namespace SolarBuff.Circuit.Editor
         }
 
 
-        public CircuitStaticCable CreateConnection(CircuitPlug a, CircuitPlug b)
+        public void CreateConnection(CircuitPlug a, CircuitPlug b)
         {
             var go = new GameObject("Connection");
             go.SetActive(false);
@@ -819,9 +819,8 @@ namespace SolarBuff.Circuit.Editor
             go.transform.parent = a.transform;
             go.SetActive(true);
             Undo.RegisterCreatedObjectUndo(go, "Create Connection");
-            return con;
         }
-
+        
         private void HandlesPlain()
         {
             var point = _currentStaticCable.controlPoints[_currentControlPointIndex - 1];

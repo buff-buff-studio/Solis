@@ -54,7 +54,8 @@ namespace SolarBuff.Circuit
             if(_RefreshInternal())
                 RefreshVisual(true);
             
-            InvokeRepeating(nameof(ShockEffects), 0f, 0.25f);
+            if(Application.isPlaying)
+                InvokeRepeating(nameof(ShockEffects), 0f, 0.25f);
         }
         
         protected virtual void OnDisable()
