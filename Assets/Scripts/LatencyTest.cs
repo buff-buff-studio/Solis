@@ -1,5 +1,8 @@
 ﻿using System;
+using System.IO;
 using NetBuff.Components;
+using NetBuff.Interface;
+using NetBuff.Misc;
 using UnityEngine;
 
 namespace SolarBuff
@@ -8,13 +11,51 @@ namespace SolarBuff
     {
         public Vector3 pointA = new(5, 0, 5);
         public Vector3 pointB = new(-5, 0, 5);
-        
-        public void Update()
+
+        private void OnEnable()
+        {
+            GetPacketListener<TestPacket>().OnClientReceive += OnClientReceive;
+        }
+
+        private void OnClientReceive(TestPacket packet)
+        {
+            if (!HasAuthority)
+                return;
+            
+            //transform.position = packet.Position;
+        }
+
+        public void FixedUpdate()
         {
             if (!HasAuthority)
                 return;
 
             transform.position = Vector3.Lerp(pointA, pointB, Mathf.PingPong(Time.time, 1));
+            ServerBroadcastPacket(new TestPacket
+            {
+                Position = transform.position,
+                Id = Id
+            });
+        }
+    }
+
+    public class TestPacket : IOwnedPacket
+    {
+        public Vector3 Position { get; set; }
+        public NetworkId Id { get; set; }
+
+        public void Serialize(BinaryWriter writer)
+        {
+            writer.Write(Position.x);
+            writer.Write(Position.y);
+            writer.Write(Position.z);
+            Id.Serialize(writer);
+        }
+
+        public void Deserialize(BinaryReader reader)
+        {
+            Position = new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+            Id = NetworkId.Read(reader);
         }
     }
 }
