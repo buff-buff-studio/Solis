@@ -14,10 +14,17 @@ namespace SolarBuff
         
         public override void OnClientReceivePacket(IOwnedPacket packet)
         {
-            if (!HasAuthority)
-                return;
-            
+            Debug.Log("Received packet");
             transform.position = ((TestPacket)packet).Position;
+        }
+        
+        public override void OnServerReceivePacket(IOwnedPacket packet, int clientId)
+        {
+            if (packet is TestPacket testPacket)
+            {
+                if(clientId == OwnerId)
+                    ServerBroadcastPacketExceptFor(testPacket, clientId);
+            }
         }
         
         public void FixedUpdate()
