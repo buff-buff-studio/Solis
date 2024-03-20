@@ -14,7 +14,8 @@ namespace SolarBuff
         
         public override void OnClientReceivePacket(IOwnedPacket packet)
         {
-            Debug.Log("Received packet");
+            if (!HasAuthority)
+                  return;
             transform.position = ((TestPacket)packet).Position;
         }
         

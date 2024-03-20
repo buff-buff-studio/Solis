@@ -231,11 +231,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6e25519dc96460b8011f9bfd913a40f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tickRate: 50
+  tickRate: -1
   positionThreshold: 0.001
   rotationThreshold: 0.001
   scaleThreshold: 0.001
-  syncMode: 63
+  syncMode: 23
 --- !u!114 &922781417736276033
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -255,7 +255,7 @@ MonoBehaviour:
   jumpForce: 2.5
   rotationSpeed: 5
   gravity: 8
-  tickRate: 50
+  tickRate: 128
   velocity: {x: 0, y: 0, z: 0}
   punchCooldown: 0
   remoteBodyRotation: 0
