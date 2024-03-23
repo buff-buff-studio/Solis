@@ -10,33 +10,26 @@ namespace SolarBuff.Circuit.Components
         public CircuitPlug input;
         [SerializeField]private Transform start;
         [SerializeField]private Transform end;
-        public BoolNetworkValue isOnStart = new(true);
         [SerializeField] private Transform claw;
         [SerializeField]
         private int radiusToGetObject = 4;
-
         private Transform objectHolding;
-        private BoolNetworkValue hasObject;
         [SerializeField]
         private LayerMask layerMask;
         
         protected override void OnEnable()
         {
             base.OnEnable();
-            
-            WithValues(isOnStart,hasObject);
-            claw.position = isOnStart.Value ? start.position : end.position;
+            claw.position = input.ReadValue<bool>() ? start.position : end.position;
         }
 
         protected override void OnRefresh()
         {
             // when is active
             Debug.Log("MOVEE");
-            if (!hasObject.Value)
+            if (objectHolding == null)
                 GetNearObject();
-            claw.DOMove(isOnStart.Value ? end.position : start.position, 2f).OnComplete(OnFinish);
-                
-            isOnStart.Value = !isOnStart.Value;
+            claw.DOMove(input.ReadValue<bool>() ? end.position : start.position, 2f).OnComplete(OnFinish);
         }
 
         private void OnFinish()
@@ -46,20 +39,18 @@ namespace SolarBuff.Circuit.Components
 
         private void ReleaseObject()
         {
-            if (!hasObject.Value)
+            if (objectHolding != null)
                 objectHolding.transform.SetParent(null);
         }
 
         private void GetNearObject()
         {
-            Collider[] colliders = new Collider[1];
+            Collider[] colliders = new Collider[8];
             var size = Physics.OverlapSphereNonAlloc(claw.position, radiusToGetObject, colliders,layerMask);
-
-            foreach (var c in colliders)
+            for (int i = 0; i < size; i++)
             {
-                objectHolding = c.transform;
+                objectHolding = colliders[i].transform;
                 objectHolding.transform.SetParent(claw);
-                hasObject.Value = true;
             }
         }
     }
