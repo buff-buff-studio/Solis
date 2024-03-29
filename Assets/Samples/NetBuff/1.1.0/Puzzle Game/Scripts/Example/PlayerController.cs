@@ -3,13 +3,14 @@ using System.Threading.Tasks;
 using NetBuff.Components;
 using NetBuff.Interface;
 using NetBuff.Misc;
+using SolarBuff.Circuit.Components.Testing;
 using TMPro;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace ExamplePlatformer
 {
-    public class PlayerController : NetworkBehaviour
+    public class PlayerController : MagnetObject
     {
         private OrbitCamera _orbitCamera;
         private CharacterController _controller;

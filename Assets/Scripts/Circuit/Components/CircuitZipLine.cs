@@ -1,6 +1,7 @@
 ﻿using DG.Tweening;
 using ExamplePlatformer;
 using NetBuff.Misc;
+using SolarBuff.Circuit.Components.Testing;
 using UnityEngine;
 
 namespace SolarBuff.Circuit.Components
@@ -20,16 +21,15 @@ namespace SolarBuff.Circuit.Components
         protected override void OnEnable()
         {
             base.OnEnable();
-            claw.position = input.ReadValue<bool>() ? start.position : end.position;
+            claw.position = input.ReadValue<bool>() ?end.position: start.position;
         }
 
         protected override void OnRefresh()
         {
-            // when is active
-            Debug.Log("MOVEE");
-            if (objectHolding == null)
+            var inputBool = input.ReadValue<bool>();
+            if (objectHolding == null && inputBool)
                 GetNearObject();
-            claw.DOMove(input.ReadValue<bool>() ? end.position : start.position, 2f).OnComplete(OnFinish);
+            claw.DOMove(inputBool? end.position : start.position, 2f).OnComplete(OnFinish);
         }
 
         private void OnFinish()
@@ -40,7 +40,11 @@ namespace SolarBuff.Circuit.Components
         private void ReleaseObject()
         {
             if (objectHolding != null)
+            {
                 objectHolding.transform.SetParent(null);
+            }
+
+            objectHolding = null;
         }
 
         private void GetNearObject()
@@ -49,8 +53,13 @@ namespace SolarBuff.Circuit.Components
             var size = Physics.OverlapSphereNonAlloc(claw.position, radiusToGetObject, colliders,layerMask);
             for (int i = 0; i < size; i++)
             {
-                objectHolding = colliders[i].transform;
-                objectHolding.transform.SetParent(claw);
+                if (colliders[i].transform.TryGetComponent(out MagnetObject coll))
+                {
+                    objectHolding = colliders[i].transform;
+                    objectHolding.transform.SetParent(claw);
+                    objectHolding.transform.localPosition = Vector3.zero;
+                    break;
+                }
             }
         }
     }
