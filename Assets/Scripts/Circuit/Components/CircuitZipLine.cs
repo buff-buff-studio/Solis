@@ -55,10 +55,14 @@ namespace SolarBuff.Circuit.Components
             {
                 if (colliders[i].transform.TryGetComponent(out MagnetObject coll))
                 {
-                    objectHolding = colliders[i].transform;
+                    if (colliders[i].CompareTag("Player"))
+                        objectHolding = colliders[i].transform;
+                    else if (objectHolding == null)
+                        objectHolding = colliders[i].transform;
+                    
+                    
                     objectHolding.transform.SetParent(claw);
                     objectHolding.transform.localPosition = Vector3.zero;
-                    break;
                 }
             }
         }
