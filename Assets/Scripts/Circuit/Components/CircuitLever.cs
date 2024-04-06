@@ -1,5 +1,6 @@
 ﻿using ExamplePlatformer;
 using NetBuff.Misc;
+using SolarBuff.Player;
 using UnityEngine;
 
 namespace SolarBuff.Circuit.Components

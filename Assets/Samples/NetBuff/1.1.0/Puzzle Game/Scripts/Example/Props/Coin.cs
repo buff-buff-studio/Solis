@@ -1,4 +1,5 @@
 ﻿using NetBuff.Components;
+using SolarBuff.Player;
 using UnityEngine;
 
 namespace ExamplePlatformer.Props

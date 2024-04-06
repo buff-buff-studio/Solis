@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using NetBuff.Components;
 using NetBuff.Interface;
 using NetBuff.Misc;
+using SolarBuff.Player;
 using TMPro;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -313,7 +314,7 @@ namespace ExamplePlatformer
         }
     }
 
-    public class PlayerPunchActionPacket : IPacket
+    public class PlayerPunchActionPacketOld : IPacket
     {
         public NetworkId Id { get; set; }
         

@@ -1,5 +1,6 @@
 ﻿using NetBuff.Interface;
 using NetBuff.Misc;
+using SolarBuff.Player;
 using UnityEngine;
 
 namespace ExamplePlatformer.Props
