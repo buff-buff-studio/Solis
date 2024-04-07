@@ -39,8 +39,6 @@ namespace ExamplePlatformer
 
         public Renderer[] bodyRenderers;
 
-
-        public Transform plataform = null;
         
         public void OnEnable()
         { 
@@ -188,7 +186,7 @@ namespace ExamplePlatformer
             
             return current[..1].ToUpper() + current[1..];
         }
-        Vector3 deslocamentoPlataforma = Vector3.zero;
+   
         private void Update()
         {
             if (!HasAuthority || !IsOwnedByClient)
@@ -253,14 +251,6 @@ namespace ExamplePlatformer
             
             if (GetJumpInput(idx) && IsGrounded)
                 velocity.y = jumpForce;
-            
-    
-            if (plataform != null)
-            {
-                Vector3 deltaPosition = plataform.position - plataform.position - deslocamentoPlataforma;
-                transform.position += deltaPosition;
-                deslocamentoPlataforma = plataform.position - plataform.position;
-            }
         }
 
         public Vector3 GetMoveInput(int index)

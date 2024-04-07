@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using DG.Tweening;
 using ExamplePlatformer;
 using SolarBuff.Circuit;
+using SolarBuff.Player;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -20,11 +21,11 @@ public class CircuitMovingPlataform : CircuitComponent
       private Vector3 deslocationFinal;
       [SerializeField]
       private LayerMask layerMask;
-      private List<PlayerController> playersOnTop;
+      private List<PlayerControllerCore> playersOnTop;
       protected override void OnEnable()
       {
           base.OnEnable();
-          playersOnTop = new List<PlayerController>();
+          playersOnTop = new List<PlayerControllerCore>();
           deslocationInitial = transform.position;
           deslocationFinal = deslocationInitial + deslocationAmount;
           plataform.position = input.ReadValue<bool>() ? deslocationFinal : deslocationInitial;
@@ -33,7 +34,8 @@ public class CircuitMovingPlataform : CircuitComponent
       protected override void OnRefresh() 
       {
           var inputBool = input.ReadValue<bool>();
-     
+          deslocationInitial = transform.position;
+          deslocationFinal = deslocationInitial + deslocationAmount;
           GetPlayers();
           plataform.DOMove(inputBool? deslocationFinal : deslocationInitial, 2f).OnComplete(OnFinish);
       }
@@ -44,12 +46,13 @@ public class CircuitMovingPlataform : CircuitComponent
 
       private void ReleaseObject()
       {
-          playersOnTop.Clear();
+          
           foreach (var p in playersOnTop)
           {
               p.plataform = null;
               p.transform.SetParent(null);
           }
+          playersOnTop.Clear();
       }
 
       private void GetPlayers()
@@ -59,7 +62,7 @@ public class CircuitMovingPlataform : CircuitComponent
           var size = Physics.OverlapSphereNonAlloc(plataform.position, radiusToGetPlayer, colliders,layerMask);
           for (int i = 0; i < size; i++)
           {
-              if (colliders[i].transform.TryGetComponent(out PlayerController coll))
+              if (colliders[i].transform.TryGetComponent(out PlayerControllerCore coll))
               {
                   coll.transform.SetParent(plataform);
                   coll.plataform = plataform;

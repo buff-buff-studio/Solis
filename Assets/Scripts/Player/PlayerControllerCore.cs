@@ -6,6 +6,7 @@ using NetBuff;
 using NetBuff.Components;
 using NetBuff.Interface;
 using NetBuff.Misc;
+using SolarBuff.Circuit.Components.Testing;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -13,7 +14,7 @@ using Random = UnityEngine.Random;
 
 namespace SolarBuff.Player
 {
-    public class PlayerControllerCore : NetworkBehaviour
+    public class PlayerControllerCore : MagnetObject
     {
         public enum PlayerType
         {
@@ -91,6 +92,8 @@ namespace SolarBuff.Player
         //DEBUG
         private Vector3 DEBUG_nextMovePos;
 
+
+        public Transform plataform = null;
         #region Network Events
 
         /// <summary>
@@ -341,15 +344,21 @@ namespace SolarBuff.Player
                 punchCooldown -= Time.deltaTime;
             }
         }
-
+        Vector3 plataformDeslocation = Vector3.zero;
         private void Move()
         {
             var target = moveInput * maxSpeed;
             var accelerationValue = ((Mathf.Abs(moveInput.magnitude) > 0.01f) ? acceleration : deceleration) * Time.deltaTime;
             velocity.x = Mathf.MoveTowards(velocity.x, target.x, accelerationValue);
             velocity.z = Mathf.MoveTowards(velocity.z, target.y, accelerationValue);
-
-            if(IsGrounded) velocity.y = 0;
+            
+            if (plataform != null)
+            {
+                Vector3 deltaPosition = Vector3.zero - plataformDeslocation;
+                transform.position += deltaPosition;
+                plataformDeslocation = plataform.position - plataform.position;
+            }
+            if(IsGrounded && plataform != null) velocity.y = 0;
 
         }
 
