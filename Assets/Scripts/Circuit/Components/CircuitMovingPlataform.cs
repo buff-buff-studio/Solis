@@ -37,7 +37,8 @@ public class CircuitMovingPlataform : CircuitComponent
           deslocationInitial = transform.position;
           deslocationFinal = deslocationInitial + deslocationAmount;
           GetPlayers();
-          plataform.DOMove(inputBool? deslocationFinal : deslocationInitial, 2f).OnComplete(OnFinish);
+          var duration = Vector3.Distance(deslocationFinal, deslocationInitial) / speed;
+          plataform.DOMove(inputBool? deslocationFinal : deslocationInitial, duration).OnComplete(OnFinish);
       }
       private void OnFinish()
       {
