@@ -715,15 +715,15 @@ MonoBehaviour:
   bodyColor:
     _value: {r: 1, g: 1, b: 1, a: 1}
     _type: 0
-  maxSpeed: 12
-  acceleration: 5
-  deceleration: 8
-  rotationSpeed: 25
-  jumpMaxHeight: 2
+  maxSpeed: 8
+  acceleration: 8
+  deceleration: 35
+  rotationSpeed: 120
+  jumpMaxHeight: 1.4
   jumpAcceleration: 12
   jumpGravityMultiplier: 2.5
   jumpCutGravityMultiplier: 4
-  coyoteTime: 0.3
+  coyoteTime: 0.15
   gravity: -9.81
   fallMultiplier: 2.5
   maxFallSpeed: 20
@@ -733,6 +733,7 @@ MonoBehaviour:
   - {fileID: 5040728287473014772}
   - {fileID: 2376470771393022375}
   - {fileID: 1273957884449541353}
+  plataform: {fileID: 0}
 --- !u!1 &7858759348736470470
 GameObject:
   m_ObjectHideFlags: 0
