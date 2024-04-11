@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using ExamplePlatformer;
@@ -21,6 +22,8 @@ namespace SolarBuff.Player
             Human,
             Robot
         }
+        
+        public static readonly List<PlayerControllerCore> Players = new();
 
         [Header("References")]
         public CharacterController controller;
@@ -178,13 +181,14 @@ namespace SolarBuff.Player
 
                     cameraA.rect = new Rect(0, 0, 0.5f, 1);
                     cameraB.rect = new Rect(0.5f, 0, 0.5f, 1);
-                    type = PlayerType.Robot;
                 }
+                type = Players.FindIndex(p => p == this) == 0 ? PlayerType.Human : PlayerType.Robot;
             }
 
             nickname.Value = CreateRandomEnglishName();
             bodyColor.Value = Random.ColorHSV(0, 1, 1, 1, 1, 1);
             cam = cam ?? FindObjectOfType<OrbitCamera>();
+            transform.position = GameManager.Instance.GetPlayerSpawnPoint(type).position;
         }
 
         #endregion
@@ -193,6 +197,8 @@ namespace SolarBuff.Player
 
         public void OnEnable()
         {
+            Players.Add(this);
+            
             remoteBodyRotation = body.localEulerAngles.y;
             remoteBodyPosition = body.localPosition;
             _multiplier = fallMultiplier;
