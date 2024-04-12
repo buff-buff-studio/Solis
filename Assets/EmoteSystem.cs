@@ -1,10 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
+using NetBuff.Components;
 using SolarBuff.Player;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class EmoteSystem : MonoBehaviour
+public class EmoteSystem : NetworkBehaviour
 {
     public Image emoteImage;
     public GameObject emoteObject;
@@ -31,7 +32,10 @@ public class EmoteSystem : MonoBehaviour
         emoteObject.SetActive(false);
     }
 
-    public void ShowEmote(int emoteIndex, PlayerControllerCore.PlayerType playerType) {
+    public void ShowEmote(int emoteIndex, PlayerControllerCore.PlayerType playerType)
+    {
+        if (!HasAuthority) return;
+        
         ShowEmote(emoteSlots[emoteIndex], playerType);
     }
 
