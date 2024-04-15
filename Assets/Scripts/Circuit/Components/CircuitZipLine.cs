@@ -2,6 +2,7 @@
 using ExamplePlatformer;
 using NetBuff.Misc;
 using SolarBuff.Circuit.Components.Testing;
+using SolarBuff.Player;
 using UnityEngine;
 
 namespace SolarBuff.Circuit.Components
@@ -56,7 +57,11 @@ namespace SolarBuff.Circuit.Components
                 if (colliders[i].transform.TryGetComponent(out MagnetObject coll))
                 {
                     if (colliders[i].CompareTag("Player"))
-                        objectHolding = colliders[i].transform;
+                    {
+                        var player = coll.transform.GetComponent<PlayerControllerCore>();
+                        if(player.type == PlayerControllerCore.PlayerType.Robot)
+                            objectHolding = colliders[i].transform;
+                    }
                     else if (objectHolding == null)
                         objectHolding = colliders[i].transform;
                     
