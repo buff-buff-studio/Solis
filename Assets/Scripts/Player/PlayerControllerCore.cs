@@ -17,7 +17,7 @@ namespace SolarBuff.Player
 {
     public class PlayerControllerCore : MagnetObject
     {
-        public enum PlayerType
+        public enum PlayerType : int
         {
             Human,
             Robot
@@ -38,7 +38,12 @@ namespace SolarBuff.Player
         [Header("Network")]
         public int tickRate = 50;
         public StringNetworkValue nickname = new StringNetworkValue("");
-        public ColorNetworkValue bodyColor = new ColorNetworkValue(Color.white);
+        public IntNetworkValue pType = new IntNetworkValue(-1);
+
+        public Color bodyRob;
+        public Color skinRob;
+        public Color bodyHum;
+        public Color skinHum;
 
         private float remoteBodyRotation;
         private Vector3 remoteBodyPosition;
@@ -182,13 +187,12 @@ namespace SolarBuff.Player
                     cameraA.rect = new Rect(0, 0, 0.5f, 1);
                     cameraB.rect = new Rect(0.5f, 0, 0.5f, 1);
                 }
-                type = Players.FindIndex(p => p == this) == 0 ? PlayerType.Human : PlayerType.Robot;
             }
-
+            pType.Value = (int)(Players.FindIndex(p => p == this) == 0 ? PlayerType.Human : PlayerType.Robot);
+            Debug.Log(type.ToString());
             nickname.Value = CreateRandomEnglishName();
-            bodyColor.Value = Random.ColorHSV(0, 1, 1, 1, 1, 1);
             cam = cam ?? FindObjectOfType<OrbitCamera>();
-            transform.position = GameManager.Instance.GetPlayerSpawnPoint(type).position;
+            transform.position = GameManager.Instance.GetPlayerSpawnPoint( (PlayerType) pType.Value).position;
         }
 
         #endregion
@@ -199,26 +203,36 @@ namespace SolarBuff.Player
         {
             Players.Add(this);
             
+            pType.OnValueChanged += OnPlayerTypeChange;
             remoteBodyRotation = body.localEulerAngles.y;
             remoteBodyPosition = body.localPosition;
             _multiplier = fallMultiplier;
             dustParticles.Stop();
             if (controller == null) TryGetComponent(out controller);
             InvokeRepeating(nameof(Tick), 0, 1f / tickRate);
-            WithValues(nickname, bodyColor);
+            WithValues(nickname, pType);
 
             nickname.OnValueChanged += (oldValue, newValue) =>
             {
                 headplate.text = newValue;
             };
+        }
 
-            bodyColor.OnValueChanged += (oldValue, newValue) =>
+        private void OnPlayerTypeChange(int oldvalue, int newvalue)
+        {
+            if(!HasAuthority) return;
+            
+            type = (PlayerType)newvalue;
+            Debug.LogWarning(type.ToString());
+            var bodyCol = newvalue == 0 ? bodyHum : bodyRob;
+            var skinCol = newvalue == 0 ? skinHum : skinRob;
+            bodyRenderers[3].materials[2].color = newvalue == 0 ? Color.black : Color.yellow;
+            
+            foreach (var r in bodyRenderers)
             {
-                foreach (var r in bodyRenderers)
-                {
-                    r.material.color = newValue;
-                }
-            };
+                r.materials[0].color = bodyCol;
+                if(r.materials.Length > 1) r.materials[1].color = skinCol;
+            }
         }
 
         private void OnDisable()
