@@ -20,7 +20,8 @@ namespace SolarBuff.Player
         public enum PlayerType : int
         {
             Human,
-            Robot
+            Robot,
+            Both
         }
         
         public static readonly List<PlayerControllerCore> Players = new();

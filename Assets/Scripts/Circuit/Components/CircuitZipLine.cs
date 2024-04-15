@@ -9,7 +9,6 @@ namespace SolarBuff.Circuit.Components
 {
     public class CircuitZipLine : CircuitComponent
     {
-        public CircuitPlug input;
         [SerializeField]private Transform start;
         [SerializeField]private Transform end;
         [SerializeField] private Transform claw;
@@ -22,12 +21,12 @@ namespace SolarBuff.Circuit.Components
         protected override void OnEnable()
         {
             base.OnEnable();
-            claw.position = input.ReadValue<bool>() ?end.position: start.position;
+            claw.position = GetPlugValue(CircuitPlug.Type.Input) ?end.position: start.position;
         }
 
         protected override void OnRefresh()
         {
-            var inputBool = input.ReadValue<bool>();
+            var inputBool = GetPlugValue(CircuitPlug.Type.Input);
             if (objectHolding == null && inputBool)
                 GetNearObject();
             claw.DOMove(inputBool? end.position : start.position, 2f).OnComplete(OnFinish);

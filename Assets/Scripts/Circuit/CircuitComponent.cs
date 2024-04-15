@@ -18,7 +18,8 @@ namespace SolarBuff.Circuit
         {
             input = plugs.Exists(p => p.type == CircuitPlug.Type.Input) ? plugs.FindIndex(p => p.type == CircuitPlug.Type.Input) : -1;
             output = plugs.Exists(p => p.type == CircuitPlug.Type.Output) ? plugs.FindIndex(p => p.type == CircuitPlug.Type.Output) : -1;
-            
+            if(plugs.Count == 0)
+                plugs = GetComponentsInChildren<CircuitPlug>().ToList();
             OnRefresh();
         }
 
@@ -141,7 +142,7 @@ namespace SolarBuff.Circuit
 
             base.OnInspectorGUI();
         }
-
+            
         private static void CreatePlug(CircuitComponent target, bool isOutput)
         {
             var plug = new GameObject(target.name + (isOutput ? " Output" : " Input"));

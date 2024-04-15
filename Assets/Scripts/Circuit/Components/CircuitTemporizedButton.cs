@@ -12,7 +12,6 @@ namespace SolarBuff.Circuit.Components
         public float radius = 2f;
         public int timeOn = 4;
         public Transform handle;
-        public CircuitPlug output;
         private float buttonScale = 0.01f;
         
         protected override void OnEnable()

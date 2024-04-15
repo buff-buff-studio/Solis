@@ -6,7 +6,6 @@ namespace SolarBuff.Circuit.Components
 {
     public class CircuitButton : CircuitComponent
     {
-        public CircuitPlug output;
         public BoolNetworkValue isOn = new(false);
         public Transform knob;
         
