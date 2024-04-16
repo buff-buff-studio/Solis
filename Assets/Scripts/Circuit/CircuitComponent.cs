@@ -18,8 +18,6 @@ namespace SolarBuff.Circuit
         {
             input = plugs.Exists(p => p.type == CircuitPlug.Type.Input) ? plugs.FindIndex(p => p.type == CircuitPlug.Type.Input) : -1;
             output = plugs.Exists(p => p.type == CircuitPlug.Type.Output) ? plugs.FindIndex(p => p.type == CircuitPlug.Type.Output) : -1;
-            if(plugs.Count == 0)
-                plugs = GetComponentsInChildren<CircuitPlug>().ToList();
             OnRefresh();
         }
 
@@ -130,6 +128,9 @@ namespace SolarBuff.Circuit
         public override void OnInspectorGUI()
         {
             var target = (CircuitComponent) this.target;
+
+            serializedObject.Update();
+
             if (target.plugs == null || target.plugs.Count == 0 || target.plugs.Exists(p => p == null))
             {
                 EditorGUILayout.HelpBox("This script has no plugs, it won't do anything.\nO script não tem plugs referenciados, ele não fará nada.", MessageType.Error);
@@ -141,6 +142,8 @@ namespace SolarBuff.Circuit
             }
 
             base.OnInspectorGUI();
+
+            serializedObject.ApplyModifiedProperties();
         }
             
         private static void CreatePlug(CircuitComponent target, bool isOutput)
