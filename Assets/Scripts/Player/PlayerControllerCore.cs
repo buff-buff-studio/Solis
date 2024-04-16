@@ -188,10 +188,12 @@ namespace SolarBuff.Player
                     cameraB.rect = new Rect(0.5f, 0, 0.5f, 1);
                 }
             }
-            pType.Value = (int)(Players.FindIndex(p => p == this) == 0 ? PlayerType.Human : PlayerType.Robot);
-            Debug.Log(type.ToString());
             nickname.Value = CreateRandomEnglishName();
             cam = cam ?? FindObjectOfType<OrbitCamera>();
+
+            Debug.Log(Players.Count);
+            Debug.Log(Players.Count% 2);
+            pType.Value = (int)(Players.Count % 2 != 0 ? PlayerType.Human : PlayerType.Robot);
             transform.position = GameManager.Instance.GetPlayerSpawnPoint( (PlayerType) pType.Value).position;
         }
 
@@ -202,7 +204,6 @@ namespace SolarBuff.Player
         public void OnEnable()
         {
             Players.Add(this);
-            
             pType.OnValueChanged += OnPlayerTypeChange;
             remoteBodyRotation = body.localEulerAngles.y;
             remoteBodyPosition = body.localPosition;
@@ -220,7 +221,7 @@ namespace SolarBuff.Player
 
         private void OnPlayerTypeChange(int oldvalue, int newvalue)
         {
-            if(!HasAuthority) return;
+            if(newvalue is not 0 and not 1) return;
             
             type = (PlayerType)newvalue;
             Debug.LogWarning(type.ToString());

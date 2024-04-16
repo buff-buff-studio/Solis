@@ -129,6 +129,9 @@ namespace SolarBuff.Circuit
         public override void OnInspectorGUI()
         {
             var target = (CircuitComponent) this.target;
+
+            serializedObject.Update();
+
             if (target.plugs == null || target.plugs.Count == 0 || target.plugs.Exists(p => p == null))
             {
                 EditorGUILayout.HelpBox("This script has no plugs, it won't do anything.\nO script não tem plugs referenciados, ele não fará nada.", MessageType.Error);
@@ -140,6 +143,8 @@ namespace SolarBuff.Circuit
             }
 
             base.OnInspectorGUI();
+
+            serializedObject.ApplyModifiedProperties();
         }
 
         private static void CreatePlug(CircuitComponent target, bool isOutput)

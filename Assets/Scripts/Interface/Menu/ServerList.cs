@@ -1,8 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using NetBuff;
 using NetBuff.Misc;
+using NetBuff.UDP;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
 
 namespace SolarBuff.Interface.Menu
@@ -16,7 +20,7 @@ namespace SolarBuff.Interface.Menu
         public Transform viewport;
         public GameObject itemPrefab;
         public TMP_InputField inputNickName;
-        public TMP_InputField inputAddress;
+        public TMP_InputField inputAddressJoin, inputAdressHost;
         public SaveList saveList;
  
         private int _currentSearchId;
@@ -69,11 +73,30 @@ namespace SolarBuff.Interface.Menu
         public void HostGame()
         {
             TempData.PlayerName = inputNickName.text;
-            TempData.ServerAddress = inputAddress.text;
+            TempData.ServerAddress = inputAdressHost.text;
             TempData.ServerPort = udpPort;
             
-            gameObject.SetActive(false);
-            saveList.gameObject.SetActive(true);
+            NetworkManager.Instance.transport.Name = TempData.PlayerName;
+            if (NetworkManager.Instance.transport is UDPNetworkTransport udp)
+            {
+                udp.address = TempData.ServerAddress;
+                udp.port = TempData.ServerPort;
+            }
+            NetworkManager.Instance.StartHost();
+        }
+
+        public async void JoinGame()
+        {
+            TempData.PlayerName = inputNickName.text;
+
+            var op = SceneManager.LoadSceneAsync("Scenes/Gameplay");
+            while (!op.isDone)
+                await Task.Delay(100);
+            await Task.Delay(500);
+
+            var udpTransport = (NetworkManager.Instance.transport as UDPNetworkTransport)!;
+            udpTransport.address = inputAddressJoin.text;
+            udpTransport.StartClient();
         }
 
         private static string GenerateName()
