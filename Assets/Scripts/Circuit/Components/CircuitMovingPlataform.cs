@@ -10,7 +10,7 @@ using UnityEngine.Serialization;
 
 public class CircuitMovingPlataform : CircuitComponent
 {
-      public CircuitPlug input;
+    
       private bool automaticallyMove;
       [FormerlySerializedAs("claw")] [SerializeField] private Transform plataform;
       [SerializeField] private float speed;
@@ -22,18 +22,19 @@ public class CircuitMovingPlataform : CircuitComponent
       [SerializeField]
       private LayerMask layerMask;
       private List<PlayerControllerCore> playersOnTop;
+      [SerializeField]private PlayerControllerCore.PlayerType playerTypeFilter;
       protected override void OnEnable()
       {
           base.OnEnable();
           playersOnTop = new List<PlayerControllerCore>();
           deslocationInitial = transform.position;
           deslocationFinal = deslocationInitial + deslocationAmount;
-          plataform.position = input.ReadValue<bool>() ? deslocationFinal : deslocationInitial;
+          plataform.position = GetPlugValue(CircuitPlug.Type.Input) ? deslocationFinal : deslocationInitial;
       }
     
       protected override void OnRefresh() 
       {
-          var inputBool = input.ReadValue<bool>();
+          var inputBool = GetPlugValue(CircuitPlug.Type.Input);
           deslocationInitial = transform.position;
           deslocationFinal = deslocationInitial + deslocationAmount;
           GetPlayers();
@@ -65,9 +66,12 @@ public class CircuitMovingPlataform : CircuitComponent
           {
               if (colliders[i].transform.TryGetComponent(out PlayerControllerCore coll))
               {
-                  coll.transform.SetParent(plataform);
-                  coll.plataform = plataform;
-                  playersOnTop.Add(coll);
+                  if (coll.type == playerTypeFilter || playerTypeFilter == PlayerControllerCore.PlayerType.Both)
+                  {
+                      coll.transform.SetParent(plataform);
+                      coll.plataform = plataform;
+                      playersOnTop.Add(coll);
+                  }
               }
           }
       }

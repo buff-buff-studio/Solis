@@ -66,6 +66,9 @@ namespace SolarBuff.Circuit
         public Node Head => nodes[^1];
         public Node Tail => nodes[0];
         public GameObject Connector => connector;
+
+        public Color colorOff = Color.black;
+        public Color colorOn = Color.red;
         
         public Rigidbody Helder
         {
@@ -403,12 +406,12 @@ namespace SolarBuff.Circuit
                 }
                 
                 if(_renderer != null)
-                    _renderer.material.color = Color.Lerp(Color.black, Color.red, PlugA.ReadValue<float>());
+                    _renderer.material.color = Color.Lerp(colorOff, colorOn, PlugA.ReadValue<float>());
                 return true;
             }
             
             if(_renderer != null)
-                _renderer.material.color = Color.black;
+                _renderer.material.color = colorOff;
             return false;
         }
         

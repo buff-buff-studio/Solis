@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using NetBuff.Components;
@@ -18,7 +18,6 @@ namespace SolarBuff.Circuit
         {
             input = plugs.Exists(p => p.type == CircuitPlug.Type.Input) ? plugs.FindIndex(p => p.type == CircuitPlug.Type.Input) : -1;
             output = plugs.Exists(p => p.type == CircuitPlug.Type.Output) ? plugs.FindIndex(p => p.type == CircuitPlug.Type.Output) : -1;
-            
             OnRefresh();
         }
 
@@ -146,7 +145,7 @@ namespace SolarBuff.Circuit
 
             serializedObject.ApplyModifiedProperties();
         }
-
+            
         private static void CreatePlug(CircuitComponent target, bool isOutput)
         {
             var plug = new GameObject(target.name + (isOutput ? " Output" : " Input"));

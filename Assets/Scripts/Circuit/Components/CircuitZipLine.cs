@@ -2,13 +2,13 @@
 using ExamplePlatformer;
 using NetBuff.Misc;
 using SolarBuff.Circuit.Components.Testing;
+using SolarBuff.Player;
 using UnityEngine;
 
 namespace SolarBuff.Circuit.Components
 {
     public class CircuitZipLine : CircuitComponent
     {
-        public CircuitPlug input;
         [SerializeField]private Transform start;
         [SerializeField]private Transform end;
         [SerializeField] private Transform claw;
@@ -21,12 +21,12 @@ namespace SolarBuff.Circuit.Components
         protected override void OnEnable()
         {
             base.OnEnable();
-            claw.position = input.ReadValue<bool>() ?end.position: start.position;
+            claw.position = GetPlugValue(CircuitPlug.Type.Input) ?end.position: start.position;
         }
 
         protected override void OnRefresh()
         {
-            var inputBool = input.ReadValue<bool>();
+            var inputBool = GetPlugValue(CircuitPlug.Type.Input);
             if (objectHolding == null && inputBool)
                 GetNearObject();
             claw.DOMove(inputBool? end.position : start.position, 2f).OnComplete(OnFinish);
@@ -56,7 +56,11 @@ namespace SolarBuff.Circuit.Components
                 if (colliders[i].transform.TryGetComponent(out MagnetObject coll))
                 {
                     if (colliders[i].CompareTag("Player"))
-                        objectHolding = colliders[i].transform;
+                    {
+                        var player = coll.transform.GetComponent<PlayerControllerCore>();
+                        if(player.type == PlayerControllerCore.PlayerType.Robot)
+                            objectHolding = colliders[i].transform;
+                    }
                     else if (objectHolding == null)
                         objectHolding = colliders[i].transform;
                     
