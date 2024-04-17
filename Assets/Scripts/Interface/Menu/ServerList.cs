@@ -22,6 +22,7 @@ namespace SolarBuff.Interface.Menu
         public TMP_InputField inputNickName;
         public TMP_InputField inputAddressJoin, inputAdressHost;
         public SaveList saveList;
+        public WindowManager windowManager;
  
         private int _currentSearchId;
         private readonly Queue<ServerDiscoverer.GameInfo> _servers = new();
@@ -85,14 +86,9 @@ namespace SolarBuff.Interface.Menu
             NetworkManager.Instance.StartHost();
         }
 
-        public async void JoinGame()
+        public void JoinGame()
         {
             TempData.PlayerName = inputNickName.text;
-
-            var op = SceneManager.LoadSceneAsync("Scenes/Gameplay");
-            while (!op.isDone)
-                await Task.Delay(100);
-            await Task.Delay(500);
 
             var udpTransport = (NetworkManager.Instance.transport as UDPNetworkTransport)!;
             udpTransport.address = inputAddressJoin.text;

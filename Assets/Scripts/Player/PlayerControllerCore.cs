@@ -40,11 +40,6 @@ namespace SolarBuff.Player
         public StringNetworkValue nickname = new StringNetworkValue("");
         public IntNetworkValue pType = new IntNetworkValue(-1);
 
-        public Color bodyRob;
-        public Color skinRob;
-        public Color bodyHum;
-        public Color skinHum;
-
         private float remoteBodyRotation;
         private Vector3 remoteBodyPosition;
 
@@ -99,9 +94,8 @@ namespace SolarBuff.Player
 
         //DEBUG
         private Vector3 DEBUG_nextMovePos;
-
-
         public Transform plataform = null;
+        
         #region Network Events
 
         /// <summary>
@@ -163,38 +157,32 @@ namespace SolarBuff.Player
             if (!HasAuthority || !IsOwnedByClient)
                 return;
 
-            if (cam == null)
-            {
-                var idx = GetLocalClientIndex(OwnerId);
-
-                if (LevelManager.Instance != null)
-                {
-                    cam = LevelManager.Instance.orbitCameras[idx];
-                }
-                else
-                {
-                    cam = FindAnyObjectByType<OrbitCamera>();
-                }
-
-                cam.target = gameObject;
-
-                if (idx == 1)
-                {
-                    //Setup split screen
-                    var cameraA = LevelManager.Instance.orbitCameras[0].GetComponent<Camera>();
-                    var cameraB = cam.GetComponent<Camera>();
-
-                    cameraA.rect = new Rect(0, 0, 0.5f, 1);
-                    cameraB.rect = new Rect(0.5f, 0, 0.5f, 1);
-                }
-            }
-            nickname.Value = CreateRandomEnglishName();
-            cam = cam ?? FindObjectOfType<OrbitCamera>();
+            nickname.Value = TempData.PlayerName;
 
             Debug.Log(Players.Count);
             Debug.Log(Players.Count% 2);
             pType.Value = (int)(Players.Count % 2 != 0 ? PlayerType.Human : PlayerType.Robot);
             transform.position = GameManager.Instance.GetPlayerSpawnPoint( (PlayerType) pType.Value).position;
+            
+            SearchCamera();
+        }
+
+        public void SearchCamera()
+        {
+            var idx = GetLocalClientIndex(OwnerId);
+
+            cam = GameManager.Instance.cam;
+            cam.target = gameObject;
+
+            if (idx == 1)
+            {
+                //Setup split screen
+                var cameraA = LevelManager.Instance.orbitCameras[0].GetComponent<Camera>();
+                var cameraB = cam.GetComponent<Camera>();
+
+                cameraA.rect = new Rect(0, 0, 0.5f, 1);
+                cameraB.rect = new Rect(0.5f, 0, 0.5f, 1);
+            }
         }
 
         #endregion
@@ -216,24 +204,14 @@ namespace SolarBuff.Player
             nickname.OnValueChanged += (oldValue, newValue) =>
             {
                 headplate.text = newValue;
+                RoomManager.Instance.roomList.text = string.Join("\n", Players.ConvertAll(p => p.nickname.Value));
             };
         }
 
         private void OnPlayerTypeChange(int oldvalue, int newvalue)
         {
             if(newvalue is not 0 and not 1) return;
-            
             type = (PlayerType)newvalue;
-            Debug.LogWarning(type.ToString());
-            var bodyCol = newvalue == 0 ? bodyHum : bodyRob;
-            var skinCol = newvalue == 0 ? skinHum : skinRob;
-            bodyRenderers[3].materials[2].color = newvalue == 0 ? Color.black : Color.yellow;
-            
-            foreach (var r in bodyRenderers)
-            {
-                r.materials[0].color = bodyCol;
-                if(r.materials.Length > 1) r.materials[1].color = skinCol;
-            }
         }
 
         private void OnDisable()
