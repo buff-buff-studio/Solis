@@ -16,6 +16,7 @@ namespace SolarBuff.Props
 		private Vector3[] _vertices;
 		private Mesh _mesh;
 		private MeshFilter _meshFilter;
+		public Material material;
 
 		private MeshRenderer MeshRenderer
 		{
