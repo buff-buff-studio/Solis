@@ -156,7 +156,7 @@ namespace SolarBuff.Player
         /// <param name="isRetroactive"></param>
         public override void OnSpawned(bool isRetroactive)
         {
-            DontDestroyOnLoad(this.gameObject);
+            //DontDestroyOnLoad(this.gameObject);
             if (!HasAuthority || !IsOwnedByClient)
                 return;
 
@@ -237,6 +237,12 @@ namespace SolarBuff.Player
             Move();
             Jump();
             Punch();
+            
+            if(Input.GetKeyDown(KeyCode.Escape))
+            {
+                Cursor.lockState = Cursor.lockState == CursorLockMode.Locked ? CursorLockMode.None : CursorLockMode.Locked;
+                Cursor.visible = !Cursor.visible;
+            }
 
             if (Input.GetKeyDown(KeyCode.Keypad1))
                 emoteSystem.ShowEmote(0, type);

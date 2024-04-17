@@ -33,6 +33,7 @@ public class RoomManager : NetworkBehaviour
     private void OnSceneLoaded(Scene arg0, LoadSceneMode arg1)
     {
         var gm = FindObjectsOfType<GameManager>();
+        if (gm.Length == 0) return;
         PlayerControllerCore.Players.ForEach(p =>
         {
             p.canMove = true;
@@ -58,13 +59,9 @@ public class RoomManager : NetworkBehaviour
 
     public void StartGame()
     {
-        if(HasAuthority) SceneManager.LoadScene("Scenes/Puzzle_1", LoadSceneMode.Single);
+        if(!HasAuthority) return;
+        PlayerControllerCore.Players.ForEach(p => DontDestroyOnLoad(p.gameObject));
+        SceneManager.LoadScene("Scenes/Puzzle_1", LoadSceneMode.Single);
         NetworkManager.Instance.LoadScene("Scenes/Puzzle_1", LoadSceneMode.Single);
-    }
-
-    public override void OnClientDisconnected(int clientId)
-    {
-        SceneManager.LoadScene("Menu");
-        NetworkManager.Instance.Close();
     }
 }
