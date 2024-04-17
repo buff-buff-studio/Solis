@@ -156,7 +156,7 @@ namespace SolarBuff.Player
         /// <param name="isRetroactive"></param>
         public override void OnSpawned(bool isRetroactive)
         {
-            //DontDestroyOnLoad(this.gameObject);
+            DontDestroyOnLoad(this.gameObject);
             if (!HasAuthority || !IsOwnedByClient)
                 return;
 
@@ -171,7 +171,7 @@ namespace SolarBuff.Player
 
         public void SearchCamera()
         {
-            if (cam != null || !HasAuthority || !IsOwnedByClient) return;
+            if (cam != null || !HasAuthority) return;
             
             var idx = GetLocalClientIndex(OwnerId);
 
@@ -222,6 +222,7 @@ namespace SolarBuff.Player
 
         private void OnDisable()
         {
+            Destroy(this.gameObject);
             Players.Remove(this);
             CancelInvoke(nameof(Tick));
         }
@@ -263,7 +264,7 @@ namespace SolarBuff.Player
 
             Gravity();
 
-            if (cam == null) cam = FindObjectOfType<OrbitCamera>();
+            if (cam == null) return;
             var camAngle = cam.transform.eulerAngles.y;
             var moveAngle = Mathf.Atan2(velocity.x, velocity.z) * Mathf.Rad2Deg;
             var te = transform.eulerAngles;

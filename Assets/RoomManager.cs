@@ -15,6 +15,7 @@ public class RoomManager : NetworkBehaviour
     public static RoomManager Instance;
     
     public TextMeshProUGUI roomList;
+    public GameObject playBtt;
     public IntNetworkValue levelIndex = new IntNetworkValue(-1);
 
     private void Awake()
@@ -26,6 +27,8 @@ public class RoomManager : NetworkBehaviour
     private void OnEnable()
     {
         WithValues(levelIndex);
+        playBtt.SetActive(false);
+        playBtt.SetActive(!NetworkManager.Instance.IsServerRunning);
         levelIndex.OnValueChanged += LevelIndexOnOnValueChanged;
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
@@ -33,7 +36,7 @@ public class RoomManager : NetworkBehaviour
     private void OnSceneLoaded(Scene arg0, LoadSceneMode arg1)
     {
         var gm = FindObjectsOfType<GameManager>();
-        if (gm.Length == 0) return;
+        if (gm.Length == 0 ) return;
         PlayerControllerCore.Players.ForEach(p =>
         {
             p.canMove = true;
@@ -60,7 +63,6 @@ public class RoomManager : NetworkBehaviour
     public void StartGame()
     {
         if(!HasAuthority) return;
-        PlayerControllerCore.Players.ForEach(p => DontDestroyOnLoad(p.gameObject));
         SceneManager.LoadScene("Scenes/Puzzle_1", LoadSceneMode.Single);
         NetworkManager.Instance.LoadScene("Scenes/Puzzle_1", LoadSceneMode.Single);
     }
