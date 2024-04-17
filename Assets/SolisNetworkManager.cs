@@ -7,6 +7,7 @@ using NetBuff.Packets;
 using UnityEngine;
 using UnityEngine.Assertions;
 
+[Icon("Assets/CG/Sprites/SolisNetScript_Ico.png")]
 public class SolisNetworkManager : NetworkManager
 {
     public GameObject robotPrefab;
@@ -35,8 +36,10 @@ public class SolisNetworkManager : NetworkManager
 #else
             if (spawnsPlayer)
             {
-                Assert.IsTrue(prefabRegistry.IsPrefabValid(playerPrefab), "Player prefab is not valid");
-                SpawnNetworkObjectForClients(prefabRegistry.GetPrefabId(playerPrefab), Vector3.zero, Quaternion.identity, Vector3.one, clientId);
+                var prefab = clientId == 0 ? playerPrefab : robotPrefab;
+                var t = clientId == 0 ? humanSpawnPoint : robotSpawnPoint;
+                Assert.IsTrue(prefabRegistry.IsPrefabValid(prefab), "Player prefab is not valid");
+                SpawnNetworkObjectForClients(prefabRegistry.GetPrefabId(prefab), t.position, t.rotation, t.localScale, clientId);
             }
 #endif
     }

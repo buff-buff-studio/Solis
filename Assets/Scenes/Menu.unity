@@ -2192,7 +2192,6 @@ GameObject:
   - component: {fileID: 425141522}
   - component: {fileID: 425141521}
   - component: {fileID: 425141520}
-  - component: {fileID: 425141524}
   - component: {fileID: 425141525}
   m_Layer: 5
   m_Name: Room Menu
@@ -2284,25 +2283,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 425141518}
   m_CullTransparentMesh: 1
---- !u!114 &425141524
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 425141518}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: edb0333d628822942887394b416f342a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  roomList: {fileID: 541348255}
-  gameManagers:
-  - {fileID: 0}
-  - {fileID: 0}
-  levelIndex:
-    _value: -1
-    _type: 0
 --- !u!114 &425141525
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4856,9 +4836,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 936622368}
+  - component: {fileID: 936622372}
   - component: {fileID: 936622370}
   - component: {fileID: 936622366}
   - component: {fileID: 936622369}
+  - component: {fileID: 936622371}
   m_Layer: 0
   m_Name: Network
   m_TagString: Untagged
@@ -4938,6 +4920,41 @@ MonoBehaviour:
     type: 3}
   robotSpawnPoint: {fileID: 1542290628}
   humanSpawnPoint: {fileID: 1072025492}
+--- !u!114 &936622371
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 936622365}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: edb0333d628822942887394b416f342a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  roomList: {fileID: 541348255}
+  levelIndex:
+    _value: -1
+    _type: 0
+--- !u!114 &936622372
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 936622365}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9078c0bdfc4423ebfcf3a05ad72d048, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id:
+    high: 1680569726
+    low: -1066339055
+  ownerId: -1
+  prefabId:
+    high: 0
+    low: 0
 --- !u!1 &937017376
 GameObject:
   m_ObjectHideFlags: 0
@@ -8014,7 +8031,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 425141524}
+      - m_Target: {fileID: 936622371}
         m_TargetAssemblyTypeName: RoomManager, Assembly-CSharp
         m_MethodName: StartGame
         m_Mode: 1
@@ -9015,7 +9032,7 @@ Camera:
   field of view: 60
   orthographic: 0
   orthographic size: 5
-  m_Depth: -1
+  m_Depth: 10
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295

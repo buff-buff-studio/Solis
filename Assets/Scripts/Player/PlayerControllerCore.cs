@@ -44,6 +44,7 @@ namespace SolarBuff.Player
         private Vector3 remoteBodyPosition;
 
         [Header("Movement")]
+        public bool canMove = false;
         [Tooltip("Metros por Segundo")]
         public float maxSpeed = 12f;
         public float acceleration = 0.1f;
@@ -154,6 +155,7 @@ namespace SolarBuff.Player
         /// <param name="isRetroactive"></param>
         public override void OnSpawned(bool isRetroactive)
         {
+            DontDestroyOnLoad(this.gameObject);
             if (!HasAuthority || !IsOwnedByClient)
                 return;
 
@@ -162,16 +164,18 @@ namespace SolarBuff.Player
             Debug.Log(Players.Count);
             Debug.Log(Players.Count% 2);
             pType.Value = (int)(Players.Count % 2 != 0 ? PlayerType.Human : PlayerType.Robot);
-            transform.position = GameManager.Instance.GetPlayerSpawnPoint( (PlayerType) pType.Value).position;
-            
+
             SearchCamera();
         }
 
         public void SearchCamera()
         {
+            if (cam != null || !HasAuthority || !IsOwnedByClient) return;
+            
             var idx = GetLocalClientIndex(OwnerId);
 
-            cam = GameManager.Instance.cam;
+            var c = new GameObject(nickname.Value + " Camera", typeof(OrbitCamera), typeof(AudioListener));
+            c.TryGetComponent(out cam);
             cam.target = gameObject;
 
             if (idx == 1)
@@ -216,6 +220,7 @@ namespace SolarBuff.Player
 
         private void OnDisable()
         {
+            Players.Remove(this);
             CancelInvoke(nameof(Tick));
         }
 
@@ -225,6 +230,8 @@ namespace SolarBuff.Player
 
             Timer();
 
+            if (!canMove) return;
+            
             Move();
             Jump();
             Punch();
