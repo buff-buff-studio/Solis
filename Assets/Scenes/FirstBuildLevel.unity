@@ -1138,6 +1138,8 @@ MonoBehaviour:
   - position: {x: 3.9193854, y: 1.8195233, z: 18.571}
     leftHandle: {x: -0.82570124, y: 1.4397941, z: -0.8897991}
     rightHandle: {x: 0.4044314, y: -0.8616532, z: 0.30657616}
+  colorOff: {r: 0, g: 0, b: 0, a: 1}
+  colorOn: {r: 1, g: 0, b: 0, a: 1}
 --- !u!120 &159512975
 LineRenderer:
   serializedVersion: 2
@@ -2145,6 +2147,8 @@ MonoBehaviour:
   - position: {x: 17.38391, y: 0.5781282, z: -10.752305}
     leftHandle: {x: -0.9148445, y: -0.041583776, z: 0.2551422}
     rightHandle: {x: 0.97169304, y: 0.24778157, z: -0.16131306}
+  colorOff: {r: 0, g: 0, b: 0, a: 1}
+  colorOn: {r: 1, g: 0, b: 0, a: 1}
 --- !u!120 &350551529
 LineRenderer:
   serializedVersion: 2
@@ -2388,6 +2392,8 @@ MonoBehaviour:
   - position: {x: -16.591429, y: 0.70220566, z: 9.534336}
     leftHandle: {x: -0.5206795, y: 0.40565777, z: -0.30011654}
     rightHandle: {x: 0.73272896, y: -0.17931461, z: 0.438591}
+  colorOff: {r: 0, g: 0, b: 0, a: 1}
+  colorOn: {r: 1, g: 0, b: 0, a: 1}
 --- !u!120 &360066258
 LineRenderer:
   serializedVersion: 2
@@ -3095,6 +3101,8 @@ MonoBehaviour:
   - position: {x: -23.472164, y: 0.62261444, z: 14.292126}
     leftHandle: {x: -0.07400894, y: 0.43659538, z: -1.1132154}
     rightHandle: {x: 0.25775528, y: -0.023223937, z: 0.94653225}
+  colorOff: {r: 0, g: 0, b: 0, a: 1}
+  colorOn: {r: 1, g: 0, b: 0, a: 1}
 --- !u!120 &360196194
 LineRenderer:
   serializedVersion: 2
@@ -4458,6 +4466,8 @@ MonoBehaviour:
   - position: {x: 8.122355, y: 0.6075834, z: -23.277664}
     leftHandle: {x: -1.2858996, y: 0.6810943, z: -0.10719681}
     rightHandle: {x: 0.8082857, y: 0.02193892, z: 0.054389954}
+  colorOff: {r: 0, g: 0, b: 0, a: 1}
+  colorOn: {r: 1, g: 0, b: 0, a: 1}
 --- !u!120 &518614885
 LineRenderer:
   serializedVersion: 2
@@ -6066,6 +6076,8 @@ MonoBehaviour:
   - position: {x: -0.5, y: 5.631067, z: 8.370936}
     leftHandle: {x: 0.3594892, y: 0.004249096, z: 0.09765911}
     rightHandle: {x: -0.38233995, y: 0.17107964, z: -0.7679992}
+  colorOff: {r: 0, g: 0, b: 0, a: 1}
+  colorOn: {r: 1, g: 0, b: 0, a: 1}
 --- !u!120 &764368734
 LineRenderer:
   serializedVersion: 2
@@ -7376,6 +7388,8 @@ MonoBehaviour:
     type: 3}
   shockVFX: {fileID: 0}
   controlPoints: []
+  colorOff: {r: 0, g: 0, b: 0, a: 1}
+  colorOn: {r: 1, g: 0, b: 0, a: 1}
 --- !u!4 &809798258
 Transform:
   m_ObjectHideFlags: 0
@@ -9127,6 +9141,8 @@ MonoBehaviour:
   - position: {x: 11.3993, y: 1.179159, z: 0.77134556}
     leftHandle: {x: 0.45345905, y: 0.8898464, z: 0.05048037}
     rightHandle: {x: -0.35286903, y: -0.78077376, z: -0.015477657}
+  colorOff: {r: 0, g: 0, b: 0, a: 1}
+  colorOn: {r: 1, g: 0, b: 0, a: 1}
 --- !u!120 &982801040
 LineRenderer:
   serializedVersion: 2
@@ -9986,7 +10002,11 @@ MonoBehaviour:
   target: {fileID: 0}
   distance: 5
   offset: {x: 0, y: 1, z: 0}
+  radius: 0.5
   rotationX: 0
+  occlusion:
+    serializedVersion: 2
+    m_Bits: 1
 --- !u!4 &1074855741
 Transform:
   m_ObjectHideFlags: 0
@@ -11925,6 +11945,8 @@ MonoBehaviour:
   - position: {x: -13.901365, y: 0.9078865, z: -25.514755}
     leftHandle: {x: 0.8006449, y: 2.0545545, z: 0.6126003}
     rightHandle: {x: -0.47057533, y: -0.16855717, z: -0.4172554}
+  colorOff: {r: 0, g: 1, b: 0.26057076, a: 1}
+  colorOn: {r: 0.015185714, g: 1, b: 0, a: 1}
 --- !u!120 &1465817663
 LineRenderer:
   serializedVersion: 2
@@ -13229,6 +13251,8 @@ MonoBehaviour:
   - position: {x: 17.129852, y: 0.5914694, z: 5.0367837}
     leftHandle: {x: 0.9558372, y: 0.14578646, z: 0.25518924}
     rightHandle: {x: -0.8977623, y: 0.021435618, z: -0.3573904}
+  colorOff: {r: 0, g: 0, b: 0, a: 1}
+  colorOn: {r: 1, g: 0, b: 0, a: 1}
 --- !u!120 &1602378385
 LineRenderer:
   serializedVersion: 2
@@ -15763,6 +15787,8 @@ MonoBehaviour:
   - position: {x: 10.648082, y: 0.6212149, z: -18.741993}
     leftHandle: {x: 0.3184452, y: 0.30059975, z: -0.44039917}
     rightHandle: {x: -0.21542454, y: -0.117740214, z: 0.41973686}
+  colorOff: {r: 0, g: 0, b: 0, a: 1}
+  colorOn: {r: 1, g: 0, b: 0, a: 1}
 --- !u!120 &1848181898
 LineRenderer:
   serializedVersion: 2
@@ -18032,6 +18058,8 @@ MonoBehaviour:
   - position: {x: 7.09, y: 3.9144363, z: -23.94}
     leftHandle: {x: 0.5864763, y: 0.6014843, z: 0.29162598}
     rightHandle: {x: -0.044801086, y: -0.9861461, z: 0.15971455}
+  colorOff: {r: 0, g: 0, b: 0, a: 1}
+  colorOn: {r: 1, g: 0, b: 0, a: 1}
 --- !u!120 &2096520311
 LineRenderer:
   serializedVersion: 2
