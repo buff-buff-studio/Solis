@@ -176,6 +176,7 @@ namespace SolarBuff.Player
             var idx = GetLocalClientIndex(OwnerId);
 
             var c = new GameObject(nickname.Value + " Camera", typeof(OrbitCamera), typeof(AudioListener));
+            c.tag = "MainCamera";
             c.TryGetComponent(out cam);
             cam.target = gameObject;
 

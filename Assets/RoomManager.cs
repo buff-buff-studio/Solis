@@ -58,8 +58,8 @@ public class RoomManager : NetworkBehaviour
 
     public void StartGame()
     {
-        if(HasAuthority) SceneManager.LoadScene("Scenes/LevelTest2", LoadSceneMode.Single);
-        NetworkManager.Instance.LoadScene("Scenes/LevelTest2", LoadSceneMode.Single);
+        if(HasAuthority) SceneManager.LoadScene("Scenes/Puzzle_1", LoadSceneMode.Single);
+        NetworkManager.Instance.LoadScene("Scenes/Puzzle_1", LoadSceneMode.Single);
     }
 
     public override void OnClientDisconnected(int clientId)
