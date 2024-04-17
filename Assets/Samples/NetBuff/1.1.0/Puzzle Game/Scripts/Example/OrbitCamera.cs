@@ -1,11 +1,12 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace ExamplePlatformer
 {
+    [RequireComponent(typeof(Camera))]
     public class OrbitCamera : MonoBehaviour
     {
         public GameObject target;
-        public float distance = 10.0f;
+        public float distance = 5f;
         public Vector3 offset = new Vector3(0, 1f, 0);
         public float radius = 0.5f;
         public float rotationX;

@@ -1,5 +1,8 @@
-﻿using ExamplePlatformer;
+﻿using System;
+using ExamplePlatformer;
+using NetBuff;
 using NetBuff.Misc;
+using SolarBuff.Player;
 using UnityEngine;
 
 namespace SolarBuff.Circuit.Components
@@ -11,8 +14,7 @@ namespace SolarBuff.Circuit.Components
         
         public Transform handle;
         public float angle = 60;
-
-        public CircuitPlug output;
+        [SerializeField] private PlayerControllerCore.PlayerType playerTypeFilter;
 
         protected override void OnEnable()
         {
@@ -31,21 +33,19 @@ namespace SolarBuff.Circuit.Components
             
             GetPacketListener<PlayerPunchActionPacket>().OnServerReceive -= OnPlayerPunch;
         }
-        
-        private void Update()
-        {
-            handle.localEulerAngles = new Vector3(Mathf.Lerp(handle.localEulerAngles.x, isOn.Value ? angle : 0, Time.deltaTime * 10), -90f, 0);
-        }
-
         private void OnPlayerPunch(PlayerPunchActionPacket obj, int client)
         {
             var o = GetNetworkObject(obj.Id);
             var dist = Vector3.Distance(o.transform.position, transform.position);
-
             if (dist > radius)
                 return;
-
-            isOn.Value = !isOn.Value;
+                
+            if (o.transform.GetComponent<PlayerControllerCore>().type == playerTypeFilter ||
+                    playerTypeFilter == PlayerControllerCore.PlayerType.Both)
+            {
+                isOn.Value = !isOn.Value;
+            }
+            
         }
         
         public override T ReadOutput<T>(CircuitPlug plug)

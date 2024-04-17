@@ -1,17 +1,17 @@
-﻿using System.IO;
+using System.IO;
 using System.Threading.Tasks;
-using NetBuff;
 using NetBuff.Components;
 using NetBuff.Interface;
 using NetBuff.Misc;
+using SolarBuff.Circuit.Components.Testing;
+using SolarBuff.Player;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 namespace ExamplePlatformer
 {
-    public class PlayerController : NetworkBehaviour
+    public class PlayerController : MagnetObject
     {
         private OrbitCamera _orbitCamera;
         private CharacterController _controller;
@@ -38,6 +38,7 @@ namespace ExamplePlatformer
         public ColorNetworkValue bodyColor = new ColorNetworkValue(Color.white);
 
         public Renderer[] bodyRenderers;
+
         
         public void OnEnable()
         { 
@@ -185,7 +186,7 @@ namespace ExamplePlatformer
             
             return current[..1].ToUpper() + current[1..];
         }
-
+   
         private void Update()
         {
             if (!HasAuthority || !IsOwnedByClient)
@@ -315,7 +316,7 @@ namespace ExamplePlatformer
         }
     }
 
-    public class PlayerPunchActionPacket : IPacket
+    public class PlayerPunchActionPacketOld : IPacket
     {
         public NetworkId Id { get; set; }
         

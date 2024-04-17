@@ -34,21 +34,15 @@ namespace SolarBuff.Interface.Menu
             buttonJoin.onClick.AddListener(Join);
         }
         
-        public async void Join()
+        public void Join()
         {
-            TempData.PlayerName = GetComponentInParent<ServerList>().inputNickName.text;
+            var sList = GetComponentInParent<ServerList>();
+            TempData.PlayerName = sList.inputNickName.text;
+            sList.windowManager.ShowWindow(4);
 
-            var op = SceneManager.LoadSceneAsync("Scenes/Gameplay");
-            while (!op.isDone)
-                await Task.Delay(100);
-            await Task.Delay(500);
-            
-            if (_gameInfo is ServerDiscoverer.EthernetGameInfo ethernetGameInfo)
-            {
-                var udpTransport = (NetworkManager.Instance.transport as UDPNetworkTransport)!;
-                udpTransport.address = ethernetGameInfo.Address.ToString();
-                udpTransport.StartClient();
-            }
+            var udpTransport = (NetworkManager.Instance.transport as UDPNetworkTransport)!;
+            udpTransport.address = GetComponentInParent<ServerList>().inputAddressJoin.text;
+            udpTransport.StartClient();
         }
     }
 }

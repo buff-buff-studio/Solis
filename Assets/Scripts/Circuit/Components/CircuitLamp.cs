@@ -10,5 +10,6 @@ namespace SolarBuff.Circuit.Components
         {
             GetComponent<Renderer>().material.color = input.ReadValue<float>() > 0.5f ? Color.red : Color.black;
         }
+        
     }
 }

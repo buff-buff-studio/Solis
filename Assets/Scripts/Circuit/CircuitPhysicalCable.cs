@@ -6,6 +6,7 @@ using NetBuff.Components;
 using NetBuff.Interface;
 using NetBuff.Misc;
 using SolarBuff.Circuit.Components;
+using SolarBuff.Player;
 using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;

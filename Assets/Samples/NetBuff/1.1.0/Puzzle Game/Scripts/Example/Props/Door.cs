@@ -1,11 +1,12 @@
 ﻿using System.IO;
 using NetBuff.Interface;
 using NetBuff.Misc;
+using SolarBuff.Circuit;
 using UnityEngine;
 
 namespace ExamplePlatformer.Props
 {
-    public class Door : LogicOutput
+    public class Door : CircuitComponent
     {
         public BoolNetworkValue isOpen = new(false);
         public GameObject open;
@@ -17,11 +18,11 @@ namespace ExamplePlatformer.Props
             UpdateVisuals(isOpen.Value, isOpen.Value);
             isOpen.OnValueChanged += UpdateVisuals;
         }
-        
-        public override void OnOutputChanged(bool value)
+
+        protected override void OnRefresh()
         {
             if(!HasAuthority) return;
-            isOpen.Value = value;
+            isOpen.Value = GetPlugValue(CircuitPlug.Type.Input);
         }
 
         private void UpdateVisuals(bool old, bool now)
