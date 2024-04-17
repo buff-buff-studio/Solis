@@ -40,6 +40,9 @@ namespace SolarBuff.Circuit
         {
             get => plugB;
         }
+
+        public Color colorOff = Color.black;
+        public Color colorOn = Color.red;
         
         private void OnEnable()
         {
@@ -162,7 +165,7 @@ namespace SolarBuff.Circuit
                 }
 
                 if (Application.isPlaying && _renderer != null)
-                    _renderer.material.color = Color.Lerp(Color.black, Color.red, plugA.ReadValue<float>());
+                    _renderer.material.color = Color.Lerp(colorOff, colorOn, plugA.ReadValue<float>());
             }
         }
         
