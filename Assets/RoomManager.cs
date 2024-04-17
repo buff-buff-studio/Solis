@@ -48,6 +48,7 @@ public class RoomManager : NetworkBehaviour
 
     public void StartGame()
     {
-        levelIndex.Value = 1;
+        if(HasAuthority) SceneManager.LoadScene("Scenes/LevelTest2", LoadSceneMode.Single);
+        NetworkManager.Instance.LoadScene("Scenes/LevelTest2", LoadSceneMode.Single);
     }
 }
