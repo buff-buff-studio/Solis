@@ -7,8 +7,10 @@ namespace ExamplePlatformer
         public GameObject target;
         public float distance = 10.0f;
         public Vector3 offset = new Vector3(0, 1f, 0);
-
+        public float radius = 0.5f;
         public float rotationX;
+
+        public LayerMask occlusion = 1 << 0;
         
         void LateUpdate()
         {
@@ -24,7 +26,12 @@ namespace ExamplePlatformer
             Transform t = transform;
             t.eulerAngles = new Vector3(rotationX, t.eulerAngles.y + Input.GetAxis("Mouse X") * 3f, 0);
 
-            t.position = target.transform.position - (t.forward * distance) + offset;
+            var ds = distance;
+
+            if(Physics.Raycast(target.transform.position, -t.forward, out var hit, distance, occlusion))
+                ds = (hit.distance - radius) + 1;
+
+            t.position = target.transform.position - (t.forward * ds) + offset;
         }
     }
 }
