@@ -32,6 +32,7 @@ namespace SolarBuff.Circuit
             foreach (var plug in GetPlugs())
             {
                 if (plug.Connection == null) continue;
+                Debug.Log("DESTROY");
                 Destroy((plug.Connection as MonoBehaviour)!.gameObject);
             }
         }
@@ -60,7 +61,6 @@ namespace SolarBuff.Circuit
             
             OnRefresh();
             
-            Debug.Log(gameObject.name + " " + GetType());
             //Spread through output ports
             foreach (var plug in GetPlugs())
             {

@@ -49,7 +49,7 @@ namespace SolarBuff.Circuit
             _renderer = GetComponent<LineRenderer>();
      
 #if UNITY_EDITOR
-            _renderer.material = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Cable.mat");
+            _renderer.material = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>("Assets/CG/Materials/Cable.mat");
             _renderer.widthCurve = new AnimationCurve(new Keyframe(0, 0.25f), new Keyframe(1, 0.25f));
             prefabShockVFX = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/VFX/Shock.prefab");
 #endif

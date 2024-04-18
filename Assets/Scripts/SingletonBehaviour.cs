@@ -15,6 +15,7 @@ namespace SolarBuff
                 if (Application.isEditor)
                     Debug.LogWarning($"Multiple instances of {typeof(T)} found. Destroying {this}.");
                 
+                Debug.Log("DESTROY");
                 if(gameObject.GetComponents<Component>().Length <= 2)
                     Destroy(gameObject);
                 else
