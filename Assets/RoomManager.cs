@@ -63,7 +63,7 @@ public class RoomManager : NetworkBehaviour
     public void StartGame()
     {
         if(!HasAuthority) return;
-        SceneManager.LoadScene("Scenes/Puzzle_1", LoadSceneMode.Single);
+        //SceneManager.LoadScene("Scenes/Puzzle_1", LoadSceneMode.Single);
         NetworkManager.Instance.LoadScene("Scenes/Puzzle_1", LoadSceneMode.Single);
     }
 }
