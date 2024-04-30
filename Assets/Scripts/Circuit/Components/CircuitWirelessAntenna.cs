@@ -92,11 +92,11 @@ namespace Solis.Circuit.Components
         private void _UpdateChannel()
         {
             #if UNITY_EDITOR
+            if (UnityEditor.PrefabUtility.IsPartOfPrefabAsset(this))
+                    return;
+
             if (!Application.isPlaying)
             {
-                if (UnityEditor.PrefabUtility.IsPartOfPrefabAsset(this))
-                    return;
-                
                 if (channel == -1)
                 {
                     //TRY TO GET A SIBBLING ANTENNA

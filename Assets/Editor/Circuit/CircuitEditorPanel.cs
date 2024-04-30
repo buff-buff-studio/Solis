@@ -275,6 +275,8 @@ namespace Editor.Circuit
                             var prefab = DragAndDrop.objectReferences[0];
                             if (PrefabUtility.GetCorrespondingObjectFromSource(hit.collider.gameObject) == prefab)
                             {
+                                Object.DestroyImmediate(hit.collider.gameObject);
+                                
                                 ray.origin = hit.point + ray.direction * 0.02f;
                                 if (Physics.Raycast(ray, out var hit2))
                                 {
@@ -285,7 +287,7 @@ namespace Editor.Circuit
                             }
 
                             Event.current.Use();
-
+                            
                             var go = PrefabUtility.InstantiatePrefab(prefab) as GameObject;
                             go!.transform.position = hit.point;
 

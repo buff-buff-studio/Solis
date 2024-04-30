@@ -1,5 +1,6 @@
 ﻿using NetBuff;
 using Solis.Core;
+using Solis.Data;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -11,6 +12,11 @@ namespace Solis.Misc
     /// </summary>
     public class GameInitializerHelper : MonoBehaviour
     {
+        #if UNITY_EDITOR
+        #region Inspector Fields
+        public CharacterType defaultType = CharacterType.Human;
+        #endregion
+        
         #region Unity Callbacks
         private void OnEnable()
         {
@@ -19,10 +25,12 @@ namespace Solis.Misc
                 Destroy(gameObject);
                 return;
             }
-
+            
             SolisNetworkManager.sceneToLoad = gameObject.scene.name;
+            SolisNetworkManager.defaultType = defaultType;
             SceneManager.LoadScene("Core");
         }
         #endregion
+        #endif
     }
 }

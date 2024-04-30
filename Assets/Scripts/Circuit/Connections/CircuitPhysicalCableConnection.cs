@@ -209,7 +209,7 @@ namespace Solis.Circuit.Connections
                 var pos = ht.position;
                 var fw = ht.forward;
                 var dt = Time.deltaTime * 50f;
-                connector.transform.position = Vector3.Lerp(connector.transform.position, pos, dt);
+                connector.transform.position = Vector3.MoveTowards(connector.transform.position, pos, dt);
                 connector.transform.rotation =
                     Quaternion.Lerp(connector.transform.rotation, Quaternion.LookRotation(-fw), dt);
             }

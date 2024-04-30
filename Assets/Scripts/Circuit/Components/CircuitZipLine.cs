@@ -64,6 +64,9 @@ namespace Solis.Circuit.Components
         {
             Gizmos.color = Color.black;
             Gizmos.DrawLine(from.position, to.position);
+            
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(anchor.position, clawRadius);
         }
         #endregion
 
@@ -169,7 +172,7 @@ namespace Solis.Circuit.Components
         
         private IEnumerable<IMagneticObject> _GetTargetsByCollider()
         {
-            var count = Physics.OverlapSphereNonAlloc(claw.position, clawRadius, _Results);
+            var count = Physics.OverlapSphereNonAlloc(anchor.position, clawRadius, _Results);
             return _Results.Take(count).Select(c => c.GetComponent<IMagneticObject>()).Where(c => c != null).ToArray();
         }
         

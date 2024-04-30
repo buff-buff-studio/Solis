@@ -18,11 +18,14 @@ namespace Solis.Core
         #region Public Static Fields
         public const int SOLIS_MAGIC_NUMBER = 10_000;
         public const int SOLIS_NETWORK_PORT = 7777;
-
+        
         public static string networkAddress;
         public static string username;
+        #if UNITY_EDITOR
         public static string sceneToLoad;
+        #endif
         public static bool isJoining;
+        public static CharacterType defaultType = CharacterType.Human;
         #endregion
 
         #region Unity Callbacks
@@ -30,6 +33,7 @@ namespace Solis.Core
         {
             if (EnvironmentType is NetworkTransport.EnvironmentType.None)
             {
+                #if UNITY_EDITOR
                 var scene = sceneToLoad ?? "Lobby";
                 VersionMagicNumber = SOLIS_MAGIC_NUMBER;
 
@@ -58,6 +62,33 @@ namespace Solis.Core
                 sceneToLoad = null;
                 networkAddress = null;
                 username = null;
+                #else
+                VersionMagicNumber = SOLIS_MAGIC_NUMBER;
+
+                if (string.IsNullOrEmpty(username))
+                    username = "test_" + Random.Range(0, 1000);
+
+                Name = username;
+
+                var udp = (Transport as UDPNetworkTransport);
+                if (udp != null)
+                {
+                    udp.Port = SOLIS_NETWORK_PORT;
+                    if (!string.IsNullOrEmpty(networkAddress))
+                        udp.Address = networkAddress;
+                }
+
+                if (!isJoining)
+                {
+                    StartServer();
+                    LoadScene("Lobby");
+                }
+
+                StartClient();
+                
+                networkAddress = null;
+                username = null;
+                #endif
             }
         }
         #endregion
@@ -128,6 +159,9 @@ namespace Solis.Core
             var robotCount = sessions.Count(s => s.PlayerCharacterType == CharacterType.Robot);
 
             var type = humanCount <= robotCount ? CharacterType.Human : CharacterType.Robot;
+            
+            if(humanCount + robotCount == 0)
+                type = defaultType;
             
             var request = (requestPacket as SolisNetworkSessionEstablishRequestPacket)!;
             return new SolisSessionData()

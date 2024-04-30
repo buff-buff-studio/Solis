@@ -148,7 +148,8 @@ namespace Solis.Player
                     {
                         var pos = magnetAnchor.position - magnetReferenceLocalPosition;
                         controller.enabled = false;
-                        transform.position = Vector3.Lerp(transform.position, pos, Time.deltaTime * 10);
+                        var playerPos = transform.position;
+                        transform.position = Vector3.MoveTowards(playerPos, pos, Time.deltaTime * 15);
                     }
 
                     break;

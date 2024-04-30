@@ -11,8 +11,11 @@ namespace Solis.Circuit
     public class CircuitSocket : CircuitComponent
     {
         #region Inspector Fields
+        [Header("REFERENCES")]
         public CircuitPlug @internal;
         public CircuitPlug outlet;
+        
+        [Header("SETTINGS")]
         public bool selfPowered;
         #endregion
 
