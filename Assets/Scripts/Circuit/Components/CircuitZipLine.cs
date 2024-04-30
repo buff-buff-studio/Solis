@@ -1,74 +1,182 @@
-﻿using DG.Tweening;
-using ExamplePlatformer;
+﻿using System.Collections.Generic;
+using System.Linq;
+using NetBuff.Components;
+using NetBuff.Interface;
 using NetBuff.Misc;
-using SolarBuff.Circuit.Components.Testing;
-using SolarBuff.Player;
+using Solis.Circuit.Interfaces;
+using Solis.Packets;
 using UnityEngine;
 
-namespace SolarBuff.Circuit.Components
+namespace Solis.Circuit.Components
 {
-    public class CircuitZipLine : CircuitComponent
+    /// <summary>
+    /// A magnetic zipline that can be used to transport objects between two points.
+    /// Only works with objects that implement the IMagneticObject interface.
+    /// </summary>
+    public class CircuitZipline : CircuitComponent
     {
-        [SerializeField]private Transform start;
-        [SerializeField]private Transform end;
-        [SerializeField] private Transform claw;
-        [SerializeField]
-        private int radiusToGetObject = 4;
-        private Transform objectHolding;
-        [SerializeField]
-        private LayerMask layerMask;
+        #region Private Static Fields
+        private static readonly Collider[] _Results = new Collider[16];
+        #endregion
+
+        #region Inspector Fields
+        [Header("REFERENCES")]
+        public Transform from;
+        public Transform to;
+        public Transform claw;
+        public Transform anchor;
+        public CircuitPlug input;
         
+        [Header("STATE")]
+        public FloatNetworkValue position = new(0);
+
+        [Header("SETTINGS")]
+        public int tickRate = 64;
+        public float moveSpeed = 2f;
+        public float clawRadius = 2f;
+        #endregion
+
+        #region Private Fields
+        private bool _wasMoving;
+        #endregion
+
+        #region Unity Callbacks
         protected override void OnEnable()
         {
+            WithValues(position);
+            
             base.OnEnable();
-            claw.position = GetPlugValue(CircuitPlug.Type.Input) ?end.position: start.position;
+            InvokeRepeating(nameof(_Tick), 0, 1f / tickRate);
+        }
+
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+            CancelInvoke(nameof(_Tick));
+        }
+        
+        private void Update()
+        {
+            claw.position = Vector3.Lerp(from.position, to.position, position.Value);
+        }
+
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.black;
+            Gizmos.DrawLine(from.position, to.position);
+        }
+        #endregion
+
+        #region Abstract Methods Implementation
+        public override CircuitData ReadOutput(CircuitPlug plug)
+        {
+            return default;
         }
 
         protected override void OnRefresh()
         {
-            var inputBool = GetPlugValue(CircuitPlug.Type.Input);
-            if (objectHolding == null && inputBool)
-                GetNearObject();
-            claw.DOMove(inputBool? end.position : start.position, 2f).OnComplete(OnFinish);
+            
         }
 
-        private void OnFinish()
+        public override IEnumerable<CircuitPlug> GetPlugs()
         {
-            ReleaseObject();
+            return new[] {input};
         }
+        #endregion
 
-        private void ReleaseObject()
+        #region Network Callbacks
+        public override void OnClientReceivePacket(IOwnedPacket packet)
         {
-            if (objectHolding != null)
+            if (packet is PacketMagnetizedStateChange stateChange)
             {
-                objectHolding.transform.SetParent(null);
+                var target = GetNetworkObject(stateChange.Object);
+                if (target == null)
+                    return;
+                
+                var magnetic = target.GetComponent<IMagneticObject>();
+                if (magnetic == null)
+                    return;
+                
+                if (stateChange.Magnetized)
+                    magnetic.Magnetize(claw.gameObject, anchor);
+                else
+                    magnetic.Demagnetize(claw.gameObject, anchor);
             }
-
-            objectHolding = null;
         }
 
-        private void GetNearObject()
+        public override void OnSpawned(bool isRetroactive)
         {
-            Collider[] colliders = new Collider[8];
-            var size = Physics.OverlapSphereNonAlloc(claw.position, radiusToGetObject, colliders,layerMask);
-            for (int i = 0; i < size; i++)
+            base.OnSpawned(isRetroactive);
+            claw.position = Vector3.Lerp(from.position, to.position, position.Value);
+        }
+        #endregion
+
+        #region Private Methods
+        private void _Tick()
+        {
+            if (!HasAuthority)
+                return;
+
+            var value = input.ReadOutput().power > 0.5f;
+            
+            var distance = Vector3.Distance(from.position, to.position);
+            var speed = moveSpeed / distance / tickRate;
+            
+            var newValue = Mathf.Clamp01(position.Value + (value ? speed : -speed));
+            var isMoving = Mathf.Abs(newValue - position.Value) > 0.001f;
+            position.Value = newValue;
+
+            if (isMoving != _wasMoving)
             {
-                if (colliders[i].transform.TryGetComponent(out MagnetObject coll))
+                if (isMoving)
                 {
-                    if (colliders[i].CompareTag("Player"))
+                    foreach (var target in _GetTargetsByCollider())
                     {
-                        var player = coll.transform.GetComponent<PlayerControllerCore>();
-                        if(player.type == PlayerControllerCore.PlayerType.Robot)
-                            objectHolding = colliders[i].transform;
+                        var go = target.GetGameObject();
+                        var identity = go.GetComponent<NetworkIdentity>();
+                        if (identity == null)
+                            continue;
+                        
+                        SendPacket(new PacketMagnetizedStateChange
+                        {
+                            Id = Id,
+                            Object = identity.Id,
+                            Magnetized = true
+                        });
                     }
-                    else if (objectHolding == null)
-                        objectHolding = colliders[i].transform;
-                    
-                    
-                    objectHolding.transform.SetParent(claw);
-                    objectHolding.transform.localPosition = Vector3.zero;
+                }
+                else
+                {
+                    foreach (var target in _GetAllMagnetized())
+                    {
+                        var go = target.GetGameObject();
+                        var identity = go.GetComponent<NetworkIdentity>();
+                        if (identity == null)
+                            continue;
+                        
+                        SendPacket(new PacketMagnetizedStateChange
+                        {
+                            Id = Id,
+                            Object = identity.Id,
+                            Magnetized = false
+                        });
+                    }
                 }
             }
+            
+            _wasMoving = isMoving;
         }
+        
+        private IEnumerable<IMagneticObject> _GetTargetsByCollider()
+        {
+            var count = Physics.OverlapSphereNonAlloc(claw.position, clawRadius, _Results);
+            return _Results.Take(count).Select(c => c.GetComponent<IMagneticObject>()).Where(c => c != null).ToArray();
+        }
+        
+        private IEnumerable<IMagneticObject> _GetAllMagnetized()
+        {
+            return FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).OfType<IMagneticObject>().Where(c => c.GetCurrentAnchor() == anchor).ToArray();
+        }
+        #endregion
     }
 }

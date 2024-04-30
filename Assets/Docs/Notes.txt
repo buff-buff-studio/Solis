@@ -1,0 +1,62 @@
+- CREATING MULTIPLAYER GAMES IS HARD, ISSUES MAY HAPPEN
+- IF I CHANGED SOMETHING IS TO IMPROVE THE SYNCHRONIZATION
+- I CHANGED THE PLAYER-PLATFORM INTERACTION CAUSE I ALREADY HAD THE SAME ISSUES A FEW TIMES ON OTHER PROJECTS
+
+Cable / Circuit Changes:
+    - No Errors Anymore / Reliable References
+    - New UI / Editor
+    - You can select multiple points at once
+    - You can move multiple points at once
+    - You can move between points using arrows
+    - You can undo / redo selections
+    - You can use A to select / deselect - all
+    - You can edit the curve of the first and the last control point
+    - You can now customize the returned data from a component to create custom components (just remember that return values are not synced through network)
+    - You can create wireless cables
+    - You can create wireless antennas
+    - New prefab list
+    - Cables now use shock vfx to show if there's power going through them 
+        - Physical and Standard Cables
+    - Sockets can now be self powered
+
+New Additions / Changes:
+    - Spawn point system. Just create the spawn points and voilá
+    - Game Manager now has buttons to control the game flow
+    - Zipline and platform now uses interfaces (IHeavyObject and IMagneticObject) to interact with objects. Fixed Inheritance for the new system
+    - Improved player movement while in claw / platform, solving sync problems
+    - Created SO for emotes. Avoid creating big classes directly into the inspector
+    - Emotes now uses the SolisSessionData to save emotes
+    - Player classes are now separated in scripts and prefabs. We talked about this in some moment, and we decided to separate the scripts, but it was not done
+    - Network Manager was scattered through many scenes. Fixed it
+    - The menu / lobby flow was completely redone. Now it's easier to understand and works with the new system
+    - (I DID NOT MADE ANY UI, IT'S JUST FOR TESTING PURPOSES. SERGIO CAN CUSTOMIZE IT FROM NOW ON)
+
+Warnings:
+    - Attention when using Invoke / Cancel Invoke and Register / Unregister Events
+    - Check if hot reload is working properly with the new changes
+    - Do not use Coroutines, and Async Methods careless. Everything must be synchronized and hot reload must work properly
+    - Do not use DoTween for anything other than UI animations and vfx / game juices. It's not synced through network
+    - Avoid use lists to save states, mainly when the list stores objects.
+        - Zipline does not stores a list of magnetized objects anymore. It uses interfaces to interact with objects, and each object is responsible for its own state
+        - If a player disconnects while in the zipline, no issues will happen
+        
+TO-DO (By Me):
+    - Cutscene flow system
+    - Fix Stuttering on moving cables and objects on claws
+    
+TO-DO (By Others):
+    - Check if hot-reload is working with your changes
+    - Check if everything is synced
+        - If not, try regenerating the NetworkIdentity and check if it's working
+    - Follow the code formatting (Assets/Docs/CodeGuide.txt)
+ 
+Question:
+    - Send everything to the main project on the meeting. Models and levels will be lost. What will we do? Recreate them?
+ 
+: TODO - SISTEMA DE CUSTSCENE
+: TODO - FORMATAR CODIGO 
+: TODO - RESOLVER TODOS OS PROBLEMS NO RIDER
+: TODO - SEPARAR TUDO NAS REGIONS CORRETAS
+: TODO - FIX STUTTERING DOS CABOS MOVEIS EM CIMA DA PLATAFORMA E DOS OBJETOS NAS CLAWSields
+
+: TODO - VER QQ TA ROLANDO COM O LOBBY. SE O VALOR MUDA ELE ATUALIZA, MAS QUANDO CARREGA NAO. SE EU BOTO Time.frameCount no fixed update FUNCIONA

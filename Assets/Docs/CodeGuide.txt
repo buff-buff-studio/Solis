@@ -1,0 +1,55 @@
+﻿Folder:
+    - Folders must have plural names or names that indicates a "large" system
+        - Circuit -> Indicates the circuit system
+        - Circuit.Gates -> Folder where all the circuit gates are stored
+        
+Namespace:
+namespace Solis.<Folder Path> (Excluding Scripts/)
+namespace Solis.Circuit.Gates
+
+Using:
+- Using declarations must be sorted alphabetically, with System imports at the top (rider auto sorts them)
+- #if UNITY_EDITOR must be the last using declaration block
+
+Classes / Enums / Interfaces / Structs:
+- Each class must in its own file (except for custom editor inspector classes)
+- Everything must be written in English, including comments, tooltips, etc...
+- Should be named in PascalCase
+- Interfaces should be named in PascalCase and prefixed with I
+- All Packet Classes should be named in PascalCase and suffixed with Packet
+- Generic Types should be named with a T prefix
+- Base scripts must be abstract so we don't use them directly via editor
+- Avoid class nesting (Only do nesting when it's really necessary)
+
+Fields:
+- Should be written in camelCase
+- When private, should be camelCase starting with an underscore
+- When private but serialized, should be camelCase with no underscore
+
+Properties:
+- Should be written in PascalCase
+
+Methods:
+- Should be written in PascalCase
+- If it's a Unity Callback, should be written in PascalCase and be protected virtual or private when the class has no inheritors
+- If it's private, should be written in PascalCase starting with an underscore
+- Unity callbacks shall be private or protected. If you need to call them externally, create a public method that calls the Unity callback (Good practice)
+
+Regions:
+- Order (Inspector, Public, Protected, Internal)
+- Order (Constants, Fields, Properties, Unity Callbacks, Network Callbacks, Methods, Interface Implementations)
+- Interfaces don't need regions
+- If you want to separate a region, use the region name - subregion:
+    #region Public Methods - Game
+    #endregion
+    
+    #region Public Methods - Player
+    #endregion
+    
+Comments:
+- Add summary to every class, method and property that is public or protected
+- Comments shall be written in English
+- When a method is overridden, only the base method should have a comment
+- Use the correct parameters tags at the summary (Rider will help you with that)
+    
+    
