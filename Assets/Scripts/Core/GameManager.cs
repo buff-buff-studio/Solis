@@ -227,6 +227,17 @@ namespace Solis.Core
                     LobbyScreen.Instance.UpdateRoom();
             }
         }
+        
+        /// <summary>
+        /// Respawns the player.
+        /// Called only on the server.
+        /// </summary>
+        /// <param name="client"></param>
+        [ServerOnly]
+        public void Respawn(int client)
+        {
+            _RespawnPlayerForClient(client, IsOnLobby); 
+        }
         #endregion
 
         #region Public Methods - Save
@@ -270,7 +281,6 @@ namespace Solis.Core
                 var spawnPos = Vector3.zero;
                 if (isLobby)
                 {
-                    //get first free spawn point
                     var spawnPoint = FindObjectsByType<LobbySpawnPoint>(FindObjectsSortMode.InstanceID)
                         .FirstOrDefault(x => x.occupiedBy == -1 || x.occupiedBy == clientId);
 
@@ -279,7 +289,7 @@ namespace Solis.Core
                 }
                 else
                 {
-                    var spawnPoints = FindObjectsByType<SpawnPoint>(FindObjectsSortMode.InstanceID);
+                    var spawnPoints = FindObjectsByType<SpawnPoint>(FindObjectsSortMode.InstanceID).Where(x => x.characterType == data.PlayerCharacterType).ToArray();
                     if(spawnPoints.Length > 0)
                         spawnPos = spawnPoints[clientId % spawnPoints.Length].transform.position;
                 }
