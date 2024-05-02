@@ -1,8 +1,11 @@
-﻿using NetBuff;
+﻿using UnityEngine;
+using UnityEngine.SceneManagement;
+
+#if UNITY_EDITOR
+using NetBuff;
 using Solis.Core;
 using Solis.Data;
-using UnityEngine;
-using UnityEngine.SceneManagement;
+#endif
 
 namespace Solis.Misc
 {
