@@ -39,17 +39,19 @@ namespace Editor
                 
                 if (GUILayout.Button("Reload Level"))
                 {
-                    gameManager.LoadLevel(gameManager.CurrentLevel);
+                    gameManager.LoadLevel();
                 }
 
                 if (GUILayout.Button("Next Level"))
                 {
-                    gameManager.LoadLevel(gameManager.CurrentLevel + 1);
+                    gameManager.SaveData.currentLevel++;
+                    gameManager.LoadLevel();
                 }
                 
                 if (GUILayout.Button("Prev Level"))
                 {
-                    gameManager.LoadLevel(gameManager.CurrentLevel - 1);
+                    gameManager.SaveData.currentLevel--;
+                    gameManager.LoadLevel();
                 }
             }
         }

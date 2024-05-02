@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Solis.Data
+namespace Solis.Data.Saves
 {
     [Serializable]
     public class SaveSnapshot

@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEditor;
 #endif
 
-namespace Solis.Data
+namespace Solis.Data.Saves
 {
     /// <summary>
     /// Basic save class, contains the save data and the save itself

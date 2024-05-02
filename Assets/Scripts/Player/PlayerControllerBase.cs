@@ -264,7 +264,7 @@ namespace Solis.Player
         {
             if (!HasAuthority)
                 return;
-
+            
             Camera.main!.GetComponent<OrbitCamera>().target = gameObject;
         }
 

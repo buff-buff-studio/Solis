@@ -4,9 +4,11 @@ using NetBuff.Components;
 using NetBuff.Misc;
 using Solis.Player;
 using Solis.Data;
+using Solis.Data.Saves;
 using Solis.Interface.Lobby;
 using Solis.Misc;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Solis.Core
 {
@@ -23,6 +25,9 @@ namespace Solis.Core
         #endregion
         
         #region Inspector Fields
+        [Header("REFERENCES")]
+        public GameSceneRegistry sceneRegistry;
+        
         [Header("PREFABS")]
         public GameObject playerHumanLobbyPrefab;
         public GameObject playerRobotLobbyPrefab;
@@ -39,23 +44,8 @@ namespace Solis.Core
         /// <summary>
         /// Returns true if the game is currently in the lobby.
         /// </summary>
-        public bool IsOnLobby => NetworkManager.Instance.IsSceneLoaded("Lobby");
-
-        /// <summary>
-        /// Returns the current level of the game.
-        /// </summary>
-        public int CurrentLevel
-        {
-            get
-            {
-                var level = NetworkManager.Instance.LoadedScenes.FirstOrDefault(x => x.StartsWith("Level"));
-                if (level == null)
-                    return 0;
-                
-                return int.TryParse(level.Replace("Level ", ""), out var result) ? result : 0;
-            }
-        }
-
+        public bool IsOnLobby => SceneManager.GetSceneByName(sceneRegistry.lobbyScene.Name).isLoaded;
+        
         /// <summary>
         /// Returns the save instance.
         /// </summary>
@@ -102,7 +92,7 @@ namespace Solis.Core
         {
             if (!HasAuthority)
                 return;
-
+            
             _RespawnPlayerForClient(clientId, IsOnLobby);
         }
 
@@ -123,7 +113,7 @@ namespace Solis.Core
         [ServerOnly]
         public void StartGame()
         {
-            LoadLevel(SaveData.currentLevel);
+            LoadLevel();
         }
         
         /// <summary>
@@ -133,11 +123,13 @@ namespace Solis.Core
         [ServerOnly]
         public void ReturnToLobby()
         {
-            var currentLevel = CurrentLevel;
             var manager = NetworkManager.Instance!;
             
-            if (manager.IsSceneLoaded($"Level {currentLevel}"))
-                manager.UnloadScene($"Level {currentLevel}");
+            foreach (var s in manager.LoadedScenes)
+            {
+                if (s.StartsWith("Level"))
+                    manager.UnloadScene(s);
+            }
             
             if (!manager.IsSceneLoaded("Lobby"))
                 manager.LoadScene("Lobby").Then((_) =>
@@ -152,50 +144,55 @@ namespace Solis.Core
         /// Can be used to restart the current level.
         /// Called only on the server.
         /// </summary>
-        /// <param name="level"></param>
         [ServerOnly]
-        public void LoadLevel(int level)
+        public void LoadLevel()
         {
-            var currentLevel = CurrentLevel;
-            SaveData.currentLevel = level;
-            
             var manager = NetworkManager.Instance!;
 
+            var scene = sceneRegistry.levels[save.data.currentLevel].Name;
+            
+            foreach (var s in manager.LoadedScenes)
+            {
+                if (s.StartsWith("Level") && s != name)
+                    manager.UnloadScene(s);
+            }
+            
             if (IsOnLobby)
             {
                 manager.UnloadScene("Lobby").Then((_) =>
                 {
-                    //load level scene
-                    manager.LoadScene($"Level {level}").Then((_) =>
+                    if(!manager.IsSceneLoaded(scene))
+                        manager.LoadScene(scene).Then((_) =>
+                        {
+                            foreach (var clientId in manager.GetConnectedClients())
+                                _RespawnPlayerForClient(clientId, false);
+                        });
+                    else manager.UnloadScene(scene).Then((_) =>
                     {
-                        foreach (var clientId in manager.GetConnectedClients())
-                            _RespawnPlayerForClient(clientId, false);
-                    });
-                });
-            }
-            else
-            {
-                if (manager.IsSceneLoaded($"Level {currentLevel}"))
-                {
-                    manager.UnloadScene($"Level {currentLevel}").Then((_) =>
-                    {
-                        //load level scene
-                        manager.LoadScene($"Level {level}").Then((_) =>
+                        manager.LoadScene(scene).Then((_) =>
                         {
                             foreach (var clientId in manager.GetConnectedClients())
                                 _RespawnPlayerForClient(clientId, false);
                         });
                     });
-                }
-                else
-                {
-                    //load level scene
-                    manager.LoadScene($"Level {level}").Then((_) =>
+                });
+            }
+            else
+            {
+                if(!manager.IsSceneLoaded(scene))
+                    manager.LoadScene(scene).Then((_) =>
                     {
                         foreach (var clientId in manager.GetConnectedClients())
                             _RespawnPlayerForClient(clientId, false);
                     });
-                }
+                else manager.UnloadScene(scene).Then((_) =>
+                {
+                    manager.LoadScene(scene).Then((_) =>
+                    {
+                        foreach (var clientId in manager.GetConnectedClients())
+                            _RespawnPlayerForClient(clientId, false);
+                    });
+                });
             }
         }
         
