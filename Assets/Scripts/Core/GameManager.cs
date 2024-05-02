@@ -93,7 +93,7 @@ namespace Solis.Core
             if (!HasAuthority)
                 return;
             
-            _RespawnPlayerForClient(clientId, IsOnLobby);
+            _RespawnPlayerForClient(clientId);
         }
 
         public override void OnClientDisconnected(int clientId)
@@ -127,7 +127,7 @@ namespace Solis.Core
             
             foreach (var s in manager.LoadedScenes)
             {
-                if (s.StartsWith("Level"))
+                if (s != "Core" && s != name)
                     manager.UnloadScene(s);
             }
             
@@ -135,7 +135,7 @@ namespace Solis.Core
                 manager.LoadScene("Lobby").Then((_) =>
                 {
                     foreach (var clientId in manager.GetConnectedClients())
-                        _RespawnPlayerForClient(clientId, true);
+                        _RespawnPlayerForClient(clientId);
                 });
         }
 
@@ -153,7 +153,7 @@ namespace Solis.Core
             
             foreach (var s in manager.LoadedScenes)
             {
-                if (s.StartsWith("Level") && s != name)
+                if (s != "Core" && s != name)
                     manager.UnloadScene(s);
             }
             
@@ -165,14 +165,14 @@ namespace Solis.Core
                         manager.LoadScene(scene).Then((_) =>
                         {
                             foreach (var clientId in manager.GetConnectedClients())
-                                _RespawnPlayerForClient(clientId, false);
+                                _RespawnPlayerForClient(clientId);
                         });
                     else manager.UnloadScene(scene).Then((_) =>
                     {
                         manager.LoadScene(scene).Then((_) =>
                         {
                             foreach (var clientId in manager.GetConnectedClients())
-                                _RespawnPlayerForClient(clientId, false);
+                                _RespawnPlayerForClient(clientId);
                         });
                     });
                 });
@@ -183,14 +183,14 @@ namespace Solis.Core
                     manager.LoadScene(scene).Then((_) =>
                     {
                         foreach (var clientId in manager.GetConnectedClients())
-                            _RespawnPlayerForClient(clientId, false);
+                            _RespawnPlayerForClient(clientId);
                     });
                 else manager.UnloadScene(scene).Then((_) =>
                 {
                     manager.LoadScene(scene).Then((_) =>
                     {
                         foreach (var clientId in manager.GetConnectedClients())
-                            _RespawnPlayerForClient(clientId, false);
+                            _RespawnPlayerForClient(clientId);
                     });
                 });
             }
@@ -219,7 +219,7 @@ namespace Solis.Core
             if (NetworkManager.Instance.TryGetSessionData<SolisSessionData>(client, out var data))
             {
                 data.PlayerCharacterType = type;
-                _RespawnPlayerForClient(client, IsOnLobby);
+                _RespawnPlayerForClient(client);
                 if (LobbyScreen.Instance != null)
                     LobbyScreen.Instance.UpdateRoom();
             }
@@ -233,7 +233,7 @@ namespace Solis.Core
         [ServerOnly]
         public void RespawnPlayer(int client)
         {
-            _RespawnPlayerForClient(client, IsOnLobby); 
+            _RespawnPlayerForClient(client); 
         }
         #endregion
 
@@ -252,7 +252,7 @@ namespace Solis.Core
 
         #region Private Methods
         [ServerOnly]
-        private void _RespawnPlayerForClient(int clientId, bool isLobby)
+        private void _RespawnPlayerForClient(int clientId)
         {
             if (NetworkManager.Instance.TryGetSessionData<SolisSessionData>(clientId, out var data))
             {
@@ -276,7 +276,7 @@ namespace Solis.Core
 
                 #region Spawn New
                 var spawnPos = Vector3.zero;
-                if (isLobby)
+                if (IsOnLobby)
                 {
                     var spawnPoint = FindObjectsByType<LobbySpawnPoint>(FindObjectsSortMode.InstanceID)
                         .FirstOrDefault(x => x.occupiedBy == -1 || x.occupiedBy == clientId);
@@ -292,8 +292,8 @@ namespace Solis.Core
                 }
 
                 var prefab = data.PlayerCharacterType == CharacterType.Human
-                    ? (isLobby ? playerHumanLobbyPrefab : playerHumanGamePrefab)
-                    : (isLobby ? playerRobotLobbyPrefab : playerRobotGamePrefab);
+                    ? (IsOnLobby ? playerHumanLobbyPrefab : playerHumanGamePrefab)
+                    : (IsOnLobby ? playerRobotLobbyPrefab : playerRobotGamePrefab);
                 
                 Spawn(prefab, spawnPos, Quaternion.identity, Vector3.one, true, clientId);
                 #endregion

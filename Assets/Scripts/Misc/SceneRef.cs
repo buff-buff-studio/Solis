@@ -21,10 +21,6 @@ namespace Solis.Misc
         #endif
         
         [SerializeField]
-        // ReSharper disable once NotAccessedField.Local
-        private int buildIndex = -1;
-        
-        [SerializeField]
         public string sceneName = string.Empty;
         #endregion
 
@@ -51,13 +47,13 @@ namespace Solis.Misc
             if (sceneAsset == null)
             {
                 sceneName = string.Empty;
-                buildIndex = -1;
+                //buildIndex = -1;
                 return;
             }
             
             var path = AssetDatabase.GetAssetPath(sceneAsset);
             sceneName = sceneAsset.name;
-            buildIndex = SceneUtility.GetBuildIndexByScenePath(path);
+            //buildIndex = SceneUtility.GetBuildIndexByScenePath(path);
         }
         #endif
         #endregion
