@@ -15,6 +15,13 @@ namespace Solis.Core
     /// </summary>
     public class GameManager : NetworkBehaviour
     {
+        #region Public Static Properties
+        /// <summary>
+        /// Returns the instance of the GameManager.
+        /// </summary>
+        public static GameManager Instance { get; private set; }
+        #endregion
+        
         #region Inspector Fields
         [Header("PREFABS")]
         public GameObject playerHumanLobbyPrefab;
@@ -26,13 +33,6 @@ namespace Solis.Core
         #region Private Fields
         [SerializeField]
         private Save save = new();
-        #endregion
-        
-        #region Public Static Properties
-        /// <summary>
-        /// Returns the instance of the GameManager.
-        /// </summary>
-        public static GameManager Instance { get; private set; }
         #endregion
 
         #region Public Properties
@@ -234,7 +234,7 @@ namespace Solis.Core
         /// </summary>
         /// <param name="client"></param>
         [ServerOnly]
-        public void Respawn(int client)
+        public void RespawnPlayer(int client)
         {
             _RespawnPlayerForClient(client, IsOnLobby); 
         }
