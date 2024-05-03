@@ -26,14 +26,18 @@ namespace Solis.Misc
         #region Unity Callbacks
         private void LateUpdate()
         {
+            if (target == null)
+            {
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+                return;
+            }
+            
             if(Input.GetKeyDown(KeyCode.Escape))
             {
                 Cursor.lockState = Cursor.lockState == CursorLockMode.Locked ? CursorLockMode.None : CursorLockMode.Locked;
                 Cursor.visible = Cursor.lockState != CursorLockMode.Locked;
             }
-            
-            if (target == null)
-                return;
             
             rotationX -= Input.GetAxis("Mouse Y") * 3f;
             rotationX = Mathf.Clamp(rotationX, -20, 90);

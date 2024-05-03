@@ -23,6 +23,9 @@ namespace Editor
             if (!NetworkManager.Instance.IsServerRunning)
                 return;
             
+            GUILayout.Space(10);
+            GUILayout.Label("SERVER CONTROLS", EditorStyles.boldLabel);
+            
             if (gameManager.IsOnLobby)
             {
                 if (GUILayout.Button("Start Game"))
@@ -53,6 +56,14 @@ namespace Editor
                     gameManager.SaveData.currentLevel--;
                     gameManager.LoadLevel();
                 }
+            }
+            
+            GUILayout.Space(10);
+            GUILayout.Label("SAVE CONTROLS", EditorStyles.boldLabel);
+            
+            if (GUILayout.Button("Save Data"))
+            {
+                gameManager.Save.SaveData(null);
             }
         }
     }

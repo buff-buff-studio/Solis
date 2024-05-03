@@ -10,10 +10,12 @@ namespace Solis.Data.Saves
 
         public void WriteToJson(JsonObject @object)
         {
+            @object["currentLevel"] = currentLevel;
         }
 
         public void ReadFromJson(JsonObject @object)
         {
+            currentLevel = @object.Get("currentLevel");
         }
     }
 }

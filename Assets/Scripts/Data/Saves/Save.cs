@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Solis.Data.JSON;
 using Solis.Interface.Lobby;
 using UnityEngine;
@@ -150,6 +151,8 @@ namespace Solis.Data.Saves
             }
 
             var directories = System.IO.Directory.GetDirectories(folder);
+            directories = directories.OrderByDescending(System.IO.Directory.GetLastWriteTime).ToArray();
+            
             foreach (var directory in directories)
             {
                 try

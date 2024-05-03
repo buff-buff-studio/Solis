@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using NetBuff;
 using NetBuff.Components;
 using NetBuff.Misc;
@@ -33,6 +34,9 @@ namespace Solis.Core
         public GameObject playerRobotLobbyPrefab;
         public GameObject playerHumanGamePrefab;
         public GameObject playerRobotGamePrefab;
+
+        [Header("SETTINGS")]
+        public string[] persistentScenes = { "Core" };
         #endregion
 
         #region Private Fields
@@ -113,6 +117,7 @@ namespace Solis.Core
         [ServerOnly]
         public void StartGame()
         {
+            save.SaveData(null);
             LoadLevel();
         }
         
@@ -127,12 +132,12 @@ namespace Solis.Core
             
             foreach (var s in manager.LoadedScenes)
             {
-                if (s != "Core" && s != name)
+                if (Array.IndexOf(persistentScenes, s) == -1 && s != name)
                     manager.UnloadScene(s);
             }
             
-            if (!manager.IsSceneLoaded("Lobby"))
-                manager.LoadScene("Lobby").Then((_) =>
+            if (!manager.IsSceneLoaded(sceneRegistry.lobbyScene.Name))
+                manager.LoadScene(sceneRegistry.lobbyScene.Name).Then((_) =>
                 {
                     foreach (var clientId in manager.GetConnectedClients())
                         _RespawnPlayerForClient(clientId);
@@ -153,13 +158,13 @@ namespace Solis.Core
             
             foreach (var s in manager.LoadedScenes)
             {
-                if (s != "Core" && s != name)
+                if (Array.IndexOf(persistentScenes, s) == -1  && s != name)
                     manager.UnloadScene(s);
             }
             
             if (IsOnLobby)
             {
-                manager.UnloadScene("Lobby").Then((_) =>
+                manager.UnloadScene(sceneRegistry.lobbyScene.Name).Then((_) =>
                 {
                     if(!manager.IsSceneLoaded(scene))
                         manager.LoadScene(scene).Then((_) =>
