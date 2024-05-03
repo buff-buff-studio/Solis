@@ -1,29 +1,29 @@
 ﻿using System;
 using UnityEngine;
 
-namespace i18n
+namespace Solis.i18n
 {
     /// <summary>
-    /// Used to manage the languages and localize strings.
+    /// Used to store the language entries for the game.
     /// </summary>
-    [CreateAssetMenu(menuName = "Solis/i18n/Language Manager", fileName = "LanguageManager")]
-    public class LanguageManager : ScriptableObject
+    [CreateAssetMenu(menuName = "Solis/i18n/Language Palette", fileName = "LanguagePalette")]
+    public class LanguagePalette : ScriptableObject
     {
         #region Private Static Fields
-        private static LanguageManager _instance;
+        private static LanguagePalette _instance;
         #endregion
         
         #region Public Static Properties
         /// <summary>
         /// Returns the instance of the LanguageManager.
         /// </summary>
-        public static LanguageManager Instance
+        public static LanguagePalette Instance
         {
             get
             {
                 if (_instance == null)
                 {
-                    _instance = Resources.Load<LanguageManager>("LanguageManager");
+                    _instance = Resources.Load<LanguagePalette>("LanguagePalette");
                 }
                 
                 return _instance;

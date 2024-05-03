@@ -1,7 +1,7 @@
 ﻿using AYellowpaper.SerializedCollections;
 using UnityEngine;
 
-namespace i18n
+namespace Solis.i18n
 {
     /// <summary>
     /// Represents a language.

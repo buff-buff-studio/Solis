@@ -1,5 +1,4 @@
-﻿using System;
-using i18n;
+﻿using Solis.i18n;
 using TMPro;
 using UnityEngine;
 
@@ -16,18 +15,18 @@ namespace Interface
             _text = GetComponent<TMP_Text>();
             _buffer = _text.text;
             
-            LanguageManager.OnLanguageChanged += _Localize;
+            LanguagePalette.OnLanguageChanged += _Localize;
             _Localize();
         }
 
         private void OnDestroy()
         {
-            LanguageManager.OnLanguageChanged -= _Localize;
+            LanguagePalette.OnLanguageChanged -= _Localize;
         }
 
         private void _Localize()
         {
-            _text.text = LanguageManager.Localize(_buffer);
+            _text.text = LanguagePalette.Localize(_buffer);
         }
     }
 }

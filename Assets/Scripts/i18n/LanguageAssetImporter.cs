@@ -1,11 +1,11 @@
-﻿using System.IO;
-using UnityEngine;
-
+﻿
 #if UNITY_EDITOR
+using System.IO;
+using UnityEngine;
 using UnityEditor.AssetImporters;
 #endif
 
-namespace i18n
+namespace Solis.i18n
 {
     #if UNITY_EDITOR
     [ScriptedImporter(1, "lang")]
