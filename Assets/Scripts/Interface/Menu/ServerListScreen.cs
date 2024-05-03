@@ -19,9 +19,11 @@ namespace Solis.Interface.Menu
         #region Inspector Fields
         [Header("REFERENCES")]
         public TMP_InputField inputFieldUsername;
-
         public TMP_InputField inputFieldAddress;
         public Button refreshButton;
+
+        [Header("SETTINGS")]
+        public float timeout = 3f;
         #endregion
 
         #region Internal Fields
@@ -50,8 +52,11 @@ namespace Solis.Interface.Menu
             _servers.Clear();
 
             refreshButton.interactable = false;
+   
             foreach (var sd in _discoverers)
                 sd.Search(_OnFindServer, _OnSearchFinished);
+            
+            Invoke(nameof(_OnSearchFinished), timeout);
         }
         #endregion
 

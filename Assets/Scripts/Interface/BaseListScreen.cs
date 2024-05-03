@@ -17,7 +17,7 @@ namespace Interface
         #endregion
 
         #region Unity Callbacks
-        public void OnEnable()
+        protected virtual void OnEnable()
         {
             RefreshList();
         }
