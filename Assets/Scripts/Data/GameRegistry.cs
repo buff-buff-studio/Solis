@@ -4,10 +4,13 @@ using UnityEngine;
 
 namespace Solis.Data
 {
+    /// <summary>
+    /// Used to store game specific data like scenes, levels etc.
+    /// </summary>
     [CreateAssetMenu(fileName = "Game Registry", menuName = "Solis/Game/Registry")]
     public class GameRegistry : ScriptableObject
     {
-        #region Public Fields
+        #region Inspector Fields
         public SceneRef sceneQuit;
         public SceneRef sceneLobby;
         public SceneRef sceneCutscene;
