@@ -10,19 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c016afbd6036421a8d48d64f31ee2a58, type: 3}
-  m_Name: Game Scene Registry
+  m_Name: Game Registry
   m_EditorClassIdentifier: 
-  quitScene:
+  sceneQuit:
     sceneAsset: {fileID: 102900000, guid: 9b9ceadc5d73191429474e5dd5e90350, type: 3}
-    buildIndex: 0
-  lobbyScene:
+    sceneName: Menu
+  sceneLobby:
     sceneAsset: {fileID: 102900000, guid: 8d599267ac62ad442a130806f98ae725, type: 3}
-    buildIndex: 2
-  cutsceneScene:
+    sceneName: Lobby
+  sceneCutscene:
     sceneAsset: {fileID: 102900000, guid: 1effc0bd0877c5843ab6fa1823fbafcf, type: 3}
-    buildIndex: 5
+    sceneName: Cutscene
   levels:
-  - sceneAsset: {fileID: 102900000, guid: 18ca9584f3afcf2468ba0a0a456d84e0, type: 3}
-    buildIndex: 3
-  - sceneAsset: {fileID: 102900000, guid: feb5cee5cb690ba44962e025a65df79c, type: 3}
-    buildIndex: 4
+  - {fileID: 11400000, guid: 3f29a28f7b167ef459572e13b43aff65, type: 2}
+  - {fileID: 11400000, guid: 7ff83c4c9820b3749ac339617ad256a9, type: 2}

@@ -10,6 +10,7 @@ using Solis.Interface.Lobby;
 using Solis.Misc;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 
 namespace Solis.Core
 {
@@ -26,8 +27,9 @@ namespace Solis.Core
         #endregion
         
         #region Inspector Fields
+        [FormerlySerializedAs("sceneRegistry")]
         [Header("REFERENCES")]
-        public GameSceneRegistry sceneRegistry;
+        public GameRegistry registry;
         
         [Header("PREFABS")]
         public GameObject playerHumanLobbyPrefab;
@@ -48,7 +50,7 @@ namespace Solis.Core
         /// <summary>
         /// Returns true if the game is currently in the lobby.
         /// </summary>
-        public bool IsOnLobby => SceneManager.GetSceneByName(sceneRegistry.lobbyScene.Name).isLoaded;
+        public bool IsOnLobby => SceneManager.GetSceneByName(registry.sceneLobby.Name).isLoaded;
         
         /// <summary>
         /// Returns the save instance.
@@ -63,6 +65,8 @@ namespace Solis.Core
             get => save.data;
             set => save.data = value;
         }
+        
+        public LevelInfo CurrentLevel => save.data.currentLevel < 0 ? null : registry.levels[save.data.currentLevel];
         #endregion
 
         #region Unity Callbacks
@@ -136,8 +140,8 @@ namespace Solis.Core
                     manager.UnloadScene(s);
             }
             
-            if (!manager.IsSceneLoaded(sceneRegistry.lobbyScene.Name))
-                manager.LoadScene(sceneRegistry.lobbyScene.Name).Then((_) =>
+            if (!manager.IsSceneLoaded(registry.sceneLobby.Name))
+                manager.LoadScene(registry.sceneLobby.Name).Then((_) =>
                 {
                     foreach (var clientId in manager.GetConnectedClients())
                         _RespawnPlayerForClient(clientId);
@@ -154,7 +158,7 @@ namespace Solis.Core
         {
             var manager = NetworkManager.Instance!;
 
-            var scene = sceneRegistry.levels[save.data.currentLevel].Name;
+            var scene = registry.levels[save.data.currentLevel].scene.Name;
             
             foreach (var s in manager.LoadedScenes)
             {
@@ -164,7 +168,7 @@ namespace Solis.Core
             
             if (IsOnLobby)
             {
-                manager.UnloadScene(sceneRegistry.lobbyScene.Name).Then((_) =>
+                manager.UnloadScene(registry.sceneLobby.Name).Then((_) =>
                 {
                     if(!manager.IsSceneLoaded(scene))
                         manager.LoadScene(scene).Then((_) =>
