@@ -131,6 +131,7 @@ GameObject:
   - component: {fileID: 98069602}
   - component: {fileID: 98069601}
   - component: {fileID: 98069600}
+  - component: {fileID: 98069603}
   m_Layer: 5
   m_Name: Placeholder
   m_TagString: Untagged
@@ -197,7 +198,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Username...
+  m_text: servers.username
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -276,6 +277,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 98069598}
   m_CullTransparentMesh: 1
+--- !u!114 &98069603
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 98069598}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a63d5379020142a4ae38639e4b193eb4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &125239761
 GameObject:
   m_ObjectHideFlags: 0
@@ -643,6 +656,7 @@ GameObject:
   - component: {fileID: 352028279}
   - component: {fileID: 352028281}
   - component: {fileID: 352028280}
+  - component: {fileID: 352028282}
   m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
@@ -689,7 +703,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Host Server
+  m_text: servers.host_server
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -768,6 +782,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 352028278}
   m_CullTransparentMesh: 1
+--- !u!114 &352028282
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 352028278}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a63d5379020142a4ae38639e4b193eb4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &388829912
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -806,9 +832,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4784818690213009657, guid: db483c2ade661d841a11e81ce5e44925, type: 3}
       propertyPath: m_text
-      value: 'Server List
-
-'
+      value: servers.title
       objectReference: {fileID: 0}
     - target: {fileID: 5946598985890933240, guid: db483c2ade661d841a11e81ce5e44925, type: 3}
       propertyPath: m_Pivot.x
@@ -913,6 +937,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 7622041367767017254, guid: db483c2ade661d841a11e81ce5e44925, type: 3}
       insertIndex: -1
       addedObject: {fileID: 388829915}
+    - targetCorrespondingSourceObject: {fileID: 6457142423709372252, guid: db483c2ade661d841a11e81ce5e44925, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 635703399}
   m_SourcePrefab: {fileID: 100100000, guid: db483c2ade661d841a11e81ce5e44925, type: 3}
 --- !u!224 &388829913 stripped
 RectTransform:
@@ -942,6 +969,7 @@ MonoBehaviour:
   inputFieldUsername: {fileID: 125239763}
   inputFieldAddress: {fileID: 186849410}
   refreshButton: {fileID: 604074892}
+  timeout: 3
 --- !u!224 &388829916 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 5903040151144221033, guid: db483c2ade661d841a11e81ce5e44925, type: 3}
@@ -1154,6 +1182,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 604074890}
   m_CullTransparentMesh: 1
+--- !u!1 &635703398 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6457142423709372252, guid: db483c2ade661d841a11e81ce5e44925, type: 3}
+  m_PrefabInstance: {fileID: 388829912}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &635703399
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 635703398}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a63d5379020142a4ae38639e4b193eb4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &643584800
 GameObject:
   m_ObjectHideFlags: 0
@@ -1452,6 +1497,7 @@ GameObject:
   - component: {fileID: 930450173}
   - component: {fileID: 930450175}
   - component: {fileID: 930450174}
+  - component: {fileID: 930450176}
   m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
@@ -1498,7 +1544,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Refresh List
+  m_text: servers.refresh_list
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1577,6 +1623,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 930450172}
   m_CullTransparentMesh: 1
+--- !u!114 &930450176
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 930450172}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a63d5379020142a4ae38639e4b193eb4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &931469402
 GameObject:
   m_ObjectHideFlags: 0
@@ -1723,6 +1781,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1744874082}
   - component: {fileID: 1744874081}
+  - component: {fileID: 1744874083}
   m_Layer: 0
   m_Name: Directional Light
   m_TagString: Untagged
@@ -1806,6 +1865,29 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!114 &1744874083
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1744874080}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Version: 3
+  m_UsePipelineSettings: 1
+  m_AdditionalLightsShadowResolutionTier: 2
+  m_LightLayerMask: 1
+  m_RenderingLayers: 1
+  m_CustomShadowLayers: 0
+  m_ShadowLayerMask: 1
+  m_ShadowRenderingLayers: 1
+  m_LightCookieSize: {x: 1, y: 1}
+  m_LightCookieOffset: {x: 0, y: 0}
+  m_SoftShadowQuality: 0
 --- !u!1 &1775604098
 GameObject:
   m_ObjectHideFlags: 0
