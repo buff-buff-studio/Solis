@@ -7,7 +7,7 @@ using Solis.Player;
 using Solis.Data;
 using Solis.Data.Saves;
 using Solis.Interface.Lobby;
-using Solis.Misc;
+using Solis.Misc.Props;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
@@ -66,6 +66,9 @@ namespace Solis.Core
             set => save.data = value;
         }
         
+        /// <summary>
+        /// Returns the current level info.
+        /// </summary>
         public LevelInfo CurrentLevel => save.data.currentLevel < 0 ? null : registry.levels[save.data.currentLevel];
         #endregion
 
@@ -99,6 +102,10 @@ namespace Solis.Core
         public override void OnClientConnected(int clientId)
         {
             if (!HasAuthority)
+                return;
+            
+            //If it's the cutscene scene, don't spawn the player
+            if (NetworkManager.Instance.LoadedScenes.Contains(registry.sceneCutscene.Name))
                 return;
             
             _RespawnPlayerForClient(clientId);

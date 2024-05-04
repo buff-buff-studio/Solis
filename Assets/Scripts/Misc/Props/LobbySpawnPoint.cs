@@ -1,7 +1,7 @@
 ﻿using NetBuff.Misc;
 using UnityEngine;
 
-namespace Solis.Misc
+namespace Solis.Misc.Props
 {
     /// <summary>
     /// Defines a spawn point in the lobby.
