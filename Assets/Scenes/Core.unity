@@ -364,11 +364,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d4d4a50c17c465d855026d9f695d5ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneRegistry: {fileID: 11400000, guid: 8cee920f13005164b9a679b3fd951f98, type: 2}
+  registry: {fileID: 11400000, guid: 8cee920f13005164b9a679b3fd951f98, type: 2}
   playerHumanLobbyPrefab: {fileID: 3301523291550479723, guid: 1cc66bb40524acf4b9bd5089dd6bc4c5, type: 3}
   playerRobotLobbyPrefab: {fileID: 1830436108910305585, guid: 9b004ed141c59d141997325a25da525d, type: 3}
   playerHumanGamePrefab: {fileID: 3145927572009989455, guid: 8af7a7a1b38a0424aa9140936d465596, type: 3}
   playerRobotGamePrefab: {fileID: 3145927572009989455, guid: 8fa75dcac2758e04b90891412d2e2383, type: 3}
+  persistentScenes:
+  - Core
   save:
     preview: {fileID: 0}
     playTime: 0
@@ -464,8 +466,30 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5725276867178197765, guid: 98f9ac76a654c9a438a29650d81ab9e7, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2756414570633026327}
   m_SourcePrefab: {fileID: 100100000, guid: 98f9ac76a654c9a438a29650d81ab9e7, type: 3}
+--- !u!1 &2756414570633026326 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5725276867178197765, guid: 98f9ac76a654c9a438a29650d81ab9e7, type: 3}
+  m_PrefabInstance: {fileID: 2756414570633026325}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2756414570633026327
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2756414570633026326}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7f54dfe2a1440b383afbc23c0e0e15d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  audioSourcePoolSize: 10
+  freeAudioSources: []
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

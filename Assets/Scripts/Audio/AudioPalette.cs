@@ -1,7 +1,7 @@
 ﻿using AYellowpaper.SerializedCollections;
 using UnityEngine;
 
-namespace Audio
+namespace Solis.Audio
 {
     /// <summary>
     /// Used to store the audio entries for the game.
@@ -11,18 +11,18 @@ namespace Audio
     {
         #region Inspector Fields
         [SerializeField]
-        private SerializedDictionary<string, AudioClip> clips = new();
+        private SerializedDictionary<string, Audio> audios = new();
         #endregion
 
         #region Public Methods
         /// <summary>
-        /// Returns the audio clip with the given key.
+        /// Returns the audio with the given key.
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        public AudioClip GetClip(string key)
+        public Audio GetAudio(string key)
         {
-            return clips[key];
+            return audios[key];
         }
         
         /// <summary>
@@ -32,19 +32,19 @@ namespace Audio
         /// <returns></returns>
         public bool ContainsKey(string key)
         {
-            return clips.ContainsKey(key);
+            return audios.ContainsKey(key);
         }
         
         /// <summary>
-        /// Tries to get the audio clip with the given key.
+        /// Tries to get the audio with the given key.
         /// Returns true if the key exists in the dictionary.
         /// </summary>
         /// <param name="key"></param>
-        /// <param name="clip"></param>
+        /// <param name="audio"></param>
         /// <returns></returns>
-        public bool TryGetClip(string key, out AudioClip clip)
+        public bool TryGetAudio(string key, out Audio audio)
         {
-            return clips.TryGetValue(key, out clip);
+            return audios.TryGetValue(key, out audio);
         }
         #endregion
     }
