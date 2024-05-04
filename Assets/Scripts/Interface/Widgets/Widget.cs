@@ -43,12 +43,12 @@ namespace Interface.Widgets
         #endregion
 
         #region Unity Callbacks
-        public virtual void OnEnable()
+        protected virtual void OnEnable()
         {
             _Widgets.Add(this);
         }
         
-        public virtual void OnDisable()
+        protected virtual void OnDisable()
         {
             _Widgets.Remove(this);
         }

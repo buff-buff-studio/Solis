@@ -20,14 +20,18 @@ namespace Interface.Widgets
         #endregion
 
         #region Unity Callbacks
-        private void OnEnable()
+        protected override void OnEnable()
         {
+            base.OnEnable();
+            
             _button = GetComponent<Button>();
             _button.onClick.AddListener(_OnClick);
         }
         
-        private void OnDisable()
+        protected override void OnDisable()
         {
+            base.OnDisable();
+            
             _button.onClick.RemoveListener(_OnClick);
             _button = null;
         }
