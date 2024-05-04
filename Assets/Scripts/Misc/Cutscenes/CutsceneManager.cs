@@ -11,6 +11,9 @@ using UnityEngine.UI;
 
 namespace Solis.Misc.Cutscenes
 {
+    /// <summary>
+    /// Used to manage the cutscene state and skip the cutscene when all players have finished it.
+    /// </summary>
     public class CutsceneManager : NetworkBehaviour
     {
         #region Inspector Fields
@@ -91,6 +94,10 @@ namespace Solis.Misc.Cutscenes
         #endregion
 
         #region Public Methods
+        /// <summary>
+        /// Marks the cutscene as finished for the current player.
+        /// Called on the client side.
+        /// </summary>
         [ClientOnly]
         public void MarkFinished()
         {

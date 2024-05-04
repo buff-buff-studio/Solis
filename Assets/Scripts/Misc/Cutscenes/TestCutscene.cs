@@ -2,6 +2,9 @@
 
 namespace Solis.Misc.Cutscenes
 {
+    /// <summary>
+    /// Just a test cutscene to show how to mark the cutscene as finished.
+    /// </summary>
     public class TestCutscene : MonoBehaviour
     {
         #region Inspector Fields

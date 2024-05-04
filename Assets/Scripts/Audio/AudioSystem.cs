@@ -116,7 +116,8 @@ namespace Solis.Audio
         /// <returns></returns>
         public AudioPlayer PlayVfx(string audioName, bool loop = false)
         {
-            return CreateVfx(audioName).Play(loop);
+            var player = CreateVfx(audioName);
+            return player?.Play(loop);
         }
         
         /// <summary>
@@ -199,8 +200,10 @@ namespace Solis.Audio
         {
             foreach (var palette in audioPalettes)
             {
-                if(palette.TryGetAudio(audioName, out var clip))
+                if (palette.TryGetAudio(audioName, out var clip))
+                {
                     return _CreatePlayer(clip.clip, type, clip.volume);
+                }
             }
             
             return null;
