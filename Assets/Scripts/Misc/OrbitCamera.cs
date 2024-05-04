@@ -30,6 +30,9 @@ namespace Solis.Misc
             {
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
+                var tr = this.transform;
+                tr.position = new Vector3(0, 1, -10);
+                tr.rotation = Quaternion.identity;
                 return;
             }
             

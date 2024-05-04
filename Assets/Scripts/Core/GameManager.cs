@@ -44,6 +44,9 @@ namespace Solis.Core
         #region Private Fields
         [SerializeField]
         private Save save = new();
+
+        [SerializeField]
+        private bool playedCutscene;
         #endregion
 
         #region Public Properties
@@ -164,50 +167,54 @@ namespace Solis.Core
         public void LoadLevel()
         {
             var manager = NetworkManager.Instance!;
+            var levelInfo = registry.levels[save.data.currentLevel];
 
-            var scene = registry.levels[save.data.currentLevel].scene.Name;
+            var scene = levelInfo.scene.Name;
             
+            //Unload other scenes
             foreach (var s in manager.LoadedScenes)
             {
                 if (Array.IndexOf(persistentScenes, s) == -1  && s != name)
                     manager.UnloadScene(s);
             }
             
+            if (levelInfo.hasCutscene && !playedCutscene)
+            {
+                if (IsOnLobby)
+                {
+                    manager.UnloadScene(registry.sceneLobby.Name).Then((_) =>
+                    {
+                        _LoadSceneSafely(registry.sceneCutscene.Name);
+                    });
+                }
+                else
+                {
+                    _LoadSceneSafely(registry.sceneCutscene.Name);
+                }
+
+                playedCutscene = true;
+                return;
+            }
+            
+            playedCutscene = false;
+
             if (IsOnLobby)
             {
                 manager.UnloadScene(registry.sceneLobby.Name).Then((_) =>
                 {
-                    if(!manager.IsSceneLoaded(scene))
-                        manager.LoadScene(scene).Then((_) =>
-                        {
-                            foreach (var clientId in manager.GetConnectedClients())
-                                _RespawnPlayerForClient(clientId);
-                        });
-                    else manager.UnloadScene(scene).Then((_) =>
+                    _LoadSceneSafely(scene, (_) =>
                     {
-                        manager.LoadScene(scene).Then((_) =>
-                        {
-                            foreach (var clientId in manager.GetConnectedClients())
-                                _RespawnPlayerForClient(clientId);
-                        });
+                        foreach (var clientId in manager.GetConnectedClients())
+                            _RespawnPlayerForClient(clientId);
                     });
                 });
             }
             else
             {
-                if(!manager.IsSceneLoaded(scene))
-                    manager.LoadScene(scene).Then((_) =>
-                    {
-                        foreach (var clientId in manager.GetConnectedClients())
-                            _RespawnPlayerForClient(clientId);
-                    });
-                else manager.UnloadScene(scene).Then((_) =>
+                _LoadSceneSafely(scene, (_) =>
                 {
-                    manager.LoadScene(scene).Then((_) =>
-                    {
-                        foreach (var clientId in manager.GetConnectedClients())
-                            _RespawnPlayerForClient(clientId);
-                    });
+                    foreach (var clientId in manager.GetConnectedClients())
+                        _RespawnPlayerForClient(clientId);
                 });
             }
         }
@@ -314,6 +321,17 @@ namespace Solis.Core
                 Spawn(prefab, spawnPos, Quaternion.identity, Vector3.one, true, clientId);
                 #endregion
             }
+        }
+
+        private void _LoadSceneSafely(string scene, Action<int> then = null)
+        {
+            var manager = NetworkManager.Instance!;
+            if(!manager.IsSceneLoaded(scene))
+                manager.LoadScene(scene).Then(then);
+            else manager.UnloadScene(scene).Then((_) =>
+            {
+                manager.LoadScene(scene).Then(then);
+            });
         }
         #endregion
     }

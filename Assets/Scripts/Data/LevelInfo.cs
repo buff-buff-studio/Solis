@@ -10,9 +10,13 @@ namespace Solis.Data
     public class LevelInfo : ScriptableObject
     {
         #region Inspector Fields
+        [Header("INFO")]
         public string unlocalizedName;
         public SceneRef scene;
         public Sprite preview;
+
+        [Header("CUTSCENE")]
+        public bool hasCutscene;
         #endregion
     }
 }
