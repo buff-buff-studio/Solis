@@ -9,7 +9,7 @@ namespace Interface.Widgets
     /// <summary>
     /// Base class for list entries.
     /// </summary>
-    public class WidgetListEntry : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler,
+    public class WidgetListEntry : Widget, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler,
         IPointerUpHandler
     {
         #region Inspector Fields

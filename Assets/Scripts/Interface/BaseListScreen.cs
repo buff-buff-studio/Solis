@@ -6,7 +6,7 @@ namespace Interface
     /// Base class for all list screens.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class BaseListScreen<T> : MonoBehaviour where T : MonoBehaviour
+    public abstract class BaseListScreen<T> : Screen where T : MonoBehaviour
     {
         #region Inspector Fields
         [Header("REFERENCES")]

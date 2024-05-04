@@ -9,7 +9,7 @@ namespace Interface.Widgets
     /// Used to automatically set up a button widget.
     /// </summary>
     [RequireComponent(typeof(Button))]
-    public class WidgetButton : MonoBehaviour
+    public class WidgetButton : Widget
     {
         #region Inspector Fields
         public string clickSound = "click";
