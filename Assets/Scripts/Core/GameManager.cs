@@ -176,9 +176,9 @@ namespace Solis.Core
         {
             var manager = NetworkManager.Instance!;
             var levelInfo = registry.levels[save.data.currentLevel];
-
             var scene = levelInfo.scene.Name;
-            
+
+            #region Prepare
             await _Fade(true);
             
             //Unload other scenes
@@ -187,32 +187,37 @@ namespace Solis.Core
                 if (Array.IndexOf(persistentScenes, s) == -1  && s != name)
                     manager.UnloadScene(s);
             }
-            
+            #endregion
+
+            #region Cutscene
+            //Load the cutscene if it has one
             if (levelInfo.hasCutscene && !playedCutscene)
             {
                 if (IsOnLobby)
                 {
                     manager.UnloadScene(registry.sceneLobby.Name).Then((_) =>
                     {
-                        _LoadSceneSafely(registry.sceneCutscene.Name);
+                        _LoadSceneInternal(registry.sceneCutscene.Name);
                     });
                 }
                 else
                 {
-                    _LoadSceneSafely(registry.sceneCutscene.Name);
+                    _LoadSceneInternal(registry.sceneCutscene.Name);
                 }
 
                 playedCutscene = true;
                 return;
             }
-            
             playedCutscene = false;
+            #endregion
 
+            #region Level
+            //Load the level
             if (IsOnLobby)
             {
                 manager.UnloadScene(registry.sceneLobby.Name).Then((_) =>
                 {
-                    _LoadSceneSafely(scene, (_) =>
+                    _LoadSceneInternal(scene, (_) =>
                     {
                         foreach (var clientId in manager.GetConnectedClients())
                             _RespawnPlayerForClient(clientId);
@@ -221,12 +226,13 @@ namespace Solis.Core
             }
             else
             {
-                _LoadSceneSafely(scene, (_) =>
+                _LoadSceneInternal(scene, (_) =>
                 {
                     foreach (var clientId in manager.GetConnectedClients())
                         _RespawnPlayerForClient(clientId);
                 });
             }
+            #endregion
         }
         
         /// <summary>
@@ -333,7 +339,7 @@ namespace Solis.Core
             }
         }
 
-        private async void _LoadSceneSafely(string scene, Action<int> then = null)
+        private async void _LoadSceneInternal(string scene, Action<int> then = null)
         {
             var manager = NetworkManager.Instance!;
             if (!manager.IsSceneLoaded(scene))
