@@ -10,7 +10,6 @@ using Solis.Interface.Lobby;
 using Solis.Misc.Props;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.Serialization;
 
 namespace Solis.Core
 {
@@ -27,9 +26,9 @@ namespace Solis.Core
         #endregion
         
         #region Inspector Fields
-        [FormerlySerializedAs("sceneRegistry")]
         [Header("REFERENCES")]
         public GameRegistry registry;
+        public CanvasGroup fadeScreen;
         
         [Header("PREFABS")]
         public GameObject playerHumanLobbyPrefab;
@@ -140,7 +139,7 @@ namespace Solis.Core
         /// Called only on the server.
         /// </summary>
         [ServerOnly]
-        public void ReturnToLobby()
+        public async void ReturnToLobby()
         {
             var manager = NetworkManager.Instance!;
             
@@ -150,12 +149,21 @@ namespace Solis.Core
                     manager.UnloadScene(s);
             }
             
+            await _Fade(true);
+            var waiting = true;
+            
             if (!manager.IsSceneLoaded(registry.sceneLobby.Name))
                 manager.LoadScene(registry.sceneLobby.Name).Then((_) =>
                 {
                     foreach (var clientId in manager.GetConnectedClients())
                         _RespawnPlayerForClient(clientId);
+                    
+                    waiting = false;
                 });
+            
+            while (waiting)
+                await Awaitable.EndOfFrameAsync();
+            await _Fade(false);
         }
 
         /// <summary>
@@ -164,12 +172,14 @@ namespace Solis.Core
         /// Called only on the server.
         /// </summary>
         [ServerOnly]
-        public void LoadLevel()
+        public async void LoadLevel()
         {
             var manager = NetworkManager.Instance!;
             var levelInfo = registry.levels[save.data.currentLevel];
 
             var scene = levelInfo.scene.Name;
+            
+            await _Fade(true);
             
             //Unload other scenes
             foreach (var s in manager.LoadedScenes)
@@ -323,15 +333,49 @@ namespace Solis.Core
             }
         }
 
-        private void _LoadSceneSafely(string scene, Action<int> then = null)
+        private async void _LoadSceneSafely(string scene, Action<int> then = null)
         {
             var manager = NetworkManager.Instance!;
-            if(!manager.IsSceneLoaded(scene))
-                manager.LoadScene(scene).Then(then);
-            else manager.UnloadScene(scene).Then((_) =>
+            if (!manager.IsSceneLoaded(scene))
             {
                 manager.LoadScene(scene).Then(then);
-            });
+                await _Fade(false);
+            }
+            else
+            {
+                var waiting = true;
+                manager.UnloadScene(scene).Then((_) =>
+                {
+                    manager.LoadScene(scene).Then((_) =>
+                    {
+                        waiting = false;
+                    });
+                });
+                
+                while (waiting)
+                    await Awaitable.EndOfFrameAsync();
+                await _Fade(false);
+            }
+        }
+
+        private async Awaitable _Fade(bool @in)
+        {
+            fadeScreen.gameObject.SetActive(true);
+            
+            const float fadeTime = 0.5f;
+            var time = 0f;
+            var from = fadeScreen.alpha;
+            var target = @in ? 1f : 0f;
+            
+            while (time < fadeTime)
+            {
+                time += Time.deltaTime;
+                fadeScreen.alpha = Mathf.Lerp(from, target, time / fadeTime);
+                await Awaitable.EndOfFrameAsync();
+            }
+            
+            fadeScreen.alpha = target;
+            fadeScreen.gameObject.SetActive(@in);
         }
         #endregion
     }
