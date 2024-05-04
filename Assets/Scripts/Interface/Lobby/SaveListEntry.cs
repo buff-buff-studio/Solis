@@ -1,5 +1,6 @@
 ﻿using System;
 using Interface;
+using Interface.Widgets;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -10,7 +11,7 @@ namespace Solis.Interface.Lobby
     /// <summary>
     /// Represents a save list entry in the save list.
     /// </summary>
-    public class SaveListEntry : ListEntry
+    public class SaveListEntry : WidgetListEntry
     {
         #region Inspector Fields
         public RawImage imagePreview;

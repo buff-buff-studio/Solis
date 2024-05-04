@@ -1,21 +1,29 @@
 ﻿using System;
+using Solis.Audio;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace Interface
+namespace Interface.Widgets
 {
     /// <summary>
     /// Base class for list entries.
     /// </summary>
-    public class ListEntry : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler,
+    public class WidgetListEntry : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler,
         IPointerUpHandler
     {
-        #region Public Fields
+        #region Inspector Fields
+        [Header("REFERENCES")]
         public Image background;
+        
+        [Header("SETTINGS")]
         public Color colorNormal = Color.white;
         public Color colorHover = new(224, 224, 244);
         public Color colorClicked = new(192, 192, 192);
+        public string clickSound = "click";
+        #endregion
+
+        #region Public Fields
         public Action onClick;
         #endregion
 
@@ -66,7 +74,10 @@ namespace Interface
         {
             _clicked = false;
             if (_inside && Time.time - _pressedTime < 0.5f)
+            {
+                AudioSystem.PlayVfxStatic(clickSound);
                 onClick?.Invoke();
+            }
         }
         #endregion
     }

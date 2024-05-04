@@ -113,6 +113,11 @@ namespace Solis.Interface.Menu
 
         private void _OnSearchFinished()
         {
+            CancelInvoke(nameof(_OnSearchFinished));
+            
+            foreach (var sd in _discoverers)
+                sd.Cancel();
+            
             if (refreshButton != null)
                 refreshButton.interactable = true;
 
