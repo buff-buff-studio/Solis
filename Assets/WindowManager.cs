@@ -36,7 +36,7 @@ public class WindowManager : MonoBehaviour
             for (var i = 0; i < windows.Count; i++)
             {
                 windows[i].gameObject.SetActive(true);
-                SetWindowActive(i, i == startIndex);
+                SetWindowActive(i, i == currentIndex);
             }
         }
     }
