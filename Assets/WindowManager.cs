@@ -6,8 +6,13 @@ using Application = UnityEngine.Device.Application;
 
 public class WindowManager : MonoBehaviour
 {
+    [Header("WINDOW MANAGER SETTINGS")]
     [SerializeField] private int startIndex;
     [SerializeField] private int currentIndex;
+    [SerializeField] private bool resetOnCanvasGroupChange = false;
+
+    [Space]
+    [Header("WINDOWS")]
     [SerializeField] private List<CanvasGroup> windows;
 
     #region Unity Callbacks
@@ -19,6 +24,17 @@ public class WindowManager : MonoBehaviour
         {
             windows[i].gameObject.SetActive(true);
             SetWindowActive(i, i == startIndex);
+        }
+    }
+
+    private void OnCanvasGroupChanged()
+    {
+        if (!resetOnCanvasGroupChange || !Application.isPlaying) return;
+
+        for (var i = 0; i < windows.Count; i++)
+        {
+            windows[i].gameObject.SetActive(true);
+            SetWindowActive(i, i == currentIndex);
         }
     }
 

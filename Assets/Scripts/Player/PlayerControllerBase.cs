@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using NetBuff.Components;
 using NetBuff.Interface;
 using Solis.Circuit.Components;
@@ -22,6 +23,15 @@ namespace Solis.Player
         {
             Normal,
             Magnetized
+        }
+
+        /// <summary>
+        /// Represents the death type of the player.
+        /// </summary>
+        public enum Death
+        {
+            Stun,
+            Fall
         }
         #endregion
 
@@ -80,6 +90,8 @@ namespace Solis.Player
         private bool _isJumpCut;
         private bool _isFalling;
         private float _multiplier;
+
+        private Vector3 _lastSafePosition;
 
         #if UNITY_EDITOR
         private Vector3 _nextMovePos;
@@ -214,15 +226,15 @@ namespace Solis.Player
                     }
 
                     controller.Move(new Vector3(move.x, velocity.y, move.z) * Time.fixedDeltaTime);
+                    if(IsGrounded) _lastSafePosition = transform.position;
 
                     animator.SetBool("Jumping", _isJumping);
                     animator.SetFloat("Running",
                         Mathf.Lerp(animator.GetFloat("Running"), walking ? 1 : 0, Time.deltaTime * 5f));
 
-                    if (transform.position.y < -10)
+                    if (transform.position.y < -15)
                     {
-                        transform.position = new Vector3(0, 1, 0);
-                        velocity = Vector3.zero;
+                        PlayerDeath(Death.Fall);
                     }
 
                     break;
@@ -255,6 +267,9 @@ namespace Solis.Player
                 Gizmos.color = Color.red;
                 Gizmos.DrawRay(_nextMovePos, Vector3.down);
             }
+
+            Gizmos.color = IsGrounded ? Color.cyan : Color.blue;
+            Gizmos.DrawWireCube(_lastSafePosition, Vector3.one);
             #endif
         }
         #endregion
@@ -276,6 +291,10 @@ namespace Solis.Player
                     if (clientId == OwnerId)
                         ServerBroadcastPacketExceptFor(bodyLerpPacket, clientId);
                     break;
+                case PlayerDeathPacket deathPacket:
+                    if (clientId == OwnerId)
+                        ServerBroadcastPacketExceptFor(deathPacket, clientId);
+                    break;
             }
         }
 
@@ -286,6 +305,10 @@ namespace Solis.Player
                 case PlayerBodyLerpPacket bodyLerpPacket:
                     _remoteBodyRotation = bodyLerpPacket.BodyRotation;
                     _remoteBodyPosition = bodyLerpPacket.BodyPosition;
+                    break;
+                case PlayerDeathPacket deathPacket:
+                    if (deathPacket.Id == Id)
+                        PlayerDeath(deathPacket.Type);
                     break;
             }
         }
@@ -354,8 +377,8 @@ namespace Solis.Player
 
             if (_isJumping && !_isJumpCut)
             {
-                var diff = Mathf.Abs((transform.position.y + (jumpAcceleration * Time.fixedDeltaTime)) - _startJumpPos);
-                velocity.y += jumpAcceleration * Time.fixedDeltaTime;
+                var diff = Mathf.Abs((transform.position.y + (jumpAcceleration * Time.deltaTime)) - _startJumpPos);
+                velocity.y += jumpAcceleration * Time.deltaTime;
                 if (diff >= jumpMaxHeight)
                 {
                     _isJumping = false;
@@ -415,6 +438,30 @@ namespace Solis.Player
             };
             SendPacket(packet);
         }
+        #endregion
+
+        #region Public Methods
+
+        public void PlayerDeath(Death death)
+        {
+            Debug.Log("Player ID: " + Id + " died with type: " + death);
+            controller.enabled = false;
+            switch (death)
+            {
+                case Death.Stun:
+                    Debug.Log("Death Smash");
+                    break;
+                case Death.Fall:
+                    transform.position = _lastSafePosition;
+                    velocity = Vector3.zero;
+                    landParticles.Play();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(death), death, null);
+            }
+            controller.enabled = true;
+        }
+
         #endregion
     }
 }
