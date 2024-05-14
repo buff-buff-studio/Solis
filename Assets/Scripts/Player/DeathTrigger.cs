@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Solis.Player
 {
-    [Icon("Assets/Art/Sprites/Editor/death_trigger.png")]
+    [Icon("Assets/Art/Sprites/Editor/DeathTrigger_ico.png")]
     [RequireComponent(typeof(BoxCollider))]
     public class DeathTrigger : NetworkBehaviour
     {

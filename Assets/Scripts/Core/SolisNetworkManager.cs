@@ -13,6 +13,7 @@ namespace Solis.Core
     /// <summary>
     /// Solis Network Manager. Used to customize the network manager for Solis project.
     /// </summary>
+    [Icon("Assets/Art/Sprites/Editor/SolisNetworkManager_ico.png")]
     public class SolisNetworkManager : NetworkManager
     {
         #region Public Static Fields

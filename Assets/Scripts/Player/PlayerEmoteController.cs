@@ -15,6 +15,7 @@ namespace Solis.Player
     /// <summary>
     /// Used to control the player emotes. Can be attached to any player prefab
     /// </summary>
+    [Icon("Assets/Art/Sprites/Editor/PlayerEmoteController_ico.png")]
     public class PlayerEmoteController : NetworkBehaviour
     {
         #region Inspector Fields
