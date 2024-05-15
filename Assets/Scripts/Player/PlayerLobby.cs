@@ -14,13 +14,33 @@ namespace Solis.Player
     public class PlayerLobby : NetworkBehaviour
     {
         #region Inspector Fields
+        [Header("SETTINGS")]
         [SerializeField]
         private CharacterType characterType;
+        
+        [Header("STATE")]
+        public float rotationSpeed = 0f;
         #endregion
 
         #region Unity Callbacks
         private void Update()
         {
+            //check if mouse is being dragged over the player, to rotate it
+            if (Input.GetMouseButton(0))
+            {
+                var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                if (Physics.Raycast(ray, out var hit))
+                {
+                    if (hit.collider.gameObject == gameObject)
+                    {
+                        rotationSpeed -= Input.GetAxis("Mouse X") * 50f;
+                    }
+                }
+            }
+            
+            transform.Rotate(new Vector3(0, rotationSpeed * Time.deltaTime, 0));
+            rotationSpeed = Mathf.Lerp(rotationSpeed, 0, Time.deltaTime * 5f);
+            
             if (!HasAuthority)
                 return;
 
