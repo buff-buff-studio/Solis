@@ -7,11 +7,13 @@ namespace Solis.Misc
     /// </summary>
     public class WindmillRotator : MonoBehaviour
     {
+        [SerializeField]
+        private Vector3 rotationAxis = Vector3.right;
         public float speed = 10f;
         
         void Update()
         {
-            transform.Rotate(Vector3.right, speed * Time.deltaTime);
+            transform.Rotate(rotationAxis, speed * Time.deltaTime);
         }
     }
 }
