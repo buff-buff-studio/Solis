@@ -10,7 +10,12 @@ namespace Solis.Misc
     {
         private void OnEnable()
         {
-            GetComponent<Camera>().depth = Camera.main!.depth + 1;
+            var camera = GetComponent<Camera>();
+
+            if (camera == null || Camera.main == null)
+                return;
+            
+            camera.depth = Camera.main.depth + 1;
         }
     }
 }
