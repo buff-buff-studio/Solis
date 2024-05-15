@@ -1,4 +1,5 @@
-﻿using NetBuff.Components;
+﻿using System;
+using NetBuff.Components;
 using NetBuff.Misc;
 using Solis.Circuit;
 using Solis.Circuit.Interfaces;
@@ -9,6 +10,7 @@ using UnityEngine;
 
 namespace Solis.Misc.Props
 {
+    [RequireComponent(typeof(Rigidbody))]
     public class LightObject : NetworkBehaviour, ILightObject
     {
         
@@ -21,10 +23,17 @@ namespace Solis.Misc.Props
         public BoolNetworkValue isOn = new(false);
 
         private PlayerControllerBase playerHolding;
+        private Rigidbody rb;
         
         #endregion
 
         #region Unity Callbacks
+
+        private void Awake()
+        {
+            rb = GetComponent<Rigidbody>();
+        }
+
         protected void OnEnable()
         {
             WithValues(isOn);
@@ -49,7 +58,7 @@ namespace Solis.Misc.Props
         {
             playerHolding = isOn.Value ? playerHolding : null;
             transform.parent = playerHolding ? playerHolding.handPosition : null;
-            
+            rb.isKinematic = isOn.Value;
             if (isOn.Value)
             {
                 if(playerHolding)
