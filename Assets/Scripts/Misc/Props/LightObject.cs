@@ -59,10 +59,14 @@ namespace Solis.Misc.Props
             playerHolding = isOn.Value ? playerHolding : null;
             transform.parent = playerHolding ? playerHolding.handPosition : null;
             rb.isKinematic = isOn.Value;
+          //  rb.interpolation = isOn.Value ? RigidbodyInterpolation.None: RigidbodyInterpolation.Extrapolate;
             if (isOn.Value)
             {
-                if(playerHolding)
+                if (playerHolding)
+                {
                     transform.position = playerHolding.handPosition.position;
+                    transform.rotation = playerHolding.handPosition.rotation;
+                }
             }
                 
         }

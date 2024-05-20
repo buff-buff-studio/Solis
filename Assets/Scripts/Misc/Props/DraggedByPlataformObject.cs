@@ -8,7 +8,6 @@ namespace Solis.Misc.Props
     public class DraggedByPlataformObject : MonoBehaviour
     {
         private Rigidbody rb;
-   
 
         private void Awake()
         {
@@ -23,14 +22,16 @@ namespace Solis.Misc.Props
         private void _HandlePlatform()
         {
             var ray = new Ray(transform.position, Vector3.down);
-            if (Physics.Raycast(ray, out var hit, 1.1f))
+            if (Physics.Raycast(ray, out var hit, 0.5f))
             {
-                var platform = hit.collider.GetComponentInParent<CircuitPlatform>();
+                var platform = hit.collider.GetComponentInParent<CircuitPlatform>(); 
                 if (platform != null)
                 {
-                    Debug.Log("Draggin");
-                    rb.velocity += platform.DeltaSinceLastFrame;
+                    if(rb.isKinematic) return;
+                    Debug.Log("Moving");
                     Debug.Log(platform.DeltaSinceLastFrame);
+                    rb.MovePosition(transform.position + platform.DeltaSinceLastFrame);
+               
                 }
             }
         }
