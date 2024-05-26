@@ -14,7 +14,7 @@ namespace Solis.Misc.Props
             rb = GetComponent<Rigidbody>();
         }
 
-        private void Update()
+        private void FixedUpdate()
         {
             _HandlePlatform();
         }
@@ -22,7 +22,7 @@ namespace Solis.Misc.Props
         private void _HandlePlatform()
         {
             var ray = new Ray(transform.position, Vector3.down);
-            if (Physics.Raycast(ray, out var hit, 0.5f))
+            if (Physics.Raycast(ray, out var hit, 0.71f))
             {
                 var platform = hit.collider.GetComponentInParent<CircuitPlatform>(); 
                 if (platform != null)
