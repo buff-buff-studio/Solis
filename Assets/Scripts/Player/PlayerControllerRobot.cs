@@ -8,6 +8,7 @@ namespace Solis.Player
     /// <summary>
     /// Player Controller for the Robot Character
     /// </summary>
+    [Icon("Assets/Art/Sprites/Editor/PlayerControllerRobot_ico.png")]
     public class PlayerControllerRobot : PlayerControllerBase, IMagneticObject, IHeavyObject
     {
         public override CharacterType CharacterType => CharacterType.Robot;

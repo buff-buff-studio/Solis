@@ -302,7 +302,7 @@ namespace Solis.Circuit.Connections
                 Holder = null;
 
                 var transform1 = player.transform;
-                var size = Physics.OverlapSphereNonAlloc(transform1.position + new Vector3(0, 0.5f, 0), 1.5f, _Results);
+                var size = Physics.OverlapSphereNonAlloc(transform1.position + new Vector3(0, 0.5f, 0), 3f, _Results);
 
                 var closestSocket = default(CircuitSocket);
                 var closestDistance = float.MaxValue;
@@ -335,7 +335,7 @@ namespace Solis.Circuit.Connections
             }
 
 
-            if (Vector3.Distance(player.transform.position, Head.gameObject.transform.position) < 1.25f)
+            if (Vector3.Distance(player.transform.position, Head.gameObject.transform.position) < 3f)
             {
                 Holder = player;
                 return true;
@@ -378,6 +378,10 @@ namespace Solis.Circuit.Connections
 
         private void _ShockEffects()
         {
+            //TODO: CHECK IT LATER ARNILSEN ARTHUR
+            if(PlugA == null)
+                return;
+
             if (PlugA.type is not CircuitPlugType.Output && !IsValid)
             {
                 if (shockVFX != null)

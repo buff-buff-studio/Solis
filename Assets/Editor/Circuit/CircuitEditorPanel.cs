@@ -1188,7 +1188,7 @@ namespace Editor.Circuit
                     stndrd.PlugA = a;
                     stndrd.PlugB = b;
                     stndrd.color = _wireCreationColor;
-                    stndrd.material = AssetDatabase.LoadAssetAtPath<Material>("Assets/CG/Materials/Cable.mat");
+                    stndrd.material = AssetDatabase.LoadAssetAtPath<Material>("Assets/Art/Materials/Cable.mat");
                     stndrd.prefabShockVFX =
                         AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/VFX/VFX Shock.prefab");
                     Undo.RegisterCreatedObjectUndo(stndrd.gameObject, "Create Connection");
