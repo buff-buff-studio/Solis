@@ -1,4 +1,5 @@
-﻿using NetBuff;
+﻿using System;
+using NetBuff;
 using Solis.Core;
 using Solis.Player;
 using UnityEngine;
@@ -10,6 +11,7 @@ namespace Solis.Misc.Props
     /// </summary>
     public class LevelExit : MonoBehaviour
     {
+        private PlayerControllerBase playerInsideBox = null;
         #region Unity Callbacks
         private void OnTriggerEnter(Collider other)
         {
@@ -27,10 +29,24 @@ namespace Solis.Misc.Props
             
             if (game == null)
                 return;
-
-            game.SaveData.currentLevel++;
-            game.LoadLevel();
+            
+            if (playerInsideBox != null)
+            {
+                game.SaveData.currentLevel++;
+                game.LoadLevel();
+            }
+            else
+            {
+                playerInsideBox = controller;
+            }
+            
         }
+
+        private void OnTriggerExit(Collider other)
+        {
+            playerInsideBox = null;
+        }
+
         #endregion
     }
 }
