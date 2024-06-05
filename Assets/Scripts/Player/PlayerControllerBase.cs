@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Cinemachine;
 using NetBuff.Components;
@@ -81,6 +81,7 @@ namespace Solis.Player
         public Vector3 magnetReferenceLocalPosition = new Vector3(0, 2, 0);
 
         public Transform magnetAnchor;
+        public Transform handPosition;
         #endregion
 
         #region Private Fields
@@ -110,6 +111,7 @@ namespace Solis.Player
         /// Returns the character type of the player.
         /// </summary>
         public abstract CharacterType CharacterType { get; }
+        
         #endregion
 
         #region Private Properties

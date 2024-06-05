@@ -636,16 +636,16 @@ MonoBehaviour:
   landParticles: {fileID: 1233122826114929891}
   emoteController: {fileID: 8554980401512840443}
   maxSpeed: 8
-  acceleration: 8
-  deceleration: 35
-  rotationSpeed: 120
-  jumpMaxHeight: 1.4
-  jumpAcceleration: 12
-  jumpGravityMultiplier: 2.5
+  acceleration: 6
+  deceleration: 80
+  rotationSpeed: 180
+  jumpMaxHeight: 1.7
+  jumpAcceleration: 25
+  jumpGravityMultiplier: 4
   jumpCutGravityMultiplier: 4
-  coyoteTime: 0.15
+  coyoteTime: 0.18
   gravity: -9.81
-  fallMultiplier: 2.5
+  fallMultiplier: 2.2
   maxFallSpeed: 20
   state: 0
   velocity: {x: 0, y: 0, z: 0}
@@ -653,6 +653,7 @@ MonoBehaviour:
   tickRate: 128
   magnetReferenceLocalPosition: {x: 0, y: 2, z: 0}
   magnetAnchor: {fileID: 0}
+  handPosition: {fileID: 6203368643859161906}
 --- !u!114 &8554980401512840443
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1011,6 +1012,11 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 6744544854569268381}
   m_SourcePrefab: {fileID: 100100000, guid: c85b90f679820a44e9045fd4f1862418, type: 3}
+--- !u!4 &6203368643859161906 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -6120594396354467876, guid: c85b90f679820a44e9045fd4f1862418, type: 3}
+  m_PrefabInstance: {fileID: 9014391405296878830}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &8203558410348870079 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: c85b90f679820a44e9045fd4f1862418, type: 3}
