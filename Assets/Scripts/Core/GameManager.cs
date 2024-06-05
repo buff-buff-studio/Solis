@@ -318,7 +318,7 @@ namespace Solis.Core
                 if (IsOnLobby)
                 {
                     var spawnPoint = FindObjectsByType<LobbySpawnPoint>(FindObjectsSortMode.InstanceID)
-                        .FirstOrDefault(x => x.occupiedBy == -1 || x.occupiedBy == clientId);
+                        .FirstOrDefault(x => (x.occupiedBy == -1 || x.occupiedBy == clientId) && x.playerTypeFilter.Filter(data.PlayerCharacterType));
 
                     spawnPoint!.occupiedBy = clientId;
                     spawnPos = spawnPoint.transform.position;
