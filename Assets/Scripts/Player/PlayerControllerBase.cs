@@ -127,6 +127,9 @@ namespace Solis.Player
         #region Unity Callbacks
         public void OnEnable()
         {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+
             _remoteBodyRotation = body.localEulerAngles.y;
             _remoteBodyPosition = body.localPosition;
             _multiplier = fallMultiplier;
@@ -145,6 +148,13 @@ namespace Solis.Player
             if (!HasAuthority || !IsOwnedByClient) return;
 
             _Timer();
+
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                var cursorIsOn = Cursor.visible;
+                Cursor.visible = !cursorIsOn;
+                Cursor.lockState = cursorIsOn ? CursorLockMode.Locked : CursorLockMode.None;
+            }
 
             switch (state)
             {
@@ -219,7 +229,7 @@ namespace Solis.Player
                     _nextMovePos = nextPos;
                     #endif
 
-                    if (Physics.CheckSphere(transform.position, 0.5f, LayerMask.GetMask("Default")))
+                    if (Physics.CheckSphere(transform.position, 0.5f, LayerMask.GetMask("SafePlatform")))
                     {
                         if (!Physics.Raycast(nextPos, Vector3.down, 1.1f) && !_isJumping && IsGrounded)
                         {
@@ -230,7 +240,10 @@ namespace Solis.Player
                     }
 
                     controller.Move(new Vector3(move.x, velocity.y, move.z) * Time.fixedDeltaTime);
-                    if(IsGrounded) _lastSafePosition = transform.position;
+                    if(IsGrounded && Physics.Raycast(nextPos, Vector3.down, out var hit, 0.1f) && hit.collider.gameObject.layer != LayerMask.NameToLayer("Platform"))
+                    {
+                        _lastSafePosition = transform.position;
+                    }
 
                     animator.SetBool("Jumping", _isJumping);
                     animator.SetFloat("Running",
@@ -247,9 +260,10 @@ namespace Solis.Player
 
         public void OnDrawGizmos()
         {
+#if UNITY_EDITOR
             if (Physics.Raycast(transform.position, Vector3.down, out var hit, 1.1f))
             {
-                Gizmos.color = hit.collider.gameObject.layer == LayerMask.NameToLayer("Default")
+                Gizmos.color = hit.collider.gameObject.layer == LayerMask.NameToLayer("SafePlatform")
                     ? Color.green
                     : Color.yellow;
                 Gizmos.DrawWireSphere(transform.position, 0.5f);
@@ -260,7 +274,6 @@ namespace Solis.Player
                 Gizmos.DrawWireSphere(transform.position, 0.5f);
             }
 
-            #if UNITY_EDITOR
             if (Physics.Raycast(_nextMovePos, Vector3.down, 1.1f))
             {
                 Gizmos.color = !_isJumping && IsGrounded ? Color.green : Color.yellow;
@@ -274,7 +287,7 @@ namespace Solis.Player
 
             Gizmos.color = IsGrounded ? Color.cyan : Color.blue;
             Gizmos.DrawWireCube(_lastSafePosition, Vector3.one);
-            #endif
+#endif
         }
         #endregion
 
