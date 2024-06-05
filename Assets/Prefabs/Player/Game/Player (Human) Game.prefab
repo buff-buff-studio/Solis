@@ -75,6 +75,37 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &1427130695381256094
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3249714738587710074}
+  m_Layer: 0
+  m_Name: LookAt
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3249714738587710074
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1427130695381256094}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.95, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5535532644862191047}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3990708538958390929
 GameObject:
   m_ObjectHideFlags: 0
@@ -463,11 +494,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2195862425273019967, guid: a55a3791e379dfa42a63dd01f73de466, type: 3}
       propertyPath: id.low
-      value: -697355423
+      value: -915204845
       objectReference: {fileID: 0}
     - target: {fileID: 2195862425273019967, guid: a55a3791e379dfa42a63dd01f73de466, type: 3}
       propertyPath: id.high
-      value: 1723790433
+      value: 1330943003
       objectReference: {fileID: 0}
     - target: {fileID: 4136800555700545090, guid: a55a3791e379dfa42a63dd01f73de466, type: 3}
       propertyPath: m_LocalPosition.x
@@ -543,6 +574,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 4136800555700545090, guid: a55a3791e379dfa42a63dd01f73de466, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7370911602296973479}
+    - targetCorrespondingSourceObject: {fileID: 4136800555700545090, guid: a55a3791e379dfa42a63dd01f73de466, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3249714738587710074}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 6778590176504362698, guid: a55a3791e379dfa42a63dd01f73de466, type: 3}
       insertIndex: -1
@@ -595,6 +629,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   controller: {fileID: 1608107723115469906}
   body: {fileID: 8832460762840785669}
+  lookAt: {fileID: 3249714738587710074}
   animator: {fileID: 4980455893260842252}
   dustParticles: {fileID: 715729684961566}
   jumpParticles: {fileID: 951114704059391838}
@@ -678,15 +713,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: c85b90f679820a44e9045fd4f1862418, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.7
+      value: 0.45
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: c85b90f679820a44e9045fd4f1862418, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.7
+      value: 0.45
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: c85b90f679820a44e9045fd4f1862418, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.7
+      value: 0.45
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: c85b90f679820a44e9045fd4f1862418, type: 3}
       propertyPath: m_LocalPosition.x

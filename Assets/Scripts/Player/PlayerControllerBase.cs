@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Cinemachine;
 using NetBuff.Components;
 using NetBuff.Interface;
 using Solis.Circuit.Components;
@@ -39,6 +40,7 @@ namespace Solis.Player
         [Header("REFERENCES")]
         public CharacterController controller;
         public Transform body;
+        public Transform lookAt;
         public NetworkAnimator animator;
         public ParticleSystem dustParticles;
         public ParticleSystem jumpParticles;
@@ -279,8 +281,9 @@ namespace Solis.Player
         {
             if (!HasAuthority)
                 return;
-            
-            Camera.main!.GetComponent<OrbitCamera>().target = gameObject;
+            var cam = Camera.main!.GetComponentInChildren<CinemachineFreeLook>();
+            cam.Follow = transform;
+            cam.LookAt = lookAt;
         }
 
         public override void OnServerReceivePacket(IOwnedPacket packet, int clientId)
