@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
+using Cinemachine;
 using NetBuff.Components;
 using NetBuff.Interface;
 using Solis.Circuit.Components;
@@ -39,6 +40,7 @@ namespace Solis.Player
         [Header("REFERENCES")]
         public CharacterController controller;
         public Transform body;
+        public Transform lookAt;
         public NetworkAnimator animator;
         public ParticleSystem dustParticles;
         public ParticleSystem jumpParticles;
@@ -79,6 +81,7 @@ namespace Solis.Player
         public Vector3 magnetReferenceLocalPosition = new Vector3(0, 2, 0);
 
         public Transform magnetAnchor;
+        public Transform handPosition;
         #endregion
 
         #region Private Fields
@@ -108,6 +111,7 @@ namespace Solis.Player
         /// Returns the character type of the player.
         /// </summary>
         public abstract CharacterType CharacterType { get; }
+        
         #endregion
 
         #region Private Properties
@@ -123,6 +127,9 @@ namespace Solis.Player
         #region Unity Callbacks
         public void OnEnable()
         {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+
             _remoteBodyRotation = body.localEulerAngles.y;
             _remoteBodyPosition = body.localPosition;
             _multiplier = fallMultiplier;
@@ -141,6 +148,13 @@ namespace Solis.Player
             if (!HasAuthority || !IsOwnedByClient) return;
 
             _Timer();
+
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                var cursorIsOn = Cursor.visible;
+                Cursor.visible = !cursorIsOn;
+                Cursor.lockState = cursorIsOn ? CursorLockMode.Locked : CursorLockMode.None;
+            }
 
             switch (state)
             {
@@ -215,7 +229,7 @@ namespace Solis.Player
                     _nextMovePos = nextPos;
                     #endif
 
-                    if (Physics.CheckSphere(transform.position, 0.5f, LayerMask.GetMask("Default")))
+                    if (Physics.CheckSphere(transform.position, 0.5f, LayerMask.GetMask("SafePlatform")))
                     {
                         if (!Physics.Raycast(nextPos, Vector3.down, 1.1f) && !_isJumping && IsGrounded)
                         {
@@ -226,9 +240,13 @@ namespace Solis.Player
                     }
 
                     controller.Move(new Vector3(move.x, velocity.y, move.z) * Time.fixedDeltaTime);
-                    if(IsGrounded) _lastSafePosition = transform.position;
+                    if(IsGrounded && Physics.Raycast(nextPos, Vector3.down, out var hit, 0.1f) && hit.collider.gameObject.layer != LayerMask.NameToLayer("Platform"))
+                    {
+                        _lastSafePosition = transform.position;
+                    }
 
                     animator.SetBool("Jumping", _isJumping);
+                    animator.SetBool("Grounded", !_isFalling && IsGrounded);
                     animator.SetFloat("Running",
                         Mathf.Lerp(animator.GetFloat("Running"), walking ? 1 : 0, Time.deltaTime * 5f));
 
@@ -243,9 +261,10 @@ namespace Solis.Player
 
         public void OnDrawGizmos()
         {
+#if UNITY_EDITOR
             if (Physics.Raycast(transform.position, Vector3.down, out var hit, 1.1f))
             {
-                Gizmos.color = hit.collider.gameObject.layer == LayerMask.NameToLayer("Default")
+                Gizmos.color = hit.collider.gameObject.layer == LayerMask.NameToLayer("SafePlatform")
                     ? Color.green
                     : Color.yellow;
                 Gizmos.DrawWireSphere(transform.position, 0.5f);
@@ -256,7 +275,6 @@ namespace Solis.Player
                 Gizmos.DrawWireSphere(transform.position, 0.5f);
             }
 
-            #if UNITY_EDITOR
             if (Physics.Raycast(_nextMovePos, Vector3.down, 1.1f))
             {
                 Gizmos.color = !_isJumping && IsGrounded ? Color.green : Color.yellow;
@@ -270,7 +288,7 @@ namespace Solis.Player
 
             Gizmos.color = IsGrounded ? Color.cyan : Color.blue;
             Gizmos.DrawWireCube(_lastSafePosition, Vector3.one);
-            #endif
+#endif
         }
         #endregion
 
@@ -279,8 +297,9 @@ namespace Solis.Player
         {
             if (!HasAuthority)
                 return;
-            
-            Camera.main!.GetComponent<OrbitCamera>().target = gameObject;
+            var cam = Camera.main!.GetComponentInChildren<CinemachineFreeLook>();
+            cam.Follow = transform;
+            cam.LookAt = lookAt;
         }
 
         public override void OnServerReceivePacket(IOwnedPacket packet, int clientId)
@@ -404,7 +423,7 @@ namespace Solis.Player
                 return;
 
             _isFalling = velocity.y < (gravity * _multiplier) / 2;
-            velocity.y += gravity * _multiplier * Time.fixedDeltaTime;
+            velocity.y += gravity * _multiplier;
             velocity.y = Mathf.Max(velocity.y, -maxFallSpeed);
         }
 

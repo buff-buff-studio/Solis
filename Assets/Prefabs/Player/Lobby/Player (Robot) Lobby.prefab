@@ -102,11 +102,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 636460920505109023, guid: 6bb063a523bdc5742b07b9bb6ff8e744, type: 3}
       propertyPath: id.low
-      value: 1004562345
+      value: 1339887053
       objectReference: {fileID: 0}
     - target: {fileID: 636460920505109023, guid: 6bb063a523bdc5742b07b9bb6ff8e744, type: 3}
       propertyPath: id.high
-      value: 330611699
+      value: -1241196301
       objectReference: {fileID: 0}
     - target: {fileID: 3442072656521577058, guid: 6bb063a523bdc5742b07b9bb6ff8e744, type: 3}
       propertyPath: m_LocalPosition.x
@@ -152,6 +152,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player (Robot) Lobby
       objectReference: {fileID: 0}
+    - target: {fileID: 8450932341438102519, guid: 6bb063a523bdc5742b07b9bb6ff8e744, type: 3}
+      propertyPath: m_Radius
+      value: 1.57
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: 9015535732545314180, guid: 6bb063a523bdc5742b07b9bb6ff8e744, type: 3}
@@ -185,6 +189,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   characterType: 1
+  rotationSpeed: 0
 --- !u!114 &1383017404933624350
 MonoBehaviour:
   m_ObjectHideFlags: 0
