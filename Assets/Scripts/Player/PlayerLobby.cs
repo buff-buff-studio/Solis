@@ -28,6 +28,8 @@ namespace Solis.Player
         #region Unity Callbacks
         private void Update()
         {
+            if (!HasAuthority || !IsOwnedByClient) return;
+            
             //check if mouse is being dragged over the player, to rotate it
             if (!mouseIsGrabbed)
             {
