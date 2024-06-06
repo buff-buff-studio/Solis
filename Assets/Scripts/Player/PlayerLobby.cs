@@ -19,26 +19,43 @@ namespace Solis.Player
         private CharacterType characterType;
         
         [Header("STATE")]
+        public bool mouseIsGrabbed;
         public float rotationSpeed = 0f;
         #endregion
+
+        private float _timeToReset = 0.5f;
 
         #region Unity Callbacks
         private void Update()
         {
+            if (!HasAuthority || !IsOwnedByClient) return;
+            
             //check if mouse is being dragged over the player, to rotate it
-            if (Input.GetMouseButton(0))
+            if (!mouseIsGrabbed)
             {
-                var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                if (Physics.Raycast(ray, out var hit))
+                _timeToReset -= Time.deltaTime;
+                if (Input.GetMouseButton(0))
                 {
-                    if (hit.collider.gameObject == gameObject)
-                    {
-                        rotationSpeed -= Input.GetAxis("Mouse X") * 50f;
-                    }
+                    var ray = Camera.allCameras[1].ScreenPointToRay(Input.mousePosition);
+                    if (Physics.Raycast(ray, out var hit))
+                        if (hit.collider.gameObject == gameObject)
+                        {
+                            mouseIsGrabbed = true;
+                            _timeToReset = Random.Range(2, 6);
+                        }
                 }
             }
-            
-            transform.Rotate(new Vector3(0, rotationSpeed * Time.deltaTime, 0));
+            else
+            {
+                if(Input.GetMouseButtonUp(0)) mouseIsGrabbed = false;
+                rotationSpeed -= Input.GetAxis("Mouse X") * 50f;
+            }
+
+            if(_timeToReset>0)
+                transform.Rotate(new Vector3(0, rotationSpeed * Time.deltaTime, 0));
+            else
+                transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.identity, Time.deltaTime);
+
             rotationSpeed = Mathf.Lerp(rotationSpeed, 0, Time.deltaTime * 5f);
             
             if (!HasAuthority)

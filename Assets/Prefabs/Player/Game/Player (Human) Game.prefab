@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &978216295999498130
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6721387208844707837}
+  m_Layer: 6
+  m_Name: LookAt
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6721387208844707837
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 978216295999498130}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.486, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5535532644862191047}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1329193890876280711
 GameObject:
   m_ObjectHideFlags: 0
@@ -638,6 +669,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 4136800555700545090, guid: a55a3791e379dfa42a63dd01f73de466, type: 3}
       insertIndex: -1
       addedObject: {fileID: 4168912144533225267}
+    - targetCorrespondingSourceObject: {fileID: 4136800555700545090, guid: a55a3791e379dfa42a63dd01f73de466, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6721387208844707837}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 6778590176504362698, guid: a55a3791e379dfa42a63dd01f73de466, type: 3}
       insertIndex: -1
@@ -690,22 +724,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   controller: {fileID: 1608107723115469906}
   body: {fileID: 4168912144533225267}
+  lookAt: {fileID: 6721387208844707837}
   animator: {fileID: 4980455893260842252}
   dustParticles: {fileID: 715729684961566}
   jumpParticles: {fileID: 951114704059391838}
   landParticles: {fileID: 1233122826114929891}
   emoteController: {fileID: 8554980401512840443}
   maxSpeed: 8
-  acceleration: 8
-  deceleration: 35
+  acceleration: 30
+  deceleration: 60
   rotationSpeed: 120
-  jumpMaxHeight: 1.4
-  jumpAcceleration: 12
-  jumpGravityMultiplier: 2.5
+  jumpMaxHeight: 2.3
+  jumpAcceleration: 50
+  jumpGravityMultiplier: 1
   jumpCutGravityMultiplier: 4
-  coyoteTime: 0.15
+  coyoteTime: 0
   gravity: -9.81
-  fallMultiplier: 2.5
+  fallMultiplier: 2.75
   maxFallSpeed: 20
   state: 0
   velocity: {x: 0, y: 0, z: 0}
@@ -713,6 +748,7 @@ MonoBehaviour:
   tickRate: 128
   magnetReferenceLocalPosition: {x: 0, y: 2, z: 0}
   magnetAnchor: {fileID: 0}
+  handPosition: {fileID: 0}
 --- !u!114 &8554980401512840443
 MonoBehaviour:
   m_ObjectHideFlags: 0

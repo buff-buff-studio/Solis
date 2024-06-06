@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
+using Cinemachine;
 using NetBuff.Components;
 using NetBuff.Interface;
 using Solis.Circuit.Components;
@@ -39,6 +40,7 @@ namespace Solis.Player
         [Header("REFERENCES")]
         public CharacterController controller;
         public Transform body;
+        public Transform lookAt;
         public NetworkAnimator animator;
         public ParticleSystem dustParticles;
         public ParticleSystem jumpParticles;
@@ -58,6 +60,8 @@ namespace Solis.Player
         public float jumpAcceleration = 0.1f;
         public float jumpGravityMultiplier = 0.5f;
         public float jumpCutGravityMultiplier = 0.75f;
+        [Range(0, 3)]
+        public float timeToJump = 0.5f;        
         [Range(0, 1)]
         public float coyoteTime = 0.3f;
 
@@ -79,12 +83,14 @@ namespace Solis.Player
         public Vector3 magnetReferenceLocalPosition = new Vector3(0, 2, 0);
 
         public Transform magnetAnchor;
+        public Transform handPosition;
         #endregion
 
         #region Private Fields
         private float _remoteBodyRotation;
         private Vector3 _remoteBodyPosition;
         private float _coyoteTimer;
+        private float _jumpTimer;
         private float _startJumpPos;
         private bool _isJumping;
         private bool _isJumpCut;
@@ -95,6 +101,9 @@ namespace Solis.Player
 
         #if UNITY_EDITOR
         private Vector3 _nextMovePos;
+
+        [Header("DEBUG")]
+        public bool debugJump = false;
         #endif
         #endregion
 
@@ -108,6 +117,7 @@ namespace Solis.Player
         /// Returns the character type of the player.
         /// </summary>
         public abstract CharacterType CharacterType { get; }
+        
         #endregion
 
         #region Private Properties
@@ -116,13 +126,16 @@ namespace Solis.Player
         private Vector2 MoveInput => new(InputX, InputZ);
         private bool InputJump => Input.GetButtonDown("Jump");
         private bool InputJumpUp => Input.GetButtonUp("Jump");
-        private bool CanJump => !_isJumping && (IsGrounded || _coyoteTimer > 0);
+        private bool CanJump => !_isJumping && (IsGrounded || _coyoteTimer > 0) && _jumpTimer <= 0;
         private bool CanJumpCut => _isJumping && !_isJumpCut;
         #endregion
 
         #region Unity Callbacks
         public void OnEnable()
         {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+
             _remoteBodyRotation = body.localEulerAngles.y;
             _remoteBodyPosition = body.localPosition;
             _multiplier = fallMultiplier;
@@ -141,6 +154,13 @@ namespace Solis.Player
             if (!HasAuthority || !IsOwnedByClient) return;
 
             _Timer();
+
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                var cursorIsOn = Cursor.visible;
+                Cursor.visible = !cursorIsOn;
+                Cursor.lockState = cursorIsOn ? CursorLockMode.Locked : CursorLockMode.None;
+            }
 
             switch (state)
             {
@@ -181,8 +201,8 @@ namespace Solis.Player
             if (!HasAuthority || !IsOwnedByClient)
             {
                 body.localEulerAngles = new Vector3(0,
-                    Mathf.LerpAngle(body.localEulerAngles.y, _remoteBodyRotation, Time.deltaTime * 20), 0);
-                body.localPosition = Vector3.Lerp(body.localPosition, _remoteBodyPosition, Time.deltaTime * 20);
+                    Mathf.LerpAngle(body.localEulerAngles.y, _remoteBodyRotation, Time.fixedDeltaTime * 20), 0);
+                body.localPosition = Vector3.Lerp(body.localPosition, _remoteBodyPosition, Time.fixedDeltaTime * 20);
                 return;
             }
 
@@ -197,10 +217,10 @@ namespace Solis.Player
                     var te = transform.eulerAngles;
                     var velocityXZ = new Vector2(velocity.x, velocity.z);
                     transform.eulerAngles = new Vector3(0,
-                        Mathf.LerpAngle(te.y, camAngle, velocityXZ.magnitude * Time.deltaTime * rotationSpeed), 0);
+                        Mathf.LerpAngle(te.y, camAngle, velocityXZ.magnitude * Time.fixedDeltaTime * rotationSpeed), 0);
                     body.localEulerAngles = new Vector3(0,
                         Mathf.LerpAngle(body.localEulerAngles.y, moveAngle,
-                            velocityXZ.magnitude * Time.deltaTime * rotationSpeed * 1f));
+                            velocityXZ.magnitude * Time.fixedDeltaTime * rotationSpeed * 1f));
                     if (velocityXZ.magnitude > 0.8f) dustParticles.Play();
                     else dustParticles.Stop();
 
@@ -209,13 +229,13 @@ namespace Solis.Player
                         move = Vector3.zero;
 
                     var walking = velocityXZ.magnitude > 0.1f;
-                    var nextPos = transform.position + new Vector3(move.x, 0, move.z) * Time.fixedDeltaTime;
+                    var nextPos = transform.position + (new Vector3(move.x, 0, move.z) * (Time.fixedDeltaTime * 10f));
 
                     #if UNITY_EDITOR
                     _nextMovePos = nextPos;
                     #endif
 
-                    if (Physics.CheckSphere(transform.position, 0.5f, LayerMask.GetMask("Default")))
+                    if (Physics.CheckSphere(transform.position, 0.5f, LayerMask.GetMask("SafePlatform")))
                     {
                         if (!Physics.Raycast(nextPos, Vector3.down, 1.1f) && !_isJumping && IsGrounded)
                         {
@@ -226,11 +246,15 @@ namespace Solis.Player
                     }
 
                     controller.Move(new Vector3(move.x, velocity.y, move.z) * Time.fixedDeltaTime);
-                    if(IsGrounded) _lastSafePosition = transform.position;
+                    if(IsGrounded && Physics.Raycast(nextPos, Vector3.down, out var hit, 0.1f) && hit.collider.gameObject.layer != LayerMask.NameToLayer("Platform"))
+                    {
+                        _lastSafePosition = transform.position;
+                    }
 
                     animator.SetBool("Jumping", _isJumping);
+                    animator.SetBool("Grounded", !_isFalling && IsGrounded);
                     animator.SetFloat("Running",
-                        Mathf.Lerp(animator.GetFloat("Running"), walking ? 1 : 0, Time.deltaTime * 5f));
+                        Mathf.Lerp(animator.GetFloat("Running"), walking ? 1 : 0, Time.deltaTime * 7f));
 
                     if (transform.position.y < -15)
                     {
@@ -243,9 +267,10 @@ namespace Solis.Player
 
         public void OnDrawGizmos()
         {
+#if UNITY_EDITOR
             if (Physics.Raycast(transform.position, Vector3.down, out var hit, 1.1f))
             {
-                Gizmos.color = hit.collider.gameObject.layer == LayerMask.NameToLayer("Default")
+                Gizmos.color = hit.collider.gameObject.layer == LayerMask.NameToLayer("SafePlatform")
                     ? Color.green
                     : Color.yellow;
                 Gizmos.DrawWireSphere(transform.position, 0.5f);
@@ -256,7 +281,6 @@ namespace Solis.Player
                 Gizmos.DrawWireSphere(transform.position, 0.5f);
             }
 
-            #if UNITY_EDITOR
             if (Physics.Raycast(_nextMovePos, Vector3.down, 1.1f))
             {
                 Gizmos.color = !_isJumping && IsGrounded ? Color.green : Color.yellow;
@@ -270,7 +294,7 @@ namespace Solis.Player
 
             Gizmos.color = IsGrounded ? Color.cyan : Color.blue;
             Gizmos.DrawWireCube(_lastSafePosition, Vector3.one);
-            #endif
+#endif
         }
         #endregion
 
@@ -279,8 +303,9 @@ namespace Solis.Player
         {
             if (!HasAuthority)
                 return;
-            
-            Camera.main!.GetComponent<OrbitCamera>().target = gameObject;
+            var cam = Camera.main!.GetComponentInChildren<CinemachineFreeLook>();
+            cam.Follow = transform;
+            cam.LookAt = lookAt;
         }
 
         public override void OnServerReceivePacket(IOwnedPacket packet, int clientId)
@@ -319,6 +344,8 @@ namespace Solis.Player
         {
             var deltaTime = Time.deltaTime;
             _coyoteTimer = IsGrounded ? coyoteTime : _coyoteTimer - deltaTime;
+            
+            if(IsGrounded) _jumpTimer -= deltaTime;
             if (interactCooldown > 0)
             {
                 interactCooldown -= deltaTime;
@@ -364,6 +391,7 @@ namespace Solis.Player
                 velocity.y = 0.1f;
                 _startJumpPos = transform.position.y;
                 _multiplier = jumpGravityMultiplier;
+                _jumpTimer = timeToJump;
                 jumpParticles.Play();
             }
 
@@ -377,12 +405,14 @@ namespace Solis.Player
 
             if (_isJumping && !_isJumpCut)
             {
-                var diff = Mathf.Abs((transform.position.y + (jumpAcceleration * Time.deltaTime)) - _startJumpPos);
                 velocity.y += jumpAcceleration * Time.deltaTime;
+                var diff = Mathf.Abs(transform.position.y - _startJumpPos);
                 if (diff >= jumpMaxHeight)
-                {
                     _isJumping = false;
-                }
+
+#if UNITY_EDITOR
+                if(debugJump) Debug.Log($"start: {_startJumpPos} current: {transform.position.y} diff: {diff}");
+#endif
             }
         }
 
