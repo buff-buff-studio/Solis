@@ -246,6 +246,7 @@ namespace Solis.Player
                     }
 
                     animator.SetBool("Jumping", _isJumping);
+                    animator.SetBool("Grounded", !_isFalling && IsGrounded);
                     animator.SetFloat("Running",
                         Mathf.Lerp(animator.GetFloat("Running"), walking ? 1 : 0, Time.deltaTime * 5f));
 
@@ -422,7 +423,7 @@ namespace Solis.Player
                 return;
 
             _isFalling = velocity.y < (gravity * _multiplier) / 2;
-            velocity.y += gravity * _multiplier * Time.fixedDeltaTime;
+            velocity.y += gravity * _multiplier;
             velocity.y = Mathf.Max(velocity.y, -maxFallSpeed);
         }
 
