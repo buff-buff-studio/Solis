@@ -35,6 +35,17 @@ public class LevelCutscene : MonoBehaviour
         position = 0;
     }
 
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Return))
+        {
+            virtualCamera.enabled = false;
+            this.enabled = false;
+            OnCinematicEnded?.Invoke();
+            IsPlaying = false;
+        }
+    }
+
     private void FixedUpdate()
     {
         if (position < 1)

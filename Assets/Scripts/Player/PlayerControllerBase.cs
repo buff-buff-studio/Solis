@@ -245,7 +245,7 @@ namespace Solis.Player
                     _nextMovePos = nextPos;
                     #endif
 
-                    if (Physics.CheckSphere(transform.position, 0.5f, LayerMask.GetMask("SafePlatform")))
+                    if (Physics.CheckSphere(transform.position, 0.5f, LayerMask.GetMask("SafeGround")))
                     {
                         if (!Physics.Raycast(nextPos, Vector3.down, 1.1f) && !_isJumping && IsGrounded)
                         {
@@ -280,7 +280,7 @@ namespace Solis.Player
 #if UNITY_EDITOR
             if (Physics.Raycast(transform.position, Vector3.down, out var hit, 1.1f))
             {
-                Gizmos.color = hit.collider.gameObject.layer == LayerMask.NameToLayer("SafePlatform")
+                Gizmos.color = hit.collider.gameObject.layer == LayerMask.NameToLayer("SafeGround")
                     ? Color.green
                     : Color.yellow;
                 Gizmos.DrawWireSphere(transform.position, 0.5f);

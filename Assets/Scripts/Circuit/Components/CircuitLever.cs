@@ -35,14 +35,14 @@ namespace Solis.Circuit.Components
             isOn.OnValueChanged += _OnValueChanged;
             PacketListener.GetPacketListener<PlayerInteractPacket>().AddServerListener(_OnPlayerInteract);
 
-            handle.localEulerAngles = new Vector3(isOn.Value ? handleAngle : 0, -90f, 0);
+            handle.localEulerAngles = new Vector3(isOn.Value ? handleAngle : 0, 0, 0);
         }
 
         protected void Update()
         {
             handle.localEulerAngles =
                 new Vector3(Mathf.Lerp(handle.localEulerAngles.x, isOn.Value ? handleAngle : 0, Time.deltaTime * 10),
-                    -90f, 0);
+                    0, 0);
         }
 
         protected override void OnDisable()
