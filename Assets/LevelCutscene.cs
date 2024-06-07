@@ -22,8 +22,12 @@ public class LevelCutscene : MonoBehaviour
 
     [SerializeField] private float position, ending;
 
+    public static bool IsPlaying = false;
+    public static event Action OnCinematicEnded;
+
     private void Awake()
     {
+        IsPlaying = true;
         _lookAt = virtualCamera.m_LookAt;
         _dollyTrack = virtualCamera.GetCinemachineComponent<CinemachineTrackedDolly>();
 
@@ -44,8 +48,11 @@ public class LevelCutscene : MonoBehaviour
             {
                 var ps = Instantiate(particleSystem, _lookAt.position, Quaternion.identity);
                 var sh = ps.shape;
-                sh.mesh = _lookAt.GetComponentInChildren<MeshFilter>().sharedMesh;
-                Destroy(ps.gameObject, ending);
+                var mn = ps.main;
+                mn.duration = endDuration-.5f;
+                sh.meshRenderer = _lookAt.GetComponentInChildren<MeshRenderer>();
+                ps.Play();
+                Destroy(ps.gameObject, endDuration);
             }
             ending += Time.fixedDeltaTime / endDuration;
         }
@@ -53,6 +60,8 @@ public class LevelCutscene : MonoBehaviour
         {
             virtualCamera.enabled = false;
             this.enabled = false;
+            OnCinematicEnded?.Invoke();
+            IsPlaying = false;
         }
     }
 }

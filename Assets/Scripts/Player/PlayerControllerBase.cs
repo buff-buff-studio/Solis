@@ -95,6 +95,7 @@ namespace Solis.Player
         private bool _isJumping;
         private bool _isJumpCut;
         private bool _isFalling;
+        private bool _isCinematicRunning = true;
         private float _multiplier;
 
         private Vector3 _lastSafePosition;
@@ -128,6 +129,7 @@ namespace Solis.Player
         private bool InputJumpUp => Input.GetButtonUp("Jump");
         private bool CanJump => !_isJumping && (IsGrounded || _coyoteTimer > 0) && _jumpTimer <= 0;
         private bool CanJumpCut => _isJumping && !_isJumpCut;
+        private bool IsPlayerLocked => _isCinematicRunning;
         #endregion
 
         #region Unity Callbacks
@@ -135,6 +137,12 @@ namespace Solis.Player
         {
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
+
+            _isCinematicRunning = LevelCutscene.IsPlaying;
+            LevelCutscene.OnCinematicEnded += () =>
+            {
+                _isCinematicRunning = false;
+            };
 
             _remoteBodyRotation = body.localEulerAngles.y;
             _remoteBodyPosition = body.localPosition;
@@ -161,6 +169,8 @@ namespace Solis.Player
                 Cursor.visible = !cursorIsOn;
                 Cursor.lockState = cursorIsOn ? CursorLockMode.Locked : CursorLockMode.None;
             }
+
+            if(IsPlayerLocked) return;
 
             switch (state)
             {
@@ -374,7 +384,7 @@ namespace Solis.Player
 
         private void _Move()
         {
-            var moveInput = MoveInput;
+            var moveInput = MoveInput.normalized;
             var target = moveInput * maxSpeed;
             var accelerationValue = ((Mathf.Abs(moveInput.magnitude) > 0.01f) ? acceleration : deceleration) *
                                     Time.deltaTime;
