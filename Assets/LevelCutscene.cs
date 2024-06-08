@@ -9,7 +9,7 @@ public class LevelCutscene : MonoBehaviour
 {
     [Header("REFERENCES")]
     [SerializeField]
-    private CinemachineVirtualCamera virtualCamera;
+    internal CinemachineVirtualCamera virtualCamera;
     [SerializeField]
     private ParticleSystem particleSystem;
     private CinemachineTrackedDolly _dollyTrack;
@@ -26,14 +26,14 @@ public class LevelCutscene : MonoBehaviour
 
     [Space]
     [Header("STATE")]
-    [SerializeField] private float position;
+    [SerializeField] [Range(0,1)] private float position;
     [SerializeField] private float ending;
 
     public static bool IsPlaying = false;
     public static event Action OnCinematicEnded;
 
 #if UNITY_EDITOR
-    private bool _isPreview => gameObject.name.Contains("(Preview)");
+    private bool _isPreview = false;
 #endif
 
     private void Awake()
@@ -46,8 +46,11 @@ public class LevelCutscene : MonoBehaviour
         position = 0;
 
 #if UNITY_EDITOR
-        if (!_isPreview) return;
-        Selection.activeGameObject = gameObject;
+        _isPreview = gameObject.name.Contains(" (Preview)");
+        if (_isPreview)
+            Selection.activeGameObject = gameObject;
+        else
+            gameObject.name = gameObject.name.Replace(" (Preview)", "");
 #endif
     }
 
@@ -99,7 +102,6 @@ public class LevelCutscene : MonoBehaviour
 
 #if UNITY_EDITOR
         if (!_isPreview) return;
-        gameObject.name = gameObject.name.Replace(" (Preview)", "");
         EditorApplication.ExitPlaymode();
 #endif
     }
@@ -119,6 +121,14 @@ public class LevelCutscene : MonoBehaviour
         gameObject.name += " (Preview)";
         EditorApplication.EnterPlaymode();
     }
+
+    private void OnValidate()
+    {
+        if (Application.isPlaying) return;
+
+        virtualCamera.GetCinemachineComponent<CinemachineTrackedDolly>()!.m_PathPosition = position;
+        gameObject.name = gameObject.name.Replace(" (Preview)", "");
+    }
 #endif
 
     [System.Serializable]
@@ -135,9 +145,29 @@ public class LevelCutsceneEditor : UnityEditor.Editor
 {
     public override void OnInspectorGUI()
     {
+        var cutscene = (LevelCutscene)target;
+        if (cutscene.virtualCamera.GetCinemachineComponent<CinemachineTrackedDolly>() == null)
+        {
+            EditorGUILayout.HelpBox("Virtual Camera Body type must be Tracked Dolly", MessageType.Error);
+            if (GUILayout.Button("Fix it"))
+            {
+                var td = cutscene.virtualCamera.AddCinemachineComponent<CinemachineTrackedDolly>();
+                td.m_PositionUnits = CinemachinePathBase.PositionUnits.Normalized;
+            }
+            return;
+        }
+
         base.OnInspectorGUI();
         GUILayout.Space(20);
-        var cutscene = (LevelCutscene)target;
+        if (cutscene.virtualCamera.GetCinemachineComponent<CinemachineTrackedDolly>().m_Path == null)
+        {
+            EditorGUILayout.HelpBox("Tracked Dolly Path is missing", MessageType.Warning);
+            if (GUILayout.Button("Locate Path"))
+            {
+                cutscene.virtualCamera.GetCinemachineComponent<CinemachineTrackedDolly>().m_Path = GameObject.FindObjectOfType<CinemachinePathBase>();
+            }
+            return;
+        }
         if(Application.isPlaying)
         {
             if(!LevelCutscene.IsPlaying)
