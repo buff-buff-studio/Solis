@@ -191,13 +191,60 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8606354676536088283, guid: f3283f672c3e6634d809bda9162eb93f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1012287188068058006}
+    - targetCorrespondingSourceObject: {fileID: 8606354676536088283, guid: f3283f672c3e6634d809bda9162eb93f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8269570132853761740}
   m_SourcePrefab: {fileID: 100100000, guid: f3283f672c3e6634d809bda9162eb93f, type: 3}
 --- !u!4 &133427465810421267 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6008176971784894975, guid: f3283f672c3e6634d809bda9162eb93f, type: 3}
   m_PrefabInstance: {fileID: 5961449298238545900}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &2726009798032492855 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8606354676536088283, guid: f3283f672c3e6634d809bda9162eb93f, type: 3}
+  m_PrefabInstance: {fileID: 5961449298238545900}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1012287188068058006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2726009798032492855}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9078c0bdfc4423ebfcf3a05ad72d048, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id:
+    high: 1161223756
+    low: 1114392466
+  ownerId: -1
+  prefabId:
+    high: 0
+    low: 0
+--- !u!114 &8269570132853761740
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2726009798032492855}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6e25519dc96460b8011f9bfd913a40f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tickRate: -1
+  positionThreshold: 0.001
+  rotationThreshold: 0.001
+  scaleThreshold: 0.001
+  syncMode: 8
 --- !u!4 &3359522437451895693 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8945337802523200609, guid: f3283f672c3e6634d809bda9162eb93f, type: 3}

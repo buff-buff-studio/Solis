@@ -197,12 +197,59 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 7126618337764975000, guid: a79b2a1bc0272db40a9d8b075931a06f, type: 3}
       insertIndex: -1
       addedObject: {fileID: 4167063745968151009}
+    - targetCorrespondingSourceObject: {fileID: 8483322904093239024, guid: a79b2a1bc0272db40a9d8b075931a06f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3134526929803048530}
+    - targetCorrespondingSourceObject: {fileID: 8483322904093239024, guid: a79b2a1bc0272db40a9d8b075931a06f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3149415557685534134}
   m_SourcePrefab: {fileID: 100100000, guid: a79b2a1bc0272db40a9d8b075931a06f, type: 3}
 --- !u!4 &5119455819028715235 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 9147094038566534218, guid: a79b2a1bc0272db40a9d8b075931a06f, type: 3}
   m_PrefabInstance: {fileID: 4177920302046161577}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &5494432627193744473 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8483322904093239024, guid: a79b2a1bc0272db40a9d8b075931a06f, type: 3}
+  m_PrefabInstance: {fileID: 4177920302046161577}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &3134526929803048530
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5494432627193744473}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9078c0bdfc4423ebfcf3a05ad72d048, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id:
+    high: 628382008
+    low: 769120034
+  ownerId: -1
+  prefabId:
+    high: 0
+    low: 0
+--- !u!114 &3149415557685534134
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5494432627193744473}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6e25519dc96460b8011f9bfd913a40f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tickRate: -1
+  positionThreshold: 0.001
+  rotationThreshold: 0.001
+  scaleThreshold: 0.001
+  syncMode: 2
 --- !u!1 &6565159738703514417 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7126618337764975000, guid: a79b2a1bc0272db40a9d8b075931a06f, type: 3}
