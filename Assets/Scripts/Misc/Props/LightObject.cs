@@ -61,6 +61,11 @@ namespace Solis.Misc.Props
             {
                 transform.position = _initialPosition + Vector3.up;
                 transform.rotation = Quaternion.identity;
+                if (isOn.Value)
+                {
+                    playerHolding = null;
+                    isOn.Value = false;
+                }
             }
         }
 
