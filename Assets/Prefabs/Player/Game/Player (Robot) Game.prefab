@@ -624,13 +624,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   controller: {fileID: 1608107723115469906}
+  animator: {fileID: 4980455893260842252}
+  emoteController: {fileID: 7701133022374915957}
   body: {fileID: 8832460762840785669}
   lookAt: {fileID: 6460570023915028333}
-  animator: {fileID: 4980455893260842252}
+  headOffset: {x: 0, y: 0, z: 0}
   dustParticles: {fileID: 715729684961566}
   jumpParticles: {fileID: 951114704059391838}
   landParticles: {fileID: 1233122826114929891}
-  emoteController: {fileID: 7701133022374915957}
   maxSpeed: 6
   acceleration: 5.5
   deceleration: 95
@@ -639,11 +640,13 @@ MonoBehaviour:
   jumpAcceleration: 18
   jumpGravityMultiplier: 2.2
   jumpCutGravityMultiplier: 3.5
+  coyoteTime: 0
   timeToJump: 0.1
-  coyoteTime: 0.1
   gravity: -9.81
   fallMultiplier: 3
   maxFallSpeed: 30
+  maxHeightDecel: 0.85
+  hitHeadDecel: 0.15
   state: 0
   velocity: {x: 0, y: 0, z: 0}
   interactCooldown: 0
@@ -652,6 +655,8 @@ MonoBehaviour:
   magnetAnchor: {fileID: 0}
   handPosition: {fileID: 5987737273985763762}
   debugJump: 0
+  debugLastJumpMaxHeight: {x: 0, y: 0, z: 0}
+  debugNextMovePos: {x: 0, y: 0, z: 0}
 --- !u!114 &7701133022374915957
 MonoBehaviour:
   m_ObjectHideFlags: 0

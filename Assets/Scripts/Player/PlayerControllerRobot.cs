@@ -12,6 +12,7 @@ namespace Solis.Player
     public class PlayerControllerRobot : PlayerControllerBase, IMagneticObject, IHeavyObject
     {
         public override CharacterType CharacterType => CharacterType.Robot;
+
         #region IMagneticObject Implementation
         public void Magnetize(GameObject magnet, Transform anchor)
         {
