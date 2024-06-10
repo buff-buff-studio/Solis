@@ -27,11 +27,18 @@ namespace Solis.Misc.Props
         
         #endregion
 
+        #region Private Fields
+
+        private Vector3 _initialPosition;
+
+        #endregion
+
         #region Unity Callbacks
 
         private void Awake()
         {
             rb = GetComponent<Rigidbody>();
+            _initialPosition = transform.position;
         }
 
         protected void OnEnable()
@@ -47,6 +54,16 @@ namespace Solis.Misc.Props
             isOn.OnValueChanged -= _OnValueChanged;
             PacketListener.GetPacketListener<PlayerInteractPacket>().RemoveServerListener(_OnPlayerInteract);
         }
+
+        private void OnTriggerEnter(Collider col)
+        {
+            if (col.CompareTag("DeathTrigger"))
+            {
+                transform.position = _initialPosition + Vector3.up;
+                transform.rotation = Quaternion.identity;
+            }
+        }
+
         #endregion
 
         private void _OnValueChanged(bool old, bool @new)
@@ -56,10 +73,11 @@ namespace Solis.Misc.Props
 
         private void Refresh()
         {
+            var pBody = playerHolding ? playerHolding.body : null;
             playerHolding = isOn.Value ? playerHolding : null;
             transform.parent = playerHolding ? playerHolding.handPosition : null;
             rb.isKinematic = isOn.Value;
-          //  rb.interpolation = isOn.Value ? RigidbodyInterpolation.None: RigidbodyInterpolation.Extrapolate;
+
             if (isOn.Value)
             {
                 if (playerHolding)
@@ -68,7 +86,12 @@ namespace Solis.Misc.Props
                     transform.rotation = playerHolding.handPosition.rotation;
                 }
             }
-                
+            else if(pBody)
+            {
+                var pPos = pBody.position;
+                var newPos = new Vector3(pPos.x, transform.position.y, pPos.z);
+                transform.position = newPos + (pBody.forward*1.25f);
+            }
         }
         private bool _OnPlayerInteract(PlayerInteractPacket arg1, int arg2)
         {

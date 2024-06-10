@@ -607,11 +607,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2195862425273019967, guid: a55a3791e379dfa42a63dd01f73de466, type: 3}
       propertyPath: id.low
-      value: 763687567
+      value: 1837200894
       objectReference: {fileID: 0}
     - target: {fileID: 2195862425273019967, guid: a55a3791e379dfa42a63dd01f73de466, type: 3}
       propertyPath: id.high
-      value: 945075965
+      value: 1403343595
       objectReference: {fileID: 0}
     - target: {fileID: 4136800555700545090, guid: a55a3791e379dfa42a63dd01f73de466, type: 3}
       propertyPath: m_LocalPosition.x
@@ -744,26 +744,29 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   controller: {fileID: 1608107723115469906}
+  animator: {fileID: 4980455893260842252}
+  emoteController: {fileID: 8554980401512840443}
   body: {fileID: 4168912144533225267}
   lookAt: {fileID: 6721387208844707837}
-  animator: {fileID: 4980455893260842252}
+  headOffset: {x: 0, y: 1.88, z: 0}
   dustParticles: {fileID: 715729684961566}
   jumpParticles: {fileID: 951114704059391838}
   landParticles: {fileID: 1233122826114929891}
-  emoteController: {fileID: 8554980401512840443}
   maxSpeed: 5
   acceleration: 20
   deceleration: 60
   rotationSpeed: 120
-  jumpMaxHeight: 1
-  jumpAcceleration: 50
+  jumpMaxHeight: 2
+  jumpAcceleration: 22.5
   jumpGravityMultiplier: 1
   jumpCutGravityMultiplier: 4
+  coyoteTime: 0
   timeToJump: 0.05
-  coyoteTime: 0.115
   gravity: -9.81
-  fallMultiplier: 2.75
-  maxFallSpeed: 20
+  fallMultiplier: 5
+  maxFallSpeed: 7.5
+  maxHeightDecel: 0.85
+  hitHeadDecel: 0.15
   state: 0
   velocity: {x: 0, y: 0, z: 0}
   interactCooldown: 0
@@ -772,6 +775,8 @@ MonoBehaviour:
   magnetAnchor: {fileID: 0}
   handPosition: {fileID: 2525552619348330671}
   debugJump: 0
+  debugLastJumpMaxHeight: {x: 0, y: 0, z: 0}
+  debugNextMovePos: {x: 0, y: 0, z: 0}
 --- !u!114 &8554980401512840443
 MonoBehaviour:
   m_ObjectHideFlags: 0
