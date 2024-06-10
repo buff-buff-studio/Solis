@@ -12,7 +12,17 @@ namespace Solis.Misc.Props
     public class LevelExit : MonoBehaviour
     {
         private PlayerControllerBase playerInsideBox = null;
+        private static int _playerCount = -1;
         #region Unity Callbacks
+
+        private void Start()
+        {
+            if(_playerCount <= 0)
+            {
+                _playerCount = FindObjectsOfType<PlayerControllerBase>().Length;
+            }
+        }
+
         private void OnTriggerEnter(Collider other)
         {
             var controller = other.GetComponent<PlayerControllerBase>();
@@ -29,17 +39,24 @@ namespace Solis.Misc.Props
             
             if (game == null)
                 return;
-            
-            if (playerInsideBox != null)
+
+            if (_playerCount > 1)
+            {
+                if (playerInsideBox != null)
+                {
+                    game.SaveData.currentLevel++;
+                    game.LoadLevel();
+                }
+                else
+                {
+                    playerInsideBox = controller;
+                }
+            }
+            else
             {
                 game.SaveData.currentLevel++;
                 game.LoadLevel();
             }
-            else
-            {
-                playerInsideBox = controller;
-            }
-            
         }
 
         private void OnTriggerExit(Collider other)

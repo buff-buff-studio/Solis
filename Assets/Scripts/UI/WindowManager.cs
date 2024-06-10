@@ -41,7 +41,7 @@ namespace Solis.UI
         }
 
 #if UNITY_EDITOR
-        protected void OnValidate()
+        protected virtual void OnValidate()
         {
             if (windows.Count == 0)
                 return;

@@ -8,6 +8,7 @@ using Solis.Data;
 using Solis.Misc;
 using Solis.Packets;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Solis.Player
 {
@@ -37,16 +38,22 @@ namespace Solis.Player
         #endregion
 
         #region Inspector Fields
-        [Header("REFERENCES")]
+        [Header("SCRIPTS REFERENCES")]
         public CharacterController controller;
+        public NetworkAnimator animator;
+        public PlayerEmoteController emoteController;
+
+        [Header("BODY REFERENCES")]
         public Transform body;
         public Transform lookAt;
-        public NetworkAnimator animator;
+        public Vector3 headOffset;
+
+        [Header("FX REFERENCES")]
         public ParticleSystem dustParticles;
         public ParticleSystem jumpParticles;
         public ParticleSystem landParticles;
-        public PlayerEmoteController emoteController;
 
+        [Space]
         [Header("MOVEMENT")]
         public float maxSpeed = 12f;
         [Tooltip("Meters Per Second")]
@@ -60,16 +67,22 @@ namespace Solis.Player
         public float jumpAcceleration = 0.1f;
         public float jumpGravityMultiplier = 0.5f;
         public float jumpCutGravityMultiplier = 0.75f;
-        [Range(0, 3)]
-        public float timeToJump = 0.5f;        
         [Range(0, 1)]
         public float coyoteTime = 0.3f;
+        [Range(0, 3)]
+        public float timeToJump = 0.5f;
 
         [Header("GRAVITY")]
         [Tooltip("The recommended value is -9.81")]
         public float gravity = -9.81f;
         public float fallMultiplier = 2.5f;
         public float maxFallSpeed = 20f;
+        [FormerlySerializedAs("maxHeightDecelerationMultiplier")]
+        [Range(1, 0)] [Tooltip("The lower the value, the greater the deceleration")]
+        public float maxHeightDecel = 0.85f;
+        [FormerlySerializedAs("hitHeadDecelerationMultiplier")]
+        [Range(1, 0)] [Tooltip("The lower the value, the greater the deceleration")]
+        public float hitHeadDecel = 0.15f;
 
         [Header("STATE")]
         public State state;
@@ -81,9 +94,17 @@ namespace Solis.Player
 
         [Header("MAGNETIZED")]
         public Vector3 magnetReferenceLocalPosition = new Vector3(0, 2, 0);
-
         public Transform magnetAnchor;
+
+        [Header("HAND")]
         public Transform handPosition;
+
+#if UNITY_EDITOR
+        [Header("DEBUG")]
+        public bool debugJump = false;
+        public Vector3 debugLastJumpMaxHeight;
+        public Vector3 debugNextMovePos;
+#endif
         #endregion
 
         #region Private Fields
@@ -93,18 +114,13 @@ namespace Solis.Player
         private float _jumpTimer;
         private float _startJumpPos;
         private bool _isJumping;
+        private bool _isJumpingEnd;
         private bool _isJumpCut;
         private bool _isFalling;
+        private bool _isCinematicRunning = true;
         private float _multiplier;
 
         private Vector3 _lastSafePosition;
-
-        #if UNITY_EDITOR
-        private Vector3 _nextMovePos;
-
-        [Header("DEBUG")]
-        public bool debugJump = false;
-        #endif
         #endregion
 
         #region Public Properties
@@ -128,6 +144,8 @@ namespace Solis.Player
         private bool InputJumpUp => Input.GetButtonUp("Jump");
         private bool CanJump => !_isJumping && (IsGrounded || _coyoteTimer > 0) && _jumpTimer <= 0;
         private bool CanJumpCut => _isJumping && !_isJumpCut;
+        private bool IsPlayerLocked => _isCinematicRunning;
+        private Vector3 HeadOffset => body.position + headOffset;
         #endregion
 
         #region Unity Callbacks
@@ -135,6 +153,12 @@ namespace Solis.Player
         {
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
+
+            _isCinematicRunning = LevelCutscene.IsPlaying;
+            LevelCutscene.OnCinematicEnded += () =>
+            {
+                _isCinematicRunning = false;
+            };
 
             _remoteBodyRotation = body.localEulerAngles.y;
             _remoteBodyPosition = body.localPosition;
@@ -161,6 +185,8 @@ namespace Solis.Player
                 Cursor.visible = !cursorIsOn;
                 Cursor.lockState = cursorIsOn ? CursorLockMode.Locked : CursorLockMode.None;
             }
+
+            if(IsPlayerLocked) return;
 
             switch (state)
             {
@@ -232,10 +258,10 @@ namespace Solis.Player
                     var nextPos = transform.position + (new Vector3(move.x, 0, move.z) * (Time.fixedDeltaTime * 10f));
 
                     #if UNITY_EDITOR
-                    _nextMovePos = nextPos;
+                    debugNextMovePos = nextPos;
                     #endif
 
-                    if (Physics.CheckSphere(transform.position, 0.5f, LayerMask.GetMask("SafePlatform")))
+                    if (Physics.CheckSphere(transform.position, 0.5f, LayerMask.GetMask("SafeGround")))
                     {
                         if (!Physics.Raycast(nextPos, Vector3.down, 1.1f) && !_isJumping && IsGrounded)
                         {
@@ -270,7 +296,7 @@ namespace Solis.Player
 #if UNITY_EDITOR
             if (Physics.Raycast(transform.position, Vector3.down, out var hit, 1.1f))
             {
-                Gizmos.color = hit.collider.gameObject.layer == LayerMask.NameToLayer("SafePlatform")
+                Gizmos.color = hit.collider.gameObject.layer == LayerMask.NameToLayer("SafeGround")
                     ? Color.green
                     : Color.yellow;
                 Gizmos.DrawWireSphere(transform.position, 0.5f);
@@ -281,19 +307,33 @@ namespace Solis.Player
                 Gizmos.DrawWireSphere(transform.position, 0.5f);
             }
 
-            if (Physics.Raycast(_nextMovePos, Vector3.down, 1.1f))
+            if (Physics.Raycast(debugNextMovePos, Vector3.down, 1.1f))
             {
                 Gizmos.color = !_isJumping && IsGrounded ? Color.green : Color.yellow;
-                Gizmos.DrawRay(_nextMovePos, hit.point - _nextMovePos);
+                Gizmos.DrawRay(debugNextMovePos, hit.point - debugNextMovePos);
             }
             else
             {
                 Gizmos.color = Color.red;
-                Gizmos.DrawRay(_nextMovePos, Vector3.down);
+                Gizmos.DrawRay(debugNextMovePos, Vector3.down);
+            }
+
+            if (Physics.Raycast(HeadOffset, Vector3.up, out hit, 0.1f))
+            {
+                Gizmos.color = Color.red;
+                Gizmos.DrawRay(HeadOffset, hit.point);
+            }
+            else
+            {
+                Gizmos.color = Color.green;
+                Gizmos.DrawRay(HeadOffset, Vector3.up);
             }
 
             Gizmos.color = IsGrounded ? Color.cyan : Color.blue;
             Gizmos.DrawWireCube(_lastSafePosition, Vector3.one);
+
+            Gizmos.color = Color.magenta;
+            Gizmos.DrawWireSphere(debugLastJumpMaxHeight, 0.5f);
 #endif
         }
         #endregion
@@ -374,7 +414,7 @@ namespace Solis.Player
 
         private void _Move()
         {
-            var moveInput = MoveInput;
+            var moveInput = MoveInput.normalized;
             var target = moveInput * maxSpeed;
             var accelerationValue = ((Mathf.Abs(moveInput.magnitude) > 0.01f) ? acceleration : deceleration) *
                                     Time.deltaTime;
@@ -387,7 +427,9 @@ namespace Solis.Player
             if (InputJump && CanJump)
             {
                 _isJumping = true;
+                _isJumpingEnd = false;
                 _isJumpCut = false;
+                _isFalling = false;
                 velocity.y = 0.1f;
                 _startJumpPos = transform.position.y;
                 _multiplier = jumpGravityMultiplier;
@@ -408,11 +450,36 @@ namespace Solis.Player
                 velocity.y += jumpAcceleration * Time.deltaTime;
                 var diff = Mathf.Abs(transform.position.y - _startJumpPos);
                 if (diff >= jumpMaxHeight)
+                {
                     _isJumping = false;
+                    velocity.y *= maxHeightDecel;
+                }
+            }
 
+            if (!_isJumpingEnd)
+            {
 #if UNITY_EDITOR
-                if(debugJump) Debug.Log($"start: {_startJumpPos} current: {transform.position.y} diff: {diff}");
+                if (debugJump)
+                {
+                    Debug.Log($"start: {_startJumpPos} current: {transform.position.y} diff: {Mathf.Abs(transform.position.y - _startJumpPos)}");
+                }
 #endif
+                if (Physics.Raycast(HeadOffset, Vector3.up, 0.1f))
+                {
+                    _isJumping = false;
+                    _isJumpingEnd = true;
+                    velocity.y *= hitHeadDecel;
+                    Debug.Log("Hit head");
+                    return;
+                }
+
+                if(velocity.y <= 0)
+                {
+                    _isJumpingEnd = true;
+#if UNITY_EDITOR
+                    debugLastJumpMaxHeight = transform.position;
+#endif
+                }
             }
         }
 
