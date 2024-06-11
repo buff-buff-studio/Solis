@@ -22,6 +22,7 @@ namespace Solis.Circuit.Components
         [Header("STATE")]
         public FloatNetworkValue position = new(0);
         public bool canBeMoving = true;
+        public bool alwaysOn = false;
         
         [Header("SETTINGS")]
         public int tickRate = 64;
@@ -108,6 +109,8 @@ namespace Solis.Circuit.Components
         }
         #endregion
 
+        private float speed;
+        bool value;
         #region Private Methods
         private void _Tick()
         {
@@ -117,13 +120,27 @@ namespace Solis.Circuit.Components
             if (!canBeMoving)
                 return;
 
-            var value = input.ReadOutput().power > 0.5f;
+           
+            if (!alwaysOn)
+            {
+                value = input.ReadOutput().power > 0.5f;
+            }
+            else
+            {
+                if(Mathf.Approximately(position.Value, 0) || Mathf.Approximately(position.Value,1))
+                {
+                    value = position.Value < 0.1f;
+                }
+            }
+            
 
             var distance = Vector3.Distance(from.position, to.position);
-            var speed = moveSpeed / distance / tickRate;
+            speed = moveSpeed / distance / tickRate;
 
             var newValue = Mathf.Clamp01(position.Value + (value ? speed : -speed));
             position.Value = newValue;
+            
+           
         }
         
         private void _TickCheck()
