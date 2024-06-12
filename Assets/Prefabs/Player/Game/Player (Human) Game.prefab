@@ -560,9 +560,9 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 6018867155341239511}
   m_SourcePrefab: {fileID: 100100000, guid: 9592165b6127f3340abdb74110eb30d3, type: 3}
---- !u!4 &2525552619348330671 stripped
+--- !u!4 &3147394436631582834 stripped
 Transform:
-  m_CorrespondingSourceObject: {fileID: -7107566119898378121, guid: 9592165b6127f3340abdb74110eb30d3, type: 3}
+  m_CorrespondingSourceObject: {fileID: 1584563845508939946, guid: 9592165b6127f3340abdb74110eb30d3, type: 3}
   m_PrefabInstance: {fileID: 4490171277030168792}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &3643732251445208457 stripped
@@ -607,11 +607,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2195862425273019967, guid: a55a3791e379dfa42a63dd01f73de466, type: 3}
       propertyPath: id.low
-      value: -1774531921
+      value: -452375081
       objectReference: {fileID: 0}
     - target: {fileID: 2195862425273019967, guid: a55a3791e379dfa42a63dd01f73de466, type: 3}
       propertyPath: id.high
-      value: 2134617383
+      value: -896066875
       objectReference: {fileID: 0}
     - target: {fileID: 4136800555700545090, guid: a55a3791e379dfa42a63dd01f73de466, type: 3}
       propertyPath: m_LocalPosition.x
@@ -757,7 +757,7 @@ MonoBehaviour:
   deceleration: 60
   rotationSpeed: 120
   jumpMaxHeight: 2
-  jumpAcceleration: 22.5
+  jumpAcceleration: 50
   jumpGravityMultiplier: 1
   jumpCutGravityMultiplier: 4
   coyoteTime: 0
@@ -769,12 +769,12 @@ MonoBehaviour:
   hitHeadDecel: 0.15
   state: 0
   velocity: {x: 0, y: 0, z: 0}
-  interactCooldown: 0
+  interactCooldown: 0.1
   respawnTimer: 1
   tickRate: 128
   magnetReferenceLocalPosition: {x: 0, y: 2, z: 0}
   magnetAnchor: {fileID: 0}
-  handPosition: {fileID: 2525552619348330671}
+  handPosition: {fileID: 3147394436631582834}
   debugJump: 0
   debugLastJumpMaxHeight: {x: 0, y: 0, z: 0}
   debugNextMovePos: {x: 0, y: 0, z: 0}
