@@ -56,7 +56,7 @@ public class LevelCutscene : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Return))
+        if (Input.GetButtonDown("Cutscene"))
         {
             virtualCamera.enabled = false;
             this.enabled = false;
