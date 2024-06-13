@@ -88,6 +88,7 @@ namespace Solis.Player
         public State state;
         public Vector3 velocity;
         public float interactCooldown;
+        public float respawnTimer = 3f;
         
         [Header("NETWORK")]
         public int tickRate = 50;
@@ -118,6 +119,8 @@ namespace Solis.Player
         private bool _isJumpCut;
         private bool _isFalling;
         private bool _isCinematicRunning = true;
+        private bool _isRespawning = false;
+        private float _respawnTimer;
         private float _multiplier;
 
         private Vector3 _lastSafePosition;
@@ -144,7 +147,7 @@ namespace Solis.Player
         private bool InputJumpUp => Input.GetButtonUp("Jump");
         private bool CanJump => !_isJumping && (IsGrounded || _coyoteTimer > 0) && _jumpTimer <= 0;
         private bool CanJumpCut => _isJumping && !_isJumpCut;
-        private bool IsPlayerLocked => _isCinematicRunning;
+        private bool IsPlayerLocked => _isCinematicRunning || _isRespawning;
         private Vector3 HeadOffset => body.position + headOffset;
         #endregion
 
@@ -384,6 +387,12 @@ namespace Solis.Player
         {
             var deltaTime = Time.deltaTime;
             _coyoteTimer = IsGrounded ? coyoteTime : _coyoteTimer - deltaTime;
+            _respawnTimer = _isRespawning ? _respawnTimer - deltaTime : respawnTimer;
+            if (_respawnTimer <= 0)
+            {
+                _isRespawning = false;
+                _respawnTimer = respawnTimer;
+            }
             
             if(IsGrounded) _jumpTimer -= deltaTime;
             if (interactCooldown > 0)
@@ -394,7 +403,7 @@ namespace Solis.Player
 
         private void _Interact()
         {
-            if (Input.GetKeyDown(KeyCode.E) && interactCooldown <= 0 && IsGrounded)
+            if (Input.GetButtonDown("Interact") && interactCooldown <= 0 && IsGrounded)
             {
                 animator.SetTrigger("Punch");
                 interactCooldown = 1.25f;
@@ -437,13 +446,14 @@ namespace Solis.Player
                 jumpParticles.Play();
             }
 
+            /*
             if (InputJumpUp && CanJumpCut)
             {
                 _isJumpCut = true;
                 _isJumping = false;
                 velocity.y *= 0.5f;
                 _multiplier = jumpCutGravityMultiplier;
-            }
+            }*/
 
             if (_isJumping && !_isJumpCut)
             {
@@ -552,6 +562,8 @@ namespace Solis.Player
                     transform.position = _lastSafePosition;
                     velocity = Vector3.zero;
                     landParticles.Play();
+                    _isRespawning = true;
+                    _respawnTimer = respawnTimer;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(death), death, null);
