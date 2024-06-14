@@ -559,7 +559,8 @@ namespace Solis.Player
                     Debug.Log("Death Smash");
                     break;
                 case Death.Fall:
-                    transform.position = _lastSafePosition;
+                    transform.position = _lastSafePosition + Vector3.up;
+                    //transform.eulerAngles += new Vector3(0, 180, 0);
                     velocity = Vector3.zero;
                     landParticles.Play();
                     _isRespawning = true;
