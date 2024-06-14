@@ -13,23 +13,25 @@ namespace Solis.Circuit.Components
     public class CircuitTemporizedButton : CircuitComponent
     {
         #region Inspector Fields
+        [Header("STATE")]
+        public BoolNetworkValue isOn = new(false);
+
+        [Space]
+        [Header("REFERENCES")]
+        public CircuitPlug output;
+        public Transform knob;
+
         [Header("SETTINGS")]
         public float radius = 3f;
         public CharacterTypeFilter playerTypeFilter = CharacterTypeFilter.Both;
         public float timeOn = 4;
-        
         public Vector3 knobOn = new(0, 0.15f, 0f);
         public Vector3 knobOff = new(0, 0.25f, 0f);
-        
-        [Header("REFERENCES")]
-        public BoolNetworkValue isOn = new(false);
-        public CircuitPlug output;
-        public Transform knob;
+
         #endregion
 
         #region Private Fields
-        [SerializeField, HideInInspector]
-        private float timeOnCounter;
+        private float _timeOnCounter;
         #endregion
 
         #region Unity Callbacks
@@ -51,25 +53,13 @@ namespace Solis.Circuit.Components
         
         private void FixedUpdate()
         {
-            if (!HasAuthority)
-                return;
+            knob.localPosition = Vector3.Lerp(knob.localPosition, isOn.Value ? knobOn : knobOff, Time.fixedDeltaTime * 10);
 
-            if (!isOn.Value) 
+            if (!HasAuthority || !isOn.Value)
                 return;
             
-            if (timeOnCounter > 0)
-            {
-                timeOnCounter -= Time.fixedDeltaTime;
-            }
-            else
-            {
-                isOn.Value = false;
-            }
-        }
-
-        private void Update()
-        {
-            knob.localPosition = Vector3.Lerp(knob.localPosition, isOn.Value ? knobOn : knobOff, Time.deltaTime * 10);
+            _timeOnCounter = _timeOnCounter > 0 ? _timeOnCounter - Time.fixedDeltaTime : 0;
+            if (_timeOnCounter <= 0) isOn.Value = false;
         }
         #endregion
 
@@ -106,7 +96,7 @@ namespace Solis.Circuit.Components
             if (playerTypeFilter.Filter(controller.CharacterType))
             {
                 isOn.Value = true;
-                timeOnCounter = timeOn;
+                _timeOnCounter = timeOn;
                 
                 return true;
             }
