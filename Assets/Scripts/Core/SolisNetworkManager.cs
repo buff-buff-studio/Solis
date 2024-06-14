@@ -1,6 +1,7 @@
 using System.Linq;
 using NetBuff;
 using NetBuff.Packets;
+using NetBuff.Relays;
 using NetBuff.Session;
 using NetBuff.UDP;
 using Solis.Data;
@@ -14,7 +15,7 @@ namespace Solis.Core
     /// Solis Network Manager. Used to customize the network manager for Solis project.
     /// </summary>
     [Icon("Assets/Art/Sprites/Editor/SolisNetworkManager_ico.png")]
-    public class SolisNetworkManager : NetworkManager
+    public class SolisNetworkManager : RelayNetworkManager
     {
         #region Public Static Fields
         public const int SOLIS_MAGIC_NUMBER = 10_000;
@@ -27,6 +28,8 @@ namespace Solis.Core
         #endif
         public static bool isJoining;
         public static CharacterType defaultType = CharacterType.Human;
+        public static bool usingRelay;
+        public static string relayCode;
         #endregion
 
         #region Unity Callbacks
@@ -43,22 +46,51 @@ namespace Solis.Core
 
                 Name = username;
 
-                var udp = (Transport as UDPNetworkTransport);
-                if (udp != null)
+                if (usingRelay)
                 {
-                    udp.Port = SOLIS_NETWORK_PORT;
-                    if (!string.IsNullOrEmpty(networkAddress))
-                        udp.Address = networkAddress;
+                    if (isJoining)
+                        JoinRelayServer(relayCode, (_) =>
+                        {
+                            
+                        });
+                    else
+                        StartRelayServer(4, "", (_, c) =>
+                        {
+                            Debug.Log("Code: " + c);
+                            relayCode = c;
+
+                            var o = FindFirstObjectByType<RelayNetworkManagerGUI>();
+                            if (o != null)
+                                o.code = c;
+                            
+                            LoadScene("Lobby");
+                            JoinRelayServer(relayCode, (_) =>
+                            {
+                                
+                            });
+                        });
+                        
+                }
+                else
+                {
+                    var udp = (Transport as UDPNetworkTransport);
+                    if (udp != null)
+                    {
+                        udp.Port = SOLIS_NETWORK_PORT;
+                        if (!string.IsNullOrEmpty(networkAddress))
+                            udp.Address = networkAddress;
+                    }
+
+                    if (!isJoining)
+                    {
+                        StartServer();
+                        LoadScene(scene);
+                    }
+
+                    StartClient();
                 }
 
-                if (!isJoining)
-                {
-                    StartServer();
-                    LoadScene(scene);
-                }
-
-                StartClient();
-
+                usingRelay = false;
                 isJoining = false;
                 sceneToLoad = null;
                 networkAddress = null;
@@ -70,23 +102,51 @@ namespace Solis.Core
                     username = "test_" + Random.Range(0, 1000);
 
                 Name = username;
-
-                var udp = (Transport as UDPNetworkTransport);
-                if (udp != null)
-                {
-                    udp.Port = SOLIS_NETWORK_PORT;
-                    if (!string.IsNullOrEmpty(networkAddress))
-                        udp.Address = networkAddress;
-                }
-
-                if (!isJoining)
-                {
-                    StartServer();
-                    LoadScene("Lobby");
-                }
-
-                StartClient();
                 
+                if (usingRelay)
+                {
+                    if (isJoining)
+                        JoinRelayServer(relayCode, (_) =>
+                        {
+                            
+                        });
+                    else
+                        StartRelayServer(4, "", (_, c) =>
+                        {
+                            Debug.Log("Code: " + c);
+                            relayCode = c;
+
+                            var o = FindFirstObjectByType<RelayNetworkManagerGUI>();
+                            if (o != null)
+                                o.code = c;
+                            
+                            LoadScene("Lobby");
+                            JoinRelayServer(relayCode, (_) =>
+                            {
+                                
+                            });
+                        });
+                }
+                else
+                {
+
+                    var udp = (Transport as UDPNetworkTransport);
+                    if (udp != null)
+                    {
+                        udp.Port = SOLIS_NETWORK_PORT;
+                        if (!string.IsNullOrEmpty(networkAddress))
+                            udp.Address = networkAddress;
+                    }
+
+                    if (!isJoining)
+                    {
+                        StartServer();
+                        LoadScene("Lobby");
+                    }
+
+                    StartClient();
+                }
+
                 networkAddress = null;
                 username = null;
                 #endif
