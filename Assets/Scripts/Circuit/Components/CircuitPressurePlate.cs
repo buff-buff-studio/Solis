@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using NetBuff.Misc;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 namespace Solis.Circuit.Components
 {
@@ -14,19 +15,30 @@ namespace Solis.Circuit.Components
         #endregion
 
         #region Inspector Fields
+        [Header("STATE")]
+        public BoolNetworkValue isOn = new(false);
+
+        [Space]
         [Header("REFERENCES")]
         public Transform knob;
         public CircuitPlug output;
-        
-        [Header("STATE")]
-        public BoolNetworkValue isOn = new(false);
+        public DecalProjector effect;
 
         [Header("SETTINGS")]
         public int tickRate = 20;
         public Vector3 offset = new(0, 0.75f, 0);
         public float radius = 0.4f;
+        [Range(0,10)]
+        public int timeOn = 0;
         public Vector3 knobLocalPositionOn = new(0, 0, 0);
         public Vector3 knobLocalPositionOff = new(0, 0.05f, 0);
+        [ColorUsage(true, true)]
+        public Color timerColor, instantColor;
+        #endregion
+
+        #region Private Fields
+        private float _timeOnCounter;
+        private Material _material;
         #endregion
 
         #region Unity Callbacks
@@ -35,6 +47,8 @@ namespace Solis.Circuit.Components
             base.OnEnable();
             WithValues(isOn);
             isOn.OnValueChanged += _OnValueChanged;
+            _material = new Material(effect.material);
+            effect.material = _material;
             
             InvokeRepeating(nameof(_Tick), 0, 1f / tickRate);
         }
@@ -47,9 +61,14 @@ namespace Solis.Circuit.Components
             CancelInvoke(nameof(_Tick));
         }
         
-        private void Update()
+        private void FixedUpdate()
         {
-            knob.localPosition = Vector3.Lerp(knob.localPosition, isOn.Value ? knobLocalPositionOn : knobLocalPositionOff, Time.deltaTime * 10);
+            knob.localPosition = Vector3.Lerp(knob.localPosition, isOn.Value ? knobLocalPositionOn : knobLocalPositionOff, Time.fixedDeltaTime * 10);
+
+            if (!HasAuthority || !isOn.Value)
+                return;
+
+            _timeOnCounter = isOn.Value ? _timeOnCounter - Time.fixedDeltaTime : 0;
         }
 
         private void OnDrawGizmos()
@@ -87,11 +106,21 @@ namespace Solis.Circuit.Components
             var t = transform;
             var off = t.TransformDirection(offset);
             var size = Physics.OverlapSphereNonAlloc(t.position + off, radius, _Results);
-            isOn.Value = size > 0;
+            if (size > 0)
+            {
+                isOn.Value = true;
+                _timeOnCounter = timeOn;
+            }
+            else if(_timeOnCounter <= 0)
+            {
+                isOn.Value = false;
+            }
         }
         
         private void _OnValueChanged(bool old, bool @new)
         {
+            var color = timeOn < 1 ? instantColor : timerColor;
+            _material.SetColor("_BaseColor", isOn.Value ? color : Color.clear);
             Refresh();
         }
         #endregion
