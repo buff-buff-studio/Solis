@@ -966,6 +966,8 @@ namespace NetBuff.Relays
 
 	        if (target == -1)
 	        {
+		        _server.jobHandle.Complete();
+		        
 		        foreach (var con in _server.connections)
 		        {
 			        _SendTo(segment, con.GetHashCode(), reliable);

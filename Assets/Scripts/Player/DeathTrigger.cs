@@ -1,6 +1,7 @@
 using NetBuff.Components;
 using Solis.Packets;
 using Solis.Player;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Solis.Player
@@ -49,6 +50,9 @@ namespace Solis.Player
 
         private void OnTriggerEnter(Collider col)
         {
+            if (!HasAuthority)
+                return;
+            
             if (col.CompareTag("Player") && col.TryGetComponent(out PlayerControllerBase p))
             {
                 SendPacket(new PlayerDeathPacket()
