@@ -3,6 +3,7 @@ using System.Linq;
 using NetBuff;
 using NetBuff.Components;
 using NetBuff.Misc;
+using NetBuff.Relays;
 using Solis.Player;
 using Solis.Data;
 using Solis.Data.Saves;
@@ -10,6 +11,7 @@ using Solis.Interface.Lobby;
 using Solis.Misc.Props;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace Solis.Core
 {
@@ -29,6 +31,9 @@ namespace Solis.Core
         [Header("REFERENCES")]
         public GameRegistry registry;
         public CanvasGroup fadeScreen;
+        public Button leaveGame;
+        public Button restartLevel;
+        public Button copyCode;
         
         [Header("PREFABS")]
         public GameObject playerHumanLobbyPrefab;
@@ -82,6 +87,9 @@ namespace Solis.Core
 
         private void Update()
         {
+            if(Input.GetKeyDown(KeyCode.K))
+                ButtonRestartLevel();
+            
             if (!save.IsSaved)
                 return;
 
@@ -352,9 +360,10 @@ namespace Solis.Core
                 var waiting = true;
                 manager.UnloadScene(scene).Then((_) =>
                 {
-                    manager.LoadScene(scene).Then((_) =>
+                    manager.LoadScene(scene).Then((x) =>
                     {
                         waiting = false;
+                        then?.Invoke(x);
                     });
                 });
                 
@@ -384,5 +393,39 @@ namespace Solis.Core
             fadeScreen.gameObject.SetActive(@in);
         }
         #endregion
+
+        public override void OnSceneLoaded(int sceneId)
+        {
+            copyCode.gameObject.SetActive(IsOnLobby);
+            leaveGame.gameObject.SetActive(!IsOnLobby);
+            restartLevel.gameObject.SetActive(!IsOnLobby && IsServer);
+        }
+        
+        public void ButtonLeaveGame()
+        {
+            if (IsServer)
+                ReturnToLobby();
+            else
+            {
+                foreach (var clientId in NetworkManager.Instance.GetConnectedClients())
+                    NetworkManager.Instance.Transport.ServerDisconnect(clientId, "closing");
+                NetworkManager.Instance.Close();
+            }
+        }
+
+        public void ButtonRestartLevel()
+        {
+            if (IsServer)
+                LoadLevel();
+        }
+        
+        public void ButtonCopyCode()
+        {
+            var o = FindFirstObjectByType<RelayNetworkManagerGUI>();
+            if (o != null)
+            {
+                GUIUtility.systemCopyBuffer = o.code;
+            }
+        }
     }
 }

@@ -346,11 +346,12 @@ namespace Solis.Player
         {
             if (!HasAuthority)
                 return;
+            
             var cam = Camera.main!.GetComponentInChildren<CinemachineFreeLook>();
             cam.Follow = transform;
             cam.LookAt = lookAt;
         }
-
+        
         public override void OnServerReceivePacket(IOwnedPacket packet, int clientId)
         {
             switch (packet)
