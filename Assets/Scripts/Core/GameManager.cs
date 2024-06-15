@@ -404,13 +404,13 @@ namespace Solis.Core
         public void ButtonLeaveGame()
         {
             if (IsServer)
-                ReturnToLobby();
-            else
             {
                 foreach (var clientId in NetworkManager.Instance.GetConnectedClients())
                     NetworkManager.Instance.Transport.ServerDisconnect(clientId, "closing");
-                NetworkManager.Instance.Close();
+                
             }
+            
+            NetworkManager.Instance.Close();
         }
 
         public void ButtonRestartLevel()
