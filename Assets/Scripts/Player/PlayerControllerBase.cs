@@ -46,7 +46,7 @@ namespace Solis.Player
         [Header("BODY REFERENCES")]
         public Transform body;
         public Transform lookAt;
-        public Vector3 headOffset;
+        public Transform headOffset;
 
         [Header("FX REFERENCES")]
         public ParticleSystem dustParticles;
@@ -121,6 +121,7 @@ namespace Solis.Player
         private bool _isCinematicRunning = true;
         private bool _isRespawning = false;
         private float _respawnTimer;
+        private float _interactTimer;
         private float _multiplier;
 
         private Vector3 _lastSafePosition;
@@ -148,7 +149,7 @@ namespace Solis.Player
         private bool CanJump => !_isJumping && (IsGrounded || _coyoteTimer > 0) && _jumpTimer <= 0;
         private bool CanJumpCut => _isJumping && !_isJumpCut;
         private bool IsPlayerLocked => _isCinematicRunning || _isRespawning;
-        private Vector3 HeadOffset => body.position + headOffset;
+        private Vector3 HeadOffset => headOffset.position;
         #endregion
 
         #region Unity Callbacks
@@ -254,7 +255,7 @@ namespace Solis.Player
                     else dustParticles.Stop();
 
                     var move = Quaternion.Euler(0, te.y, 0) * velocity;
-                    if (interactCooldown > 0)
+                    if (_interactTimer > 0)
                         move = Vector3.zero;
 
                     var walking = velocityXZ.magnitude > 0.1f;
@@ -321,15 +322,19 @@ namespace Solis.Player
                 Gizmos.DrawRay(debugNextMovePos, Vector3.down);
             }
 
-            if (Physics.Raycast(HeadOffset, Vector3.up, out hit, 0.1f))
+            if (Physics.CheckBox(headOffset.position, headOffset.lossyScale, headOffset.rotation, ~LayerMask.GetMask("Player")))
             {
                 Gizmos.color = Color.red;
-                Gizmos.DrawRay(HeadOffset, hit.point);
+                Gizmos.matrix = Matrix4x4.TRS(headOffset.position, headOffset.rotation, headOffset.lossyScale);
+                Gizmos.DrawWireCube(Vector3.zero, Vector3.one);
+                Gizmos.matrix = Matrix4x4.identity;
             }
             else
             {
                 Gizmos.color = Color.green;
-                Gizmos.DrawRay(HeadOffset, Vector3.up);
+                Gizmos.matrix = Matrix4x4.TRS(headOffset.position, headOffset.rotation, headOffset.lossyScale);
+                Gizmos.DrawWireCube(Vector3.zero, Vector3.one);
+                Gizmos.matrix = Matrix4x4.identity;
             }
 
             Gizmos.color = IsGrounded ? Color.cyan : Color.blue;
@@ -388,6 +393,7 @@ namespace Solis.Player
         {
             var deltaTime = Time.deltaTime;
             _coyoteTimer = IsGrounded ? coyoteTime : _coyoteTimer - deltaTime;
+            _interactTimer = _interactTimer > 0 ? _interactTimer - deltaTime : 0;
             _respawnTimer = _isRespawning ? _respawnTimer - deltaTime : respawnTimer;
             if (_respawnTimer <= 0)
             {
@@ -396,18 +402,14 @@ namespace Solis.Player
             }
             
             if(IsGrounded) _jumpTimer -= deltaTime;
-            if (interactCooldown > 0)
-            {
-                interactCooldown -= deltaTime;
-            }
         }
 
         private void _Interact()
         {
-            if (Input.GetButtonDown("Interact") && interactCooldown <= 0 && IsGrounded)
+            if (Input.GetButtonDown("Interact") && _interactTimer <= 0 && IsGrounded)
             {
                 animator.SetTrigger("Punch");
-                interactCooldown = 1.25f;
+                _interactTimer = interactCooldown;
 
                 //Run after
                 Task.Run(async () =>
@@ -475,7 +477,7 @@ namespace Solis.Player
                     Debug.Log($"start: {_startJumpPos} current: {transform.position.y} diff: {Mathf.Abs(transform.position.y - _startJumpPos)}");
                 }
 #endif
-                if (Physics.Raycast(HeadOffset, Vector3.up, 0.1f))
+                if (Physics.CheckBox(headOffset.position, headOffset.lossyScale, headOffset.rotation, ~LayerMask.GetMask("Player")))
                 {
                     _isJumping = false;
                     _isJumpingEnd = true;
