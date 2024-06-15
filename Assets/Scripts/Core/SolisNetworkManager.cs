@@ -49,13 +49,27 @@ namespace Solis.Core
                 if (usingRelay)
                 {
                     if (isJoining)
-                        JoinRelayServer(relayCode, (_) =>
+                        JoinRelayServer(relayCode, (callback) =>
                         {
-                            
+                            if(!callback)
+                            {
+                                OnClearEnvironment(NetworkTransport.ConnectionEndMode.Shutdown, "error");
+                                return;
+                            }
+
+                            var o = FindFirstObjectByType<RelayNetworkManagerGUI>();
+                            if (o != null)
+                                o.code = relayCode;
                         });
                     else
-                        StartRelayServer(4, "", (_, c) =>
+                        StartRelayServer(4, "", (callback, c) =>
                         {
+                            if (!callback)
+                            {
+                                OnClearEnvironment(NetworkTransport.ConnectionEndMode.Shutdown, "error");
+                                return;
+                            }
+                            
                             Debug.Log("Code: " + c);
                             relayCode = c;
 
@@ -64,12 +78,16 @@ namespace Solis.Core
                                 o.code = c;
                             
                             LoadScene("Lobby");
-                            JoinRelayServer(relayCode, (_) =>
+                            JoinRelayServer(relayCode, (cb) =>
                             {
-                                
+                                if (!cb)
+                                {
+                                    Close();
+                                    OnClearEnvironment(NetworkTransport.ConnectionEndMode.Shutdown, "error");
+                                    return;
+                                }
                             });
                         });
-                        
                 }
                 else
                 {
@@ -106,13 +124,27 @@ namespace Solis.Core
                 if (usingRelay)
                 {
                     if (isJoining)
-                        JoinRelayServer(relayCode, (_) =>
+                        JoinRelayServer(relayCode, (callback) =>
                         {
-                            
+                            if(!callback)
+                            {
+                                OnClearEnvironment(NetworkTransport.ConnectionEndMode.Shutdown, "error");
+                                return;
+                            }
+
+                            var o = FindFirstObjectByType<RelayNetworkManagerGUI>();
+                            if (o != null)
+                                o.code = relayCode;
                         });
                     else
-                        StartRelayServer(4, "", (_, c) =>
+                        StartRelayServer(4, "", (callback, c) =>
                         {
+                            if (!callback)
+                            {
+                                OnClearEnvironment(NetworkTransport.ConnectionEndMode.Shutdown, "error");
+                                return;
+                            }
+                            
                             Debug.Log("Code: " + c);
                             relayCode = c;
 
@@ -121,9 +153,14 @@ namespace Solis.Core
                                 o.code = c;
                             
                             LoadScene("Lobby");
-                            JoinRelayServer(relayCode, (_) =>
+                            JoinRelayServer(relayCode, (cb) =>
                             {
-                                
+                                if (!cb)
+                                {
+                                    Close();
+                                    OnClearEnvironment(NetworkTransport.ConnectionEndMode.Shutdown, "error");
+                                    return;
+                                }
                             });
                         });
                 }

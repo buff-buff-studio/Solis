@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 
 namespace Interface
 {
-    public class RelayTestingPanel : MonoBehaviour
+    public class RelayScreen : MonoBehaviour
     {
         #region Inspector Fields
         [Header("REFERENCES")]

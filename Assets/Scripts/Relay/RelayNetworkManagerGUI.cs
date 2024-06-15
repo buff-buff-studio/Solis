@@ -1,10 +1,24 @@
-﻿using UnityEngine;
+﻿using System;
+using TMPro;
+using UnityEngine;
 
 namespace NetBuff.Relays
 {
     public class RelayNetworkManagerGUI : MonoBehaviour
     {
         public string code = "";
+        public TMP_Text text;
+
+        private void FixedUpdate()
+        {
+            var rnm = (RelayNetworkManager) NetworkManager.Instance;
+            if (rnm.Transport.Type != NetworkTransport.EnvironmentType.None)
+            {
+                text.text = "Room: " + code;
+            }
+        }
+
+        /*
         private void OnGUI()
         {
             var rnm = (RelayNetworkManager) NetworkManager.Instance;
@@ -41,5 +55,6 @@ namespace NetBuff.Relays
                 }
             }
         }
+         */
     }
 }
