@@ -167,8 +167,7 @@ namespace Solis.Settings
         {
             QualitySettings.vSyncCount = settingsData.boolItems["vsync"] ? 1 : 0;
             QualitySettings.SetQualityLevel(settingsData.intItems["graphics"]);
-            Screen.SetResolution(Screen.resolutions[settingsData.intItems["resolution"]].width, Screen.resolutions[settingsData.intItems["resolution"]].height, Screen.fullScreenMode);
-            Screen.fullScreenMode = settingsData.boolItems["fullscreen"] ? FullScreenMode.FullScreenWindow : FullScreenMode.Windowed;
+            Screen.SetResolution(Screen.resolutions[settingsData.intItems["resolution"]].width, Screen.resolutions[settingsData.intItems["resolution"]].height, settingsData.boolItems["fullscreen"]);
         }
 
         private void Load()

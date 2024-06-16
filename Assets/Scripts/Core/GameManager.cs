@@ -53,6 +53,8 @@ namespace Solis.Core
 
         [SerializeField]
         private bool playedCutscene;
+
+        private bool _loadedLobby = false;
         #endregion
 
         #region Public Properties
@@ -80,7 +82,7 @@ namespace Solis.Core
         /// </summary>
         public LevelInfo CurrentLevel => save.data.currentLevel < 0 ? null : registry.levels[save.data.currentLevel];
 
-        [HideInInspector] 
+        //[HideInInspector] 
         public bool isGameStarted = false;
         #endregion
 
@@ -100,6 +102,9 @@ namespace Solis.Core
         {
             if(Input.GetKeyDown(KeyCode.K))
                 ButtonRestartLevel();
+
+            if (!isGameStarted)
+                isGameStarted = !NetworkManager.Instance.LoadedScenes.Contains(registry.sceneLobby.Name);
             
             if (!save.IsSaved)
                 return;
@@ -362,6 +367,7 @@ namespace Solis.Core
         private async void _LoadSceneInternal(string scene, Action<int> then = null)
         {
             var manager = NetworkManager.Instance!;
+            isGameStarted = scene != registry.sceneLobby.Name;
             if (!manager.IsSceneLoaded(scene))
             {
                 manager.LoadScene(scene).Then(then);
@@ -443,6 +449,8 @@ namespace Solis.Core
 
         private void LoadingLobby(bool isDone)
         {
+            if(_loadedLobby) return;
+            _loadedLobby = isDone;
             lobbyLoadingScene.SetActive(!isDone);
             loadingCanvas.SetActive(!isDone);
         }
