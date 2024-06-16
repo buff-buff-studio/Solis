@@ -62,7 +62,7 @@ namespace Solis.Core
                                 o.code = relayCode;
                         });
                     else
-                        StartRelayServer(4, "", (callback, c) =>
+                        StartRelayServer(2, "", (callback, c) =>
                         {
                             if (!callback)
                             {
