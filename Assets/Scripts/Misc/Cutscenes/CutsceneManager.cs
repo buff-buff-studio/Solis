@@ -3,6 +3,7 @@ using NetBuff;
 using NetBuff.Components;
 using NetBuff.Interface;
 using NetBuff.Misc;
+using Solis.Audio;
 using Solis.Core;
 using Solis.Packets;
 using TMPro;
@@ -119,6 +120,8 @@ namespace Solis.Misc.Cutscenes
         
         private void _OnEveryoneFinished()
         {
+            var audio = "CutScene" + Random.Range(1, 4);
+            AudioSystem.Instance.PlayVfx(audio);
             GameManager.Instance.LoadLevel();
         }
         #endregion

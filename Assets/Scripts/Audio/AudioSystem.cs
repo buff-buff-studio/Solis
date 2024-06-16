@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Solis.Data;
+using Solis.Settings;
 using UnityEngine;
+using UnityEngine.Audio;
 
 namespace Solis.Audio
 {
@@ -20,9 +23,17 @@ namespace Solis.Audio
         #region Inspector Fields
         [Header("REFERENCES")]
         public AudioPalette[] audioPalettes = Array.Empty<AudioPalette>();
+
+        public AudioMixerGroup vfxMixer;
+        public AudioMixerGroup musicMixer;
+        public AudioMixerGroup masterMixer;
+      
+        
         
         [Header("SETTINGS")]
         public int audioSourcePoolSize = 10;
+        public SettingsData settingData;
+        
         #endregion
 
         #region Private Fields
@@ -34,6 +45,7 @@ namespace Solis.Audio
         
         [SerializeField, HideInInspector]
         private List<AudioMusicTransition> musicTransitions = new();
+        
         #endregion
 
         #region Public Properties
@@ -46,19 +58,39 @@ namespace Solis.Audio
         #region Unity Callbacks
         private void Awake()
         {
+            
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject);  
+                return;
+            }
+            Instance = this;
+            
             for (var i = 0; i < audioSourcePoolSize; i++)
                 _CreateAudioSource(i);
+
+
+            PlayMusic("BaseMusic");
+            PlayVfx("BackGround", true);
+            
+            
+            DontDestroyOnLoad(gameObject);
         }
 
         private void OnEnable()
         {
             Instance = this;
+            
+            SettingsManager.OnSettingsChanged += OnSettingsChanged;
         }
 
+      
         private void OnDisable()
         {
             if (Instance == this)
                 Instance = null;
+            
+            SettingsManager.OnSettingsChanged -= OnSettingsChanged;
         }
 
         private void Update()
@@ -86,6 +118,21 @@ namespace Solis.Audio
                     musicTransitions.RemoveAt(i);
             }
         }
+        
+        private void OnSettingsChanged()
+        {
+            Debug.Log("SettingsChanged");
+            var volume = Mathf.Log10(settingData.floatItems["musicVolume"]/100) * 20;
+            musicMixer.audioMixer.SetFloat("musicVolume", volume);
+            Debug.Log("music" + settingData.floatItems["musicVolume"]);
+            volume = Mathf.Log10(settingData.floatItems["sfxVolume"]/100) * 20;
+            musicMixer.audioMixer.SetFloat("sfxVolume", volume);
+            Debug.Log("sfx" + settingData.floatItems["sfxVolume"]);
+            volume = Mathf.Log10(settingData.floatItems["masterVolume"]/100) * 20;
+            masterMixer.audioMixer.SetFloat("masterVolume", volume);
+            Debug.Log("masrter" + settingData.floatItems["masterVolume"]);
+        }
+
         #endregion
         
         #region Public Methods
@@ -215,6 +262,7 @@ namespace Solis.Audio
             
             var player = new AudioPlayer(type, clip, source, this, volume);
             audioPlayers.Add(player);
+            player.AudioSource.outputAudioMixerGroup = type == AudioType.Music? musicMixer : vfxMixer;
             
             return player;
         }
