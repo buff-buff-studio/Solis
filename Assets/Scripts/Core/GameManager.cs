@@ -34,6 +34,8 @@ namespace Solis.Core
         public Button leaveGame;
         public Button restartLevel;
         public Button copyCode;
+        public GameObject lobbyLoadingScene;
+        public GameObject loadingCanvas;
         
         [Header("PREFABS")]
         public GameObject playerHumanLobbyPrefab;
@@ -77,12 +79,21 @@ namespace Solis.Core
         /// Returns the current level info.
         /// </summary>
         public LevelInfo CurrentLevel => save.data.currentLevel < 0 ? null : registry.levels[save.data.currentLevel];
+
+        [HideInInspector] 
+        public bool isGameStarted = false;
         #endregion
 
         #region Unity Callbacks
         private void OnEnable()
         {
             Instance = this;
+#if UNITY_EDITOR
+            var scene = SolisNetworkManager.sceneToLoad;
+            if(scene != null && scene != "" && scene != "Null" && scene != "Lobby")
+                isGameStarted = true;
+#endif
+            LoadingLobby(isGameStarted);
         }
 
         private void Update()
@@ -138,6 +149,7 @@ namespace Solis.Core
         [ServerOnly]
         public void StartGame()
         {
+            isGameStarted = true;
             save.SaveData(null);
             LoadLevel();
         }
@@ -399,6 +411,7 @@ namespace Solis.Core
             copyCode.gameObject.SetActive(IsOnLobby);
             leaveGame.gameObject.SetActive(!IsOnLobby);
             restartLevel.gameObject.SetActive(!IsOnLobby && IsServer);
+            LoadingLobby(IsOnLobby || isGameStarted);
         }
         
         public void ButtonLeaveGame()
@@ -426,6 +439,12 @@ namespace Solis.Core
             {
                 GUIUtility.systemCopyBuffer = o.code;
             }
+        }
+
+        private void LoadingLobby(bool isDone)
+        {
+            lobbyLoadingScene.SetActive(!isDone);
+            loadingCanvas.SetActive(!isDone);
         }
     }
 }

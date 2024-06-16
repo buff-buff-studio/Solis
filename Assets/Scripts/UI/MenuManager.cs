@@ -8,13 +8,28 @@ namespace Solis.UI
 {
     public class MenuManager : WindowManager
     {
+        public Transform camTarget;
+        public Transform camMainMenu, camOtherMenu;
+        
         public TextMeshProUGUI versionText;
 
         private void Awake()
         {
             versionText.text = $"V: {Application.version}";
+            camTarget.position = camMainMenu.position;
+
+            onChangeWindow += ChangeCameraTarget;
         }
 
+        private void ChangeCameraTarget(int index)
+        {
+            camTarget.position = index switch
+            {
+                0 or 1 => camMainMenu.position,
+                _ => camOtherMenu.position
+            };
+        }
+        
         public void ExitGame()
         {
 #if UNITY_EDITOR
@@ -28,6 +43,10 @@ namespace Solis.UI
         {
             if (versionText != null) versionText.text = $"V: {Application.version}";
             base.OnValidate();
+            if (!Application.isPlaying)
+            {
+                ChangeCameraTarget(currentIndex);
+            }
         }
 #endif
     }

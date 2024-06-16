@@ -33,6 +33,8 @@ namespace Solis.Interface.Lobby
         public Button buttonCloseRoom;
         public Button buttonLeaveRoom;
 
+        public GameObject changeCharacter;
+
         [Header("SAVE")]
         public GameObject saveDisplay;
 
@@ -52,7 +54,7 @@ namespace Solis.Interface.Lobby
             playerCount.OnValueChanged += (_, newValue) =>
             {
                 // Update player count UI
-                textPlayerCount.text = $"{newValue}/2";
+                textPlayerCount.text = $"{newValue}";
             };
 
             RefreshSave();
@@ -70,11 +72,12 @@ namespace Solis.Interface.Lobby
             var hasAuthority = HasAuthority;
             buttonStartGame.gameObject.SetActive(hasAuthority);
             buttonCloseRoom.gameObject.SetActive(hasAuthority);
+            changeCharacter.SetActive(hasAuthority);
             buttonLeaveRoom.gameObject.SetActive(!hasAuthority);
             
             if(hasAuthority)
                 playerCount.Value = NetworkManager.Instance.GetConnectedClientCount();
-            textPlayerCount.text = $"{playerCount.Value}/2";
+            textPlayerCount.text = $"{playerCount.Value}";
             
             var camTransform =  Camera.main!.transform;
             camTransform.position = new Vector3(0, 1, -10);

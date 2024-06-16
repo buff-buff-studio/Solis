@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Application = UnityEngine.Device.Application;
 
 namespace Solis.UI
@@ -11,11 +12,13 @@ namespace Solis.UI
         [Header("WINDOW MANAGER SETTINGS")] [SerializeField]
         private int startIndex;
 
-        [SerializeField] private int currentIndex;
+        [SerializeField] private protected int currentIndex;
         [SerializeField] private bool resetOnCanvasGroupChange = false;
 
         [Space] [Header("WINDOWS")] [SerializeField]
         private List<CanvasGroup> windows;
+        
+        public Action<int> onChangeWindow;
 
         #region Unity Callbacks
 
@@ -90,6 +93,8 @@ namespace Solis.UI
             SetWindowActive(currentIndex, false);
             SetWindowActive(index, true);
             currentIndex = index;
+            Debug.Log($"Changed window to {windows[index].name}");
+            onChangeWindow?.Invoke(currentIndex);
         }
     }
 }
