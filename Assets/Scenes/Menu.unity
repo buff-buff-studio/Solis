@@ -560,7 +560,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'V: 0.3.2'
+  m_text: 'V: 0.3.5'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 0f32529027e66e84eb9221f10b1b6848, type: 2}
   m_sharedMaterial: {fileID: 6976116800014725505, guid: 0f32529027e66e84eb9221f10b1b6848, type: 2}
@@ -639,6 +639,61 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 123073399}
   m_CullTransparentMesh: 1
+--- !u!1 &127881400
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 127881401}
+  - component: {fileID: 127881402}
+  m_Layer: 0
+  m_Name: Audio System
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &127881401
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 127881400}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.5085045, y: -1.2927535, z: 1.0971107}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &127881402
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 127881400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7f54dfe2a1440b383afbc23c0e0e15d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  audioPalettes:
+  - {fileID: 11400000, guid: c4e408f0c9cf6a746bfdf2e8d9216eaa, type: 2}
+  - {fileID: 11400000, guid: 83fd524415b7df04a9cab0907207b784, type: 2}
+  vfxMixer: {fileID: -7306773176805621161, guid: d5b34f01b0f1a1f4f925566a767dde18, type: 2}
+  musicMixer: {fileID: -188614716448155631, guid: d5b34f01b0f1a1f4f925566a767dde18, type: 2}
+  masterMixer: {fileID: 24300002, guid: d5b34f01b0f1a1f4f925566a767dde18, type: 2}
+  audioSourcePoolSize: 10
+  settingData: {fileID: 11400000, guid: 377e864256ff2ef4cbbf550619a3cf11, type: 2}
+  freeAudioSources: []
+  audioPlayers: []
+  musicTransitions: []
 --- !u!1 &144098622
 GameObject:
   m_ObjectHideFlags: 0
@@ -1281,7 +1336,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 7951.6694}
+  m_AnchoredPosition: {x: 0, y: 8045.5205}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &398663618
@@ -1834,8 +1889,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1156915260}
   m_HandleRect: {fileID: 1156915259}
   m_Direction: 3
-  m_Value: 1.64
-  m_Size: 0.14570366
+  m_Value: 2.119
+  m_Size: 0.17883588
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -2118,8 +2173,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1094524793}
   m_HandleRect: {fileID: 1094524792}
   m_Direction: 3
-  m_Value: 4.469
-  m_Size: 0.74254555
+  m_Value: 8.567
+  m_Size: 0.846828
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -4632,7 +4687,6 @@ GameObject:
   - component: {fileID: 1315375433}
   - component: {fileID: 1315375432}
   - component: {fileID: 1315375431}
-  - component: {fileID: 1315375435}
   - component: {fileID: 1315375436}
   m_Layer: 0
   m_Name: Main Camera
@@ -4786,29 +4840,6 @@ Transform:
   - {fileID: 1100427203}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1315375435
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1315375430}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c7f54dfe2a1440b383afbc23c0e0e15d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  audioPalettes:
-  - {fileID: 11400000, guid: c4e408f0c9cf6a746bfdf2e8d9216eaa, type: 2}
-  - {fileID: 11400000, guid: 83fd524415b7df04a9cab0907207b784, type: 2}
-  vfxMixer: {fileID: -7306773176805621161, guid: d5b34f01b0f1a1f4f925566a767dde18, type: 2}
-  musicMixer: {fileID: -188614716448155631, guid: d5b34f01b0f1a1f4f925566a767dde18, type: 2}
-  masterMixer: {fileID: 24300002, guid: d5b34f01b0f1a1f4f925566a767dde18, type: 2}
-  audioSourcePoolSize: 10
-  settingData: {fileID: 11400000, guid: 377e864256ff2ef4cbbf550619a3cf11, type: 2}
-  freeAudioSources: []
-  audioPlayers: []
-  musicTransitions: []
 --- !u!81 &1315375436
 AudioListener:
   m_ObjectHideFlags: 0
@@ -6866,6 +6897,10 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 20467206716190653, guid: 83a808a78129b334abe9faf57ef586e0, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 796436408834413780, guid: 83a808a78129b334abe9faf57ef586e0, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -7022,6 +7057,10 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3286897579179389053, guid: 83a808a78129b334abe9faf57ef586e0, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3521517510812484039, guid: 83a808a78129b334abe9faf57ef586e0, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -7084,6 +7123,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3980418396958617844, guid: 83a808a78129b334abe9faf57ef586e0, type: 3}
       propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3980418396958617844, guid: 83a808a78129b334abe9faf57ef586e0, type: 3}
+      propertyPath: m_AnchorMin.y
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4040284952532479662, guid: 83a808a78129b334abe9faf57ef586e0, type: 3}
@@ -7654,3 +7697,4 @@ SceneRoots:
   - {fileID: 461679085}
   - {fileID: 989440614}
   - {fileID: 11730155}
+  - {fileID: 127881401}

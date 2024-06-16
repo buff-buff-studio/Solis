@@ -503,7 +503,6 @@ GameObject:
   - component: {fileID: 8286538708262552873}
   - component: {fileID: 2237537290259817742}
   - component: {fileID: 349391701304289169}
-  - component: {fileID: 214096807847066624}
   - component: {fileID: 8503910259833970787}
   m_Layer: 0
   m_Name: Main Camera
@@ -520,8 +519,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5725276867178197765}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.45180988, y: -0.00000078435005, z: -0.00000039497584, w: 0.8921143}
-  m_LocalPosition: {x: 0.00019394899, y: 53.461918, z: -160.2706}
+  m_LocalRotation: {x: -0.2588191, y: 0, z: 0, w: 0.9659258}
+  m_LocalPosition: {x: 0, y: 5, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -562,7 +561,7 @@ Camera:
     height: 1
   near clip plane: 0.1
   far clip plane: 5000
-  field of view: 60
+  field of view: 60.000004
   orthographic: 0
   orthographic size: 10
   m_Depth: 2
@@ -666,24 +665,6 @@ MonoBehaviour:
     mipBias: 0
     varianceClampScale: 0.9
     contrastAdaptiveSharpening: 0
---- !u!114 &214096807847066624
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5725276867178197765}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c7f54dfe2a1440b383afbc23c0e0e15d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  audioPalettes:
-  - {fileID: 11400000, guid: 83fd524415b7df04a9cab0907207b784, type: 2}
-  audioSourcePoolSize: 10
-  freeAudioSources: []
-  audioPlayers: []
-  musicTransitions: []
 --- !u!114 &8503910259833970787
 MonoBehaviour:
   m_ObjectHideFlags: 0

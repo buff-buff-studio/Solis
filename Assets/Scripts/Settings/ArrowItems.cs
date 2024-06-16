@@ -72,6 +72,8 @@ namespace Solis.Settings
         
         private void UpdateDisplay()
         {
+            if(currentIndex < 0 || currentIndex >= items.Count) 
+                return;
             display.text = items[currentIndex];
         }
 

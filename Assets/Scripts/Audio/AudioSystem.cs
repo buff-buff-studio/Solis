@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Solis.Data;
 using Solis.Settings;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Audio;
 
@@ -58,10 +59,9 @@ namespace Solis.Audio
         #region Unity Callbacks
         private void Awake()
         {
-            
             if (Instance != null && Instance != this)
             {
-                Destroy(gameObject);  
+                Destroy(gameObject);
                 return;
             }
             Instance = this;
@@ -72,9 +72,6 @@ namespace Solis.Audio
 
             PlayMusic("BaseMusic");
             PlayVfx("BackGround", true);
-            
-            
-            DontDestroyOnLoad(gameObject);
         }
 
         private void OnEnable()
@@ -82,9 +79,10 @@ namespace Solis.Audio
             Instance = this;
             
             SettingsManager.OnSettingsChanged += OnSettingsChanged;
+            
+            DontDestroyOnLoad(gameObject);
         }
 
-      
         private void OnDisable()
         {
             if (Instance == this)
@@ -121,16 +119,15 @@ namespace Solis.Audio
         
         private void OnSettingsChanged()
         {
-            Debug.Log("SettingsChanged");
-            var volume = Mathf.Log10(settingData.floatItems["musicVolume"]/100) * 20;
-            musicMixer.audioMixer.SetFloat("musicVolume", volume);
-            Debug.Log("music" + settingData.floatItems["musicVolume"]);
-            volume = Mathf.Log10(settingData.floatItems["sfxVolume"]/100) * 20;
-            musicMixer.audioMixer.SetFloat("sfxVolume", volume);
-            Debug.Log("sfx" + settingData.floatItems["sfxVolume"]);
-            volume = Mathf.Log10(settingData.floatItems["masterVolume"]/100) * 20;
-            masterMixer.audioMixer.SetFloat("masterVolume", volume);
-            Debug.Log("masrter" + settingData.floatItems["masterVolume"]);
+            Debug.Log("Settings Changed");
+            var musicVolume = Mathf.Clamp(settingData.floatItems["musicVolume"] / 100, 0.0001f, 1f);
+            musicMixer.audioMixer.SetFloat("musicVolume", Mathf.Log10(musicVolume) * 20);
+            
+            var fxVolume = Mathf.Clamp(settingData.floatItems["sfxVolume"] / 100, 0.0001f, 1f);
+            vfxMixer.audioMixer.SetFloat("sfxVolume", Mathf.Log10(fxVolume) * 20);
+            
+            var masterVolume = Mathf.Clamp(settingData.floatItems["masterVolume"] / 100, 0.0001f, 1f);
+            masterMixer.audioMixer.SetFloat("masterVolume", Mathf.Log10(masterVolume) * 20);
         }
 
         #endregion
