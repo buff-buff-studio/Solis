@@ -120,6 +120,7 @@ namespace Solis.Player
         private bool _isFalling;
         private bool _isCinematicRunning = true;
         private bool _isRespawning = false;
+        private bool _isPaused = false;
         private float _respawnTimer;
         private float _interactTimer;
         private float _multiplier;
@@ -146,7 +147,7 @@ namespace Solis.Player
         private Vector2 MoveInput => new(InputX, InputZ);
         private bool InputJump => Input.GetButtonDown("Jump");
         private bool InputJumpUp => Input.GetButtonUp("Jump");
-        private bool CanJump => !_isJumping && (IsGrounded || _coyoteTimer > 0) && _jumpTimer <= 0;
+        private bool CanJump => !_isJumping && (IsGrounded || _coyoteTimer > 0) && _jumpTimer <= 0 && !_isPaused;
         private bool CanJumpCut => _isJumping && !_isJumpCut;
         private bool IsPlayerLocked => _isCinematicRunning || _isRespawning;
         private Vector3 HeadOffset => headOffset.position;
@@ -162,6 +163,10 @@ namespace Solis.Player
             LevelCutscene.OnCinematicEnded += () =>
             {
                 _isCinematicRunning = false;
+            };
+            PauseManager.OnPause += isPaused =>
+            {
+                _isPaused = isPaused;
             };
 
             _remoteBodyRotation = body.localEulerAngles.y;
@@ -182,13 +187,6 @@ namespace Solis.Player
             if (!HasAuthority || !IsOwnedByClient) return;
 
             _Timer();
-
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                var cursorIsOn = Cursor.visible;
-                Cursor.visible = !cursorIsOn;
-                Cursor.lockState = cursorIsOn ? CursorLockMode.Locked : CursorLockMode.None;
-            }
 
             if(IsPlayerLocked) return;
 
@@ -426,7 +424,7 @@ namespace Solis.Player
 
         private void _Move()
         {
-            var moveInput = MoveInput.normalized;
+            var moveInput = !_isPaused ? MoveInput.normalized : Vector2.zero;
             var target = moveInput * maxSpeed;
             var accelerationValue = ((Mathf.Abs(moveInput.magnitude) > 0.01f) ? acceleration : deceleration) *
                                     Time.deltaTime;

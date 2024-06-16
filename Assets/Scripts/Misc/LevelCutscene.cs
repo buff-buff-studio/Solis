@@ -30,7 +30,10 @@ public class LevelCutscene : MonoBehaviour
     [SerializeField] private float ending;
 
     public static bool IsPlaying = false;
+    public static event Action OnCinematicStarted;
     public static event Action OnCinematicEnded;
+    
+    private bool _isPaused = false;
 
 #if UNITY_EDITOR
     private bool _isPreview = false;
@@ -39,6 +42,7 @@ public class LevelCutscene : MonoBehaviour
     private void Awake()
     {
         IsPlaying = true;
+        OnCinematicStarted?.Invoke();
         _dollyTrack = virtualCamera.GetCinemachineComponent<CinemachineTrackedDolly>();
         _lookAt = virtualCamera.m_LookAt;
 
@@ -54,6 +58,22 @@ public class LevelCutscene : MonoBehaviour
 #endif
     }
 
+    private void OnEnable()
+    {
+        PauseManager.OnPause += isPaused =>
+        {
+            _isPaused = isPaused;
+        };
+    }
+
+    private void OnDisable()
+    {
+        PauseManager.OnPause -= isPaused =>
+        {
+            _isPaused = isPaused;
+        };
+    }
+
     private void Update()
     {
         if (Input.GetButtonDown("Cutscene"))
@@ -67,6 +87,8 @@ public class LevelCutscene : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if(_isPaused) return;
+        
         if (position < 1)
         {
             position += Time.fixedDeltaTime / duration;
