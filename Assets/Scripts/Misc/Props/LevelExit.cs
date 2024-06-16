@@ -15,16 +15,11 @@ namespace Solis.Misc.Props
         private static int _playerCount = -1;
         #region Unity Callbacks
 
-        private void Start()
-        {
-            if(_playerCount <= 0)
-            {
-                _playerCount = FindObjectsOfType<PlayerControllerBase>().Length;
-            }
-        }
-
         private void OnTriggerEnter(Collider other)
         {
+            if(_playerCount <= 0)
+                _playerCount = FindObjectsOfType<PlayerControllerBase>().Length;
+
             var controller = other.GetComponent<PlayerControllerBase>();
             if (controller == null)
                 return;

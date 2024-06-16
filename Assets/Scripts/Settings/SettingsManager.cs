@@ -46,31 +46,33 @@ namespace Solis.Settings
             }
 
             Load();
-            onChangeWindow += OnTabSelected;
             
             intItems["resolution"].SetItems(Screen.resolutions.Select(r => $"{r.width}x{r.height}").ToList());
             intItems["graphics"].SetItems(QualitySettings.names.ToList());
             foreach (var i in intItems)
-                i.Value.onChangeItem.AddListener(index => { settingsData.intItems[i.Key] = index; ApplySettings(); });
+                i.Value.onChangeItem.AddListener(index => { settingsData.intItems[i.Key] = index; OnSettingsChanged?.Invoke(); });
             foreach (var f in floatItems)
-                f.Value.onValueChanged.AddListener(value => { settingsData.floatItems[f.Key] = value; ApplySettings(); });
+                f.Value.onValueChanged.AddListener(value => { settingsData.floatItems[f.Key] = value; OnSettingsChanged?.Invoke(); });
             foreach (var b in boolItems)
-                b.Value.onValueChanged.AddListener(value => { settingsData.boolItems[b.Key] = value; ApplySettings(); });
+                b.Value.onValueChanged.AddListener(value => { settingsData.boolItems[b.Key] = value; OnSettingsChanged?.Invoke(); });
         }
 
         private void OnEnable()
         {
             OnSettingsChanged += ApplySettings;
+            onChangeWindow += OnTabSelected;
         }
 
         private void OnDestroy()
         {
             OnSettingsChanged -= ApplySettings;
+            onChangeWindow -= OnTabSelected;
         }
 
         private void OnDisable()
         {
             OnSettingsChanged -= ApplySettings;
+            onChangeWindow -= OnTabSelected;
         }
         
 #if UNITY_EDITOR

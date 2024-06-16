@@ -59,13 +59,15 @@ public class CameraSettings : MonoBehaviour
     {
         _senseX = settingsData.floatItems["cameraSensitivity"] * CamSenseX;
         _senseY = settingsData.floatItems["cameraSensitivity"] * CamSenseY;
-        if (!isPaused)
+        if (isPaused)
         {
             freeLookCamera.m_XAxis.m_MaxSpeed = 0;
             freeLookCamera.m_YAxis.m_MaxSpeed = 0;
+        }else
+        {
+            freeLookCamera.m_XAxis.m_MaxSpeed = _senseX;
+            freeLookCamera.m_YAxis.m_MaxSpeed = _senseY;
         }
-        freeLookCamera.m_XAxis.m_MaxSpeed = _senseX;
-        freeLookCamera.m_YAxis.m_MaxSpeed = _senseY;
         freeLookCamera.m_XAxis.m_InvertInput = settingsData.boolItems["invertXAxis"];
         freeLookCamera.m_YAxis.m_InvertInput = settingsData.boolItems["invertYAxis"];
         volumePFX.profile.TryGet(out MotionBlur motionBlur);
