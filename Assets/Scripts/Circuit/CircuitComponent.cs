@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using NetBuff.Components;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Solis.Circuit
 {
@@ -15,6 +16,8 @@ namespace Solis.Circuit
 
         #region Private Fields
         private int _lastUpdateId = -1;
+        [Space(10)]
+        [SerializeField]protected UnityEvent onToggleComponent;
         #endregion
 
         #region Unity Callbacks

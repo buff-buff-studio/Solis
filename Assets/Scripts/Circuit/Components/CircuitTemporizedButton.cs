@@ -97,7 +97,7 @@ namespace Solis.Circuit.Components
             {
                 isOn.Value = true;
                 _timeOnCounter = timeOn;
-                
+                onToggleComponent?.Invoke();
                 return true;
             }
             

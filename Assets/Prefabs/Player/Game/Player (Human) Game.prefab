@@ -106,6 +106,37 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &1348934314539891638
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8118953567111281005}
+  m_Layer: 6
+  m_Name: Grab
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8118953567111281005
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1348934314539891638}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.015908422, y: -1.4372613e-14, z: 5.465057e-17, w: 0.99987346}
+  m_LocalPosition: {x: 0, y: -0.234, z: 1.188}
+  m_LocalScale: {x: 1.1111115, y: 1.1111106, z: 1.1111114}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7849119250414606506}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3990708538958390929
 GameObject:
   m_ObjectHideFlags: 0
@@ -3757,16 +3788,14 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1276717291894489704, guid: 9592165b6127f3340abdb74110eb30d3, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2022477272680672439}
+    - targetCorrespondingSourceObject: {fileID: 5962175072628047986, guid: 9592165b6127f3340abdb74110eb30d3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8118953567111281005}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 9592165b6127f3340abdb74110eb30d3, type: 3}
       insertIndex: -1
       addedObject: {fileID: 6018867155341239511}
   m_SourcePrefab: {fileID: 100100000, guid: 9592165b6127f3340abdb74110eb30d3, type: 3}
---- !u!4 &3147394436631582834 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 1584563845508939946, guid: 9592165b6127f3340abdb74110eb30d3, type: 3}
-  m_PrefabInstance: {fileID: 4490171277030168792}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &3451874288275282608 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1276717291894489704, guid: 9592165b6127f3340abdb74110eb30d3, type: 3}
@@ -3802,6 +3831,11 @@ Animator:
 --- !u!4 &4168912144533225267 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 9592165b6127f3340abdb74110eb30d3, type: 3}
+  m_PrefabInstance: {fileID: 4490171277030168792}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &7849119250414606506 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5962175072628047986, guid: 9592165b6127f3340abdb74110eb30d3, type: 3}
   m_PrefabInstance: {fileID: 4490171277030168792}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &8483365169009623941
@@ -3984,7 +4018,8 @@ MonoBehaviour:
   tickRate: 128
   magnetReferenceLocalPosition: {x: 0, y: 2, z: 0}
   magnetAnchor: {fileID: 0}
-  handPosition: {fileID: 3147394436631582834}
+  handPosition: {fileID: 8118953567111281005}
+  itemsHeld: 0
   debugJump: 0
   debugLastJumpMaxHeight: {x: 0, y: 0, z: 0}
   debugNextMovePos: {x: 0, y: 0, z: 0}

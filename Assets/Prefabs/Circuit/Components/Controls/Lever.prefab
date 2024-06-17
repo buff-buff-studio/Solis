@@ -57,6 +57,7 @@ GameObject:
   - component: {fileID: 2951647505338481988}
   - component: {fileID: 2654786880735333376}
   - component: {fileID: 205085160945796845}
+  - component: {fileID: 1689821583937480024}
   m_Layer: 0
   m_Name: Lever
   m_TagString: Untagged
@@ -94,8 +95,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   id:
-    high: 1718399191
-    low: 279095764
+    high: -69895160
+    low: 1522654885
   ownerId: -1
   prefabId:
     high: 0
@@ -112,6 +113,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0befce03347d472f845f88b1f659ea76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  onToggleComponent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1689821583937480024}
+        m_TargetAssemblyTypeName: PlayAudio, Assembly-CSharp
+        m_MethodName: Play
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: Interact
+          m_BoolArgument: 0
+        m_CallState: 2
   radius: 2
   playerTypeFilter: 3
   isOn:
@@ -120,6 +136,18 @@ MonoBehaviour:
   output: {fileID: 6380331800782209873}
   handle: {fileID: 3359522437451895693}
   handleAngle: 60
+--- !u!114 &1689821583937480024
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2575367841178871806}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fa6028ac29aebb47b1a322b8ba03d51, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &5961449298238545900
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -228,8 +256,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   id:
-    high: -428691791
-    low: 1786305890
+    high: 1026098105
+    low: -1002407535
   ownerId: -1
   prefabId:
     high: 0

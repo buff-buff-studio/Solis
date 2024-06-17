@@ -88,7 +88,7 @@ namespace Solis.Circuit.Components
                     isOn.Value = !isOn.Value;
                 else
                     isOn.Value = true;
-                
+                onToggleComponent?.Invoke();
                 return true;
             }
             

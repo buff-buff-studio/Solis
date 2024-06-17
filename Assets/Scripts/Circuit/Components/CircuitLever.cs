@@ -86,6 +86,7 @@ namespace Solis.Circuit.Components
             if (playerTypeFilter.Filter(controller.CharacterType))
             {
                 isOn.Value = !isOn.Value;
+                onToggleComponent?.Invoke();
                 return true;
             }
 
