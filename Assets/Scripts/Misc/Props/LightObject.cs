@@ -122,6 +122,7 @@ namespace Solis.Misc.Props
         {
             transform.position = _initialPosition + Vector3.up;
             transform.rotation = Quaternion.identity;
+            rb.velocity = Vector3.zero;
             if (isOn.Value)
             {
                 playerHolding = null;
@@ -141,6 +142,7 @@ namespace Solis.Misc.Props
             networkRigidbodyTransform.enabled = !isOn.Value;
             rb.isKinematic = isOn.Value;
             _collider.enabled = !isOn.Value;
+            rb.velocity = Vector3.zero;
             
             if (isOn.Value)
             {

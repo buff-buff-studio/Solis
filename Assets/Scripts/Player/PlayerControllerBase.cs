@@ -110,8 +110,11 @@ namespace Solis.Player
         #endregion
 
         #region Private Fields
+        //MOVEMENT NETWORK
         private float _remoteBodyRotation;
         private Vector3 _remoteBodyPosition;
+        
+        //JUMP
         private float _coyoteTimer;
         private float _jumpTimer;
         private float _startJumpPos;
@@ -119,6 +122,9 @@ namespace Solis.Player
         private bool _isJumpingEnd;
         private bool _isJumpCut;
         private bool _isFalling;
+        private float _lastJumpHeight;
+        private float _lastJumpVelocity;
+        
         private bool _isCinematicRunning = true;
         private bool _isRespawning = false;
         private bool _isPaused = false;
@@ -443,6 +449,8 @@ namespace Solis.Player
                 _isFalling = false;
                 velocity.y = 0.1f;
                 _startJumpPos = transform.position.y;
+                _lastJumpHeight = transform.position.y;
+                _lastJumpVelocity = velocity.y;
                 _multiplier = jumpGravityMultiplier;
                 _jumpTimer = timeToJump;
                 jumpParticles.Play();
@@ -476,14 +484,6 @@ namespace Solis.Player
                     Debug.Log($"start: {_startJumpPos} current: {transform.position.y} diff: {Mathf.Abs(transform.position.y - _startJumpPos)}");
                 }
 #endif
-                if (Physics.CheckBox(headOffset.position, headOffset.lossyScale, headOffset.rotation, ~LayerMask.GetMask("Player")))
-                {
-                    _isJumping = false;
-                    _isJumpingEnd = true;
-                    velocity.y *= hitHeadDecel;
-                    Debug.Log("Hit head");
-                    return;
-                }
 
                 if(velocity.y <= 0)
                 {
@@ -510,7 +510,23 @@ namespace Solis.Player
             }
 
             if (_isJumping)
+            {
+                var posY = transform.position.y;
+                var expectedYPos = _lastJumpHeight + (_lastJumpVelocity * Time.fixedDeltaTime);
+                var diff = Mathf.Abs(expectedYPos - posY);
+                if(diff > 0.1f && posY < expectedYPos)
+                {
+                    _isJumping = false;
+                    _isJumpingEnd = true;
+                    velocity.y *= hitHeadDecel;
+                    Debug.Log($"Hit head (ExpectedYPos: {expectedYPos} - CurrPos: {posY} - LastPos: {_lastJumpHeight} - Diff: {diff} - Vel: {velocity.y} - LastVel: {_lastJumpVelocity})");
+                    return;
+                }
+                _lastJumpHeight = posY;
+                _lastJumpVelocity = velocity.y;
+
                 return;
+            }
 
             _isFalling = velocity.y < (gravity * _multiplier) / 2;
             velocity.y += gravity * _multiplier * Time.fixedDeltaTime;
