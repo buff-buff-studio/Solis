@@ -1359,50 +1359,39 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Mec\xE2nicas\n- De cen\xE1rio:\n   - Alavanca\n   - Bot\xE3o\n   - Scanner
-    de Palma (funciona somente com o humano, fun\xE7\xE3o semelhante a um bot\xE3o)\n  
-    - Scanner Rob\xF4 (a ideia \xE9 que ele funcione como um carregador wireless
-    de celular)\n   - Portas (vinculadas ao sistema de fios, podem ser abertas por
-    bot\xF5es, alavancas, scanners, etc)\n   - Fios/Tomadas (com tomadas de alta
-    tens\xE3o e baixa tens\xE3o, tomada sendo um \xEDtem \"colet\xE1vel\" que interage
-    com a tomada de imput, op\xE7\xE3o de criar um sistema de fia\xE7\xE3o com funcionamento
-    semelhante \xE0 redstone, no minecraft, com op\xE7\xF5es de \"and\" e \"or\")\n  
-    - Plataformas (levam os personagens, itens, e podem ser configuradas para funcionarem
-    em certos cen\xE1rios - exemplo, se for uma plataforma fr\xE1gil, de madeira,
-    ela n\xE3o aguentar\xE1 o peso do rob\xF4 e n\xE3o funcionar\xE1.)\n   - Tirolesa
-    (\"Coleta\" o rob\xF4 e objetos met\xE1licos, levando de um ponto a outro) \n\nOutros
-    sistemas:\n   - Shader grama (responsivo, podemos desenhar o formato que a grama
-    vai receber)\n   - Shader \xE1gua\n   - Movimenta\xE7\xE3o personagens - com
-    diferencia\xE7\xE3o, sendo o Rob\xF4 mais lento e com pulo mais baixo e a humana
-    mais r\xE1pida, com pulo mais alto.\n   - Menu principal/UI/Settings\n   - Multiplayer
-    (podendo ser local ou em rede, cria\xE7\xE3o de servidores host/client)\n   -
-    Cutscenes introdut\xF3rias (cada level tem uma cutscene inicial, que mostra para
-    o player qual o caminho ele vai percorrer no level e qual o objetivo final)\n  
-    - Delay p\xF3s-erro (o personagem, ao cair na \xE1gua ap\xF3s errar uma plataforma
-    ou ilha, tem um delay para voltar a se movimentar normalmente, em torno de um
-    segundo - esse delay ter\xE1 uma anima\xE7\xE3o/shader para demonstrar que ele
-    acabou de respawnar)\n\nPersonagens (Anima\xE7\xF5es, prontas pra uso)\n- Rob\xF4
-    (Idle, walk, intera\xE7\xE3o gen\xE9rica, pulo)\n- Humana (Idle, walk, intera\xE7\xE3o
-    gen\xE9rica, pulo)\n\nAssets (texturizados, prontos para uso)\n- Blimp E\xF3lico
-    (com anima\xE7\xE3o, visto no menu)\n- \xC1rvores (4 vers\xF5es)\n- Banco (largo)\n-
-    Banco (pequeno)\n- Placa de metal\n- Muda de \xE1rvore \n- Pedras\n- Flores (11
-    tipos)\n- Folhas (4 tipos)\n- Arbustos (8 tipos)\n- Porta Vai e vem\n- Carro\xE7a\n-
-    Trator\n- Silo\n- Antena parab\xF3lica\n- Placa solar\n- Cortador de grama \n-
-    Turbina e\xF3lica\n- Vasos de planta (5 varia\xE7\xF5es)\n- Balde\n- Toldo para
-    a estufa\n- Tanque de \xE1gua para a estufa\n- Vinhas/ Parreira\n- Assets de
+  m_text: "Mec\xE2nicas\r\n- De cen\xE1rio:\r\n- Alavanca\r\n- Bot\xE3o\r\n- Scanner
+    de Palma (funciona somente com o humano, fun\xE7\xE3o semelhante a uma alavanca)\r\n-
+    Scanner Rob\xF4 (funciona somente com o humano, fun\xE7\xE3o semelhante a uma
+    alavanca)\r\n- Portas (vinculadas ao sistema de fios, podem ser abertas por bot\xF5es,
+    alavancas, scanners, etc)\r\n- Fios/Tomadas (com tomadas, tomada sendo um \xEDtem
+    \"colet\xE1vel\" que interage com a tomada de input)\r\n- Gates (portas l\xF3gicas
+    \"AND\" ou \"OR\" que mudam a forma de ativar mecanismos)\r\n- Plataformas (levam
+    os personagens e itens)\r\n- Tirolesa (\"Coleta\" o rob\xF4 e objetos met\xE1licos,
+    levando de um ponto a outro) \r\n\r\nOutros sistemas:\r\n- Shader \xE1gua\r\n-
+    Movimenta\xE7\xE3o personagens - com diferencia\xE7\xE3o, sendo o Rob\xF4 mais
+    lento e com pulo mais baixo e a humana mais r\xE1pida, com pulo mais alto.\r\n-
+    Menu principal/UI/Settings\r\n- Multiplayer (podendo ser local ou em rede, cria\xE7\xE3o
+    de servidores host/client)\r\n- Cutscenes introdut\xF3rias (cada level tem uma
+    cutscene inicial, que mostra para o player qual o caminho ele vai percorrer no
+    level e qual o objetivo final)\r\n- Delay p\xF3s-erro (o personagem, ao cair
+    na \xE1gua ap\xF3s errar uma plataforma ou ilha, tem um delay para voltar a se
+    movimentar normalmente)\r\n\r\nPersonagens (Anima\xE7\xF5es, prontas pra uso)\r\n-
+    Rob\xF4 (Idle, walk, intera\xE7\xE3o gen\xE9rica, pulo)\r\n- Humana (Idle, walk,
+    intera\xE7\xE3o gen\xE9rica, pulo)\r\n\r\nAssets (texturizados, prontos para
+    uso)\r\n- Blimp E\xF3lico (com anima\xE7\xE3o, visto no menu)\r\n- \xC1rvores
+    (4 vers\xF5es)\r\n- Banco (largo)\r\n- Banco (pequeno)\r\n- Placa de metal\r\n-
+    Muda de \xE1rvore \r\n- Pedras\r\n- Flores (6 tipos)\r\n- Folhas (4 tipos)\r\n-
+    Arbustos (2 tipos)\r\n- Carro\xE7a\r\n- Silo\r\n- Antena parab\xF3lica\r\n- Placa
+    solar\r\n- Cortador de grama \r\n- Turbina e\xF3lica\r\n- Vasos de planta (5
+    varia\xE7\xF5es)\r\n- Balde\r\n- Toldo\r\n- Tanque de \xE1gua\r\n- Assets de
     mec\xE2nica (Alavanca, bot\xE3o, placa de press\xE3o, scanner de palma e do rob\xF4,
-    tomadas)\n- Cercas de madeira (3 varia\xE7\xF5es)\n- Rodas de carro\xE7a (2 varia\xE7\xF5es)\n\nAssets
-    (sem textura, mas prontos para uso)\n- Ponte (pequena e dobr\xE1vel)\n- Portas
-    para a \xE1rea da estufa (2 varia\xE7\xF5es)\n- Janelas para a \xE1rea da estufa
-    (2 varia\xE7\xF5es)\n- Paredes para a \xE1rea da estufa (5 varia\xE7\xF5es)\n-
-    C\xE1psula com muda de planta\n- Fonte de \xE1gua\n- Ferradura\n- V\xE1lvula
-    (mec\xE2nica)\n- Fios modulares (4 varia\xE7\xF5es)\n- Canos modulares (5 varia\xE7\xF5es)\n\nBlocagem
-    cen\xE1rios\n- Estufa\n- Garagem\n- Exterior f\xE1brica\n- Levels introdut\xF3rios
-    (3)\n- Lobby (j\xE1 com assets texturizados)\n\nConcepts\n- Estufa\n- Exterior
-    f\xE1brica\n- Level introdut\xF3rio (1)\n- Garagem (\"Splash art\")\n\nGame Juices\n-
-    Logo animada no menu principal + \xE1udio para os bot\xF5es\n- efeito provis\xF3rio
-    de part\xEDcula para mostrar o objetivo final)\n- n\xE9voa no cen\xE1rio + efeito
-    emissivo em algumas \xE1reas (\"bloom\")\u200B"
+    tomadas)\r\n- Cercas de madeira\r\n- Rodas de carro\xE7a\r\n\r\nLevels jog\xE1veis\r\n\r\n-
+    Level intro (garagem)\r\n- Levels iniciais (5 no total)\r\n- Level intermedi\xE1rio\r\n\r\nSplash
+    Art (level intro)\r\n- Exterior f\xE1brica\r\n- Level introdut\xF3rio (1)\r\n-
+    Garagem\r\n\r\nGame Juices\r\n- Logo animada no menu principal + \xE1udio para
+    os bot\xF5es\r\n- Efeito provis\xF3rio de part\xEDcula para mostrar o objetivo
+    final\r\n- N\xE9voa no cen\xE1rio + efeito emissivo em algumas \xE1reas (\"bloom\")\r\n-
+    Efeito de fuma\xE7a para movimenta\xE7\xE3o\u200B"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1643,50 +1632,39 @@ MonoBehaviour:
   m_CaretColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
   m_CustomCaretColor: 0
   m_SelectionColor: {r: 0.65882355, g: 0.80784315, b: 1, a: 0.7529412}
-  m_Text: "Mec\xE2nicas\n- De cen\xE1rio:\n   - Alavanca\n   - Bot\xE3o\n   - Scanner
-    de Palma (funciona somente com o humano, fun\xE7\xE3o semelhante a um bot\xE3o)\n  
-    - Scanner Rob\xF4 (a ideia \xE9 que ele funcione como um carregador wireless
-    de celular)\n   - Portas (vinculadas ao sistema de fios, podem ser abertas por
-    bot\xF5es, alavancas, scanners, etc)\n   - Fios/Tomadas (com tomadas de alta
-    tens\xE3o e baixa tens\xE3o, tomada sendo um \xEDtem \"colet\xE1vel\" que interage
-    com a tomada de imput, op\xE7\xE3o de criar um sistema de fia\xE7\xE3o com funcionamento
-    semelhante \xE0 redstone, no minecraft, com op\xE7\xF5es de \"and\" e \"or\")\n  
-    - Plataformas (levam os personagens, itens, e podem ser configuradas para funcionarem
-    em certos cen\xE1rios - exemplo, se for uma plataforma fr\xE1gil, de madeira,
-    ela n\xE3o aguentar\xE1 o peso do rob\xF4 e n\xE3o funcionar\xE1.)\n   - Tirolesa
-    (\"Coleta\" o rob\xF4 e objetos met\xE1licos, levando de um ponto a outro) \n\nOutros
-    sistemas:\n   - Shader grama (responsivo, podemos desenhar o formato que a grama
-    vai receber)\n   - Shader \xE1gua\n   - Movimenta\xE7\xE3o personagens - com
-    diferencia\xE7\xE3o, sendo o Rob\xF4 mais lento e com pulo mais baixo e a humana
-    mais r\xE1pida, com pulo mais alto.\n   - Menu principal/UI/Settings\n   - Multiplayer
-    (podendo ser local ou em rede, cria\xE7\xE3o de servidores host/client)\n   -
-    Cutscenes introdut\xF3rias (cada level tem uma cutscene inicial, que mostra para
-    o player qual o caminho ele vai percorrer no level e qual o objetivo final)\n  
-    - Delay p\xF3s-erro (o personagem, ao cair na \xE1gua ap\xF3s errar uma plataforma
-    ou ilha, tem um delay para voltar a se movimentar normalmente, em torno de um
-    segundo - esse delay ter\xE1 uma anima\xE7\xE3o/shader para demonstrar que ele
-    acabou de respawnar)\n\nPersonagens (Anima\xE7\xF5es, prontas pra uso)\n- Rob\xF4
-    (Idle, walk, intera\xE7\xE3o gen\xE9rica, pulo)\n- Humana (Idle, walk, intera\xE7\xE3o
-    gen\xE9rica, pulo)\n\nAssets (texturizados, prontos para uso)\n- Blimp E\xF3lico
-    (com anima\xE7\xE3o, visto no menu)\n- \xC1rvores (4 vers\xF5es)\n- Banco (largo)\n-
-    Banco (pequeno)\n- Placa de metal\n- Muda de \xE1rvore \n- Pedras\n- Flores (11
-    tipos)\n- Folhas (4 tipos)\n- Arbustos (8 tipos)\n- Porta Vai e vem\n- Carro\xE7a\n-
-    Trator\n- Silo\n- Antena parab\xF3lica\n- Placa solar\n- Cortador de grama \n-
-    Turbina e\xF3lica\n- Vasos de planta (5 varia\xE7\xF5es)\n- Balde\n- Toldo para
-    a estufa\n- Tanque de \xE1gua para a estufa\n- Vinhas/ Parreira\n- Assets de
+  m_Text: "Mec\xE2nicas\r\n- De cen\xE1rio:\r\n- Alavanca\r\n- Bot\xE3o\r\n- Scanner
+    de Palma (funciona somente com o humano, fun\xE7\xE3o semelhante a uma alavanca)\r\n-
+    Scanner Rob\xF4 (funciona somente com o humano, fun\xE7\xE3o semelhante a uma
+    alavanca)\r\n- Portas (vinculadas ao sistema de fios, podem ser abertas por bot\xF5es,
+    alavancas, scanners, etc)\r\n- Fios/Tomadas (com tomadas, tomada sendo um \xEDtem
+    \"colet\xE1vel\" que interage com a tomada de input)\r\n- Gates (portas l\xF3gicas
+    \"AND\" ou \"OR\" que mudam a forma de ativar mecanismos)\r\n- Plataformas (levam
+    os personagens e itens)\r\n- Tirolesa (\"Coleta\" o rob\xF4 e objetos met\xE1licos,
+    levando de um ponto a outro) \r\n\r\nOutros sistemas:\r\n- Shader \xE1gua\r\n-
+    Movimenta\xE7\xE3o personagens - com diferencia\xE7\xE3o, sendo o Rob\xF4 mais
+    lento e com pulo mais baixo e a humana mais r\xE1pida, com pulo mais alto.\r\n-
+    Menu principal/UI/Settings\r\n- Multiplayer (podendo ser local ou em rede, cria\xE7\xE3o
+    de servidores host/client)\r\n- Cutscenes introdut\xF3rias (cada level tem uma
+    cutscene inicial, que mostra para o player qual o caminho ele vai percorrer no
+    level e qual o objetivo final)\r\n- Delay p\xF3s-erro (o personagem, ao cair
+    na \xE1gua ap\xF3s errar uma plataforma ou ilha, tem um delay para voltar a se
+    movimentar normalmente)\r\n\r\nPersonagens (Anima\xE7\xF5es, prontas pra uso)\r\n-
+    Rob\xF4 (Idle, walk, intera\xE7\xE3o gen\xE9rica, pulo)\r\n- Humana (Idle, walk,
+    intera\xE7\xE3o gen\xE9rica, pulo)\r\n\r\nAssets (texturizados, prontos para
+    uso)\r\n- Blimp E\xF3lico (com anima\xE7\xE3o, visto no menu)\r\n- \xC1rvores
+    (4 vers\xF5es)\r\n- Banco (largo)\r\n- Banco (pequeno)\r\n- Placa de metal\r\n-
+    Muda de \xE1rvore \r\n- Pedras\r\n- Flores (6 tipos)\r\n- Folhas (4 tipos)\r\n-
+    Arbustos (2 tipos)\r\n- Carro\xE7a\r\n- Silo\r\n- Antena parab\xF3lica\r\n- Placa
+    solar\r\n- Cortador de grama \r\n- Turbina e\xF3lica\r\n- Vasos de planta (5
+    varia\xE7\xF5es)\r\n- Balde\r\n- Toldo\r\n- Tanque de \xE1gua\r\n- Assets de
     mec\xE2nica (Alavanca, bot\xE3o, placa de press\xE3o, scanner de palma e do rob\xF4,
-    tomadas)\n- Cercas de madeira (3 varia\xE7\xF5es)\n- Rodas de carro\xE7a (2 varia\xE7\xF5es)\n\nAssets
-    (sem textura, mas prontos para uso)\n- Ponte (pequena e dobr\xE1vel)\n- Portas
-    para a \xE1rea da estufa (2 varia\xE7\xF5es)\n- Janelas para a \xE1rea da estufa
-    (2 varia\xE7\xF5es)\n- Paredes para a \xE1rea da estufa (5 varia\xE7\xF5es)\n-
-    C\xE1psula com muda de planta\n- Fonte de \xE1gua\n- Ferradura\n- V\xE1lvula
-    (mec\xE2nica)\n- Fios modulares (4 varia\xE7\xF5es)\n- Canos modulares (5 varia\xE7\xF5es)\n\nBlocagem
-    cen\xE1rios\n- Estufa\n- Garagem\n- Exterior f\xE1brica\n- Levels introdut\xF3rios
-    (3)\n- Lobby (j\xE1 com assets texturizados)\n\nConcepts\n- Estufa\n- Exterior
-    f\xE1brica\n- Level introdut\xF3rio (1)\n- Garagem (\"Splash art\")\n\nGame Juices\n-
-    Logo animada no menu principal + \xE1udio para os bot\xF5es\n- efeito provis\xF3rio
-    de part\xEDcula para mostrar o objetivo final)\n- n\xE9voa no cen\xE1rio + efeito
-    emissivo em algumas \xE1reas (\"bloom\")"
+    tomadas)\r\n- Cercas de madeira\r\n- Rodas de carro\xE7a\r\n\r\nLevels jog\xE1veis\r\n\r\n-
+    Level intro (garagem)\r\n- Levels iniciais (5 no total)\r\n- Level intermedi\xE1rio\r\n\r\nSplash
+    Art (level intro)\r\n- Exterior f\xE1brica\r\n- Level introdut\xF3rio (1)\r\n-
+    Garagem\r\n\r\nGame Juices\r\n- Logo animada no menu principal + \xE1udio para
+    os bot\xF5es\r\n- Efeito provis\xF3rio de part\xEDcula para mostrar o objetivo
+    final\r\n- N\xE9voa no cen\xE1rio + efeito emissivo em algumas \xE1reas (\"bloom\")\r\n-
+    Efeito de fuma\xE7a para movimenta\xE7\xE3o"
   m_CaretBlinkRate: 0.85
   m_CaretWidth: 1
   m_ReadOnly: 1
@@ -1889,8 +1867,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1156915260}
   m_HandleRect: {fileID: 1156915259}
   m_Direction: 3
-  m_Value: 2.119
-  m_Size: 0.17883588
+  m_Value: 2.791
+  m_Size: 0.22291347
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
