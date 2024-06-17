@@ -47,13 +47,15 @@ namespace Solis.Settings
 
             Load();
             
-            intItems["resolution"].SetItems(Screen.resolutions.Select(r => $"{r.width}x{r.height}").ToList());
             foreach (var i in intItems)
                 i.Value.onChangeItem.AddListener(index => { settingsData.intItems[i.Key] = index; OnSettingsChanged?.Invoke(); });
             foreach (var f in floatItems)
                 f.Value.onValueChanged.AddListener(value => { settingsData.floatItems[f.Key] = value; OnSettingsChanged?.Invoke(); });
             foreach (var b in boolItems)
                 b.Value.onValueChanged.AddListener(value => { settingsData.boolItems[b.Key] = value; OnSettingsChanged?.Invoke(); });
+            
+            
+            intItems["resolution"].SetItems(Screen.resolutions.Select(r => $"{r.width}x{r.height}").ToList());
         }
 
         private void OnEnable()
@@ -62,11 +64,6 @@ namespace Solis.Settings
         }
 
         private void OnDestroy()
-        {
-            OnSettingsChanged -= ApplySettings;
-        }
-
-        private void OnDisable()
         {
             OnSettingsChanged -= ApplySettings;
         }
@@ -165,6 +162,7 @@ namespace Solis.Settings
         {
             QualitySettings.vSyncCount = settingsData.boolItems["vsync"] ? 1 : 0;
             QualitySettings.SetQualityLevel(settingsData.intItems["graphics"]);
+            Screen.fullScreen = settingsData.boolItems["fullscreen"];
             if(settingsData.intItems["resolution"] != -1)
                 Screen.SetResolution(Screen.resolutions[settingsData.intItems["resolution"]].width, Screen.resolutions[settingsData.intItems["resolution"]].height, settingsData.boolItems["fullscreen"]);
         }

@@ -6,6 +6,8 @@ using Random = UnityEngine.Random;
 
 public class SkyboxSettings : MonoBehaviour
 {
+    public static SkyboxSettings Instance;
+    
     [Header("Settings")]
     [SerializeField] [Range(0,5)]
     private float skyboxRotationSpeed = 0.1f;
@@ -23,7 +25,12 @@ public class SkyboxSettings : MonoBehaviour
 
     private void Awake()
     {
-        DontDestroyOnLoad(this);
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(this);
+        }
+        else Destroy(gameObject);
     }
 
     private void Start()

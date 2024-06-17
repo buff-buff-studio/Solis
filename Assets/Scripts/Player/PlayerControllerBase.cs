@@ -99,6 +99,7 @@ namespace Solis.Player
 
         [Header("HAND")]
         public Transform handPosition;
+        public uint itemsHeld = 0;
 
 #if UNITY_EDITOR
         [Header("DEBUG")]

@@ -92,7 +92,7 @@ namespace Solis.Core
             Instance = this;
 #if UNITY_EDITOR
             var scene = SolisNetworkManager.sceneToLoad;
-            if(scene != null && scene != "" && scene != "Null" && scene != "Lobby")
+            if(!string.IsNullOrEmpty(scene) && scene != "Null" && scene != "Lobby")
                 isGameStarted = true;
 #endif
             LoadingLobby(isGameStarted);

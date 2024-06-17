@@ -49,10 +49,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   radius: 3
-  playerTypeFilter: 2
+  playerTypeFilter: 3
   isOn:
     value: 0
-    type: 0
+    type: 2
+  networkRigidbodyTransform: {fileID: 8654741218048202814}
 --- !u!114 &9116801756860443593
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -66,8 +67,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   id:
-    high: 993587947
-    low: 412571842
+    high: -123403485
+    low: -1652778866
   ownerId: -1
   prefabId:
     high: 0
@@ -116,7 +117,7 @@ MonoBehaviour:
   rotationThreshold: 0.001
   scaleThreshold: 0.001
   syncMode: 63
-  rigidbody: {fileID: 0}
+  rigidbody: {fileID: 442572280332373144}
   syncVelocity: 1
   velocityThreshold: 0.001
   syncAngularVelocity: 1
