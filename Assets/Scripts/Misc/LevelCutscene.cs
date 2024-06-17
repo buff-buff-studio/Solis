@@ -18,10 +18,10 @@ public class LevelCutscene : MonoBehaviour
     [Space]
     [Header("SETTINGS")]
     [SerializeField]
-    [Range(1,60)]
+    [Range(0,60)]
     private float duration = 5f;
     [SerializeField]
-    [Range(1,10)]
+    [Range(0,10)]
     private float endDuration = 1f;
 
     [Space]
@@ -88,6 +88,12 @@ public class LevelCutscene : MonoBehaviour
     private void FixedUpdate()
     {
         if(_isPaused) return;
+
+        if (duration == 0)
+        {
+            Stop();
+            return;
+        }
         
         if (position < 1)
         {
@@ -148,7 +154,9 @@ public class LevelCutscene : MonoBehaviour
     {
         if (Application.isPlaying) return;
 
-        virtualCamera.GetCinemachineComponent<CinemachineTrackedDolly>()!.m_PathPosition = position;
+        var cam = virtualCamera.GetCinemachineComponent<CinemachineTrackedDolly>();
+        if(cam != null)
+            cam.m_PathPosition = position;
         gameObject.name = gameObject.name.Replace(" (Preview)", "");
     }
 #endif
