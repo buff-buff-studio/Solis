@@ -149,7 +149,7 @@ namespace Solis.Audio
                 return player;
             
             musicTransitions.Add(new AudioMusicTransition(currentMusic, player, transition));
-            player.AudioSource.spatialBlend = 0;
+            player.AudioSource.spatialBlend = 1;
             return player;
         }
         

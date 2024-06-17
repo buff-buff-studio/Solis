@@ -887,7 +887,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Content: {fileID: 9089955250563635315}
-  m_Horizontal: 1
+  m_Horizontal: 0
   m_Vertical: 1
   m_MovementType: 1
   m_Elasticity: 0.1
@@ -1106,8 +1106,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1643562098560947833}
   m_HandleRect: {fileID: 3286897579179389053}
   m_Direction: 3
-  m_Value: 1
-  m_Size: 0.011764706
+  m_Value: 0
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -1232,8 +1232,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 5016675812988107269}
   m_HandleRect: {fileID: 3980418396958617844}
   m_Direction: 3
-  m_Value: 1
-  m_Size: 0.017948719
+  m_Value: 0
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -1584,7 +1584,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Content: {fileID: 6735256181106976988}
-  m_Horizontal: 1
+  m_Horizontal: 0
   m_Vertical: 1
   m_MovementType: 1
   m_Elasticity: 0.1
@@ -2008,8 +2008,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 6340895958453243650}
   m_HandleRect: {fileID: 20467206716190653}
   m_Direction: 3
-  m_Value: 1
-  m_Size: 0.017948719
+  m_Value: 0
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -2169,7 +2169,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Content: {fileID: 8099829218304716532}
-  m_Horizontal: 1
+  m_Horizontal: 0
   m_Vertical: 1
   m_MovementType: 1
   m_Elasticity: 0.1
@@ -3926,6 +3926,34 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 9089955250563635315}
     m_Modifications:
+    - target: {fileID: 1400784424945759178, guid: 72294a24fe6f27e42a4ba477b7138a0a, type: 3}
+      propertyPath: items.Array.size
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 1400784424945759178, guid: 72294a24fe6f27e42a4ba477b7138a0a, type: 3}
+      propertyPath: 'items.Array.data[0]'
+      value: Very Low
+      objectReference: {fileID: 0}
+    - target: {fileID: 1400784424945759178, guid: 72294a24fe6f27e42a4ba477b7138a0a, type: 3}
+      propertyPath: 'items.Array.data[1]'
+      value: Low
+      objectReference: {fileID: 0}
+    - target: {fileID: 1400784424945759178, guid: 72294a24fe6f27e42a4ba477b7138a0a, type: 3}
+      propertyPath: 'items.Array.data[2]'
+      value: Medium
+      objectReference: {fileID: 0}
+    - target: {fileID: 1400784424945759178, guid: 72294a24fe6f27e42a4ba477b7138a0a, type: 3}
+      propertyPath: 'items.Array.data[3]'
+      value: High
+      objectReference: {fileID: 0}
+    - target: {fileID: 1400784424945759178, guid: 72294a24fe6f27e42a4ba477b7138a0a, type: 3}
+      propertyPath: 'items.Array.data[4]'
+      value: Very High
+      objectReference: {fileID: 0}
+    - target: {fileID: 1400784424945759178, guid: 72294a24fe6f27e42a4ba477b7138a0a, type: 3}
+      propertyPath: 'items.Array.data[5]'
+      value: Ultra
+      objectReference: {fileID: 0}
     - target: {fileID: 3295578747017415249, guid: 72294a24fe6f27e42a4ba477b7138a0a, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -4005,6 +4033,10 @@ PrefabInstance:
     - target: {fileID: 3295578747017415249, guid: 72294a24fe6f27e42a4ba477b7138a0a, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4044421839939688466, guid: 72294a24fe6f27e42a4ba477b7138a0a, type: 3}
+      propertyPath: m_text
+      value: Very Low
       objectReference: {fileID: 0}
     - target: {fileID: 6068646200116272506, guid: 72294a24fe6f27e42a4ba477b7138a0a, type: 3}
       propertyPath: m_Name

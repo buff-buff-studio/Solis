@@ -48,7 +48,6 @@ namespace Solis.Settings
             Load();
             
             intItems["resolution"].SetItems(Screen.resolutions.Select(r => $"{r.width}x{r.height}").ToList());
-            intItems["graphics"].SetItems(QualitySettings.names.ToList());
             foreach (var i in intItems)
                 i.Value.onChangeItem.AddListener(index => { settingsData.intItems[i.Key] = index; OnSettingsChanged?.Invoke(); });
             foreach (var f in floatItems)
@@ -60,19 +59,16 @@ namespace Solis.Settings
         private void OnEnable()
         {
             OnSettingsChanged += ApplySettings;
-            onChangeWindow += OnTabSelected;
         }
 
         private void OnDestroy()
         {
             OnSettingsChanged -= ApplySettings;
-            onChangeWindow -= OnTabSelected;
         }
 
         private void OnDisable()
         {
             OnSettingsChanged -= ApplySettings;
-            onChangeWindow -= OnTabSelected;
         }
         
 #if UNITY_EDITOR
@@ -219,6 +215,12 @@ namespace Solis.Settings
                     settingsTabs[i].DeselectTab();
                 }
             }
+        }
+        
+        public override void ChangeWindow(int index)
+        {
+            base.ChangeWindow(index);
+            OnTabSelected(index);
         }
 
         [Serializable]

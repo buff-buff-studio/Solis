@@ -72,7 +72,7 @@ namespace Solis.Interface.Lobby
             var hasAuthority = HasAuthority;
             buttonStartGame.gameObject.SetActive(hasAuthority);
             buttonCloseRoom.gameObject.SetActive(hasAuthority);
-            changeCharacter.SetActive(hasAuthority);
+            //changeCharacter.SetActive(hasAuthority);
             buttonLeaveRoom.gameObject.SetActive(!hasAuthority);
             
             if(hasAuthority)
@@ -143,7 +143,7 @@ namespace Solis.Interface.Lobby
         /// </summary>
         [ServerOnly]
         public void UpdateRoom()
-        {
+        { 
             if (!HasAuthority)
                 return;
 
@@ -155,7 +155,7 @@ namespace Solis.Interface.Lobby
             // ReSharper disable once PossibleMultipleEnumeration
             var robotCount = sessions.Count(s => s.PlayerCharacterType == CharacterType.Robot);
 
-            canStartGame &= humanCount <= 1 && robotCount <= 1;
+            canStartGame &= humanCount == 1 && robotCount == 1;
             buttonStartGame.interactable = canStartGame;
         }
         #endregion

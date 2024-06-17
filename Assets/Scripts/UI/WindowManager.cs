@@ -85,7 +85,7 @@ namespace Solis.UI
             }
         }
 
-        public void ChangeWindow(int index)
+        public virtual void ChangeWindow(int index)
         {
             if (index == currentIndex)
                 return;
