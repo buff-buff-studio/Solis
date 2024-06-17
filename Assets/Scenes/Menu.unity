@@ -267,6 +267,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 610649337}
+        m_TargetAssemblyTypeName: UnityEngine.UI.Scrollbar, UnityEngine.UI
+        m_MethodName: set_value
+        m_Mode: 4
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &90365720
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1368,30 +1380,30 @@ MonoBehaviour:
     \"AND\" ou \"OR\" que mudam a forma de ativar mecanismos)\r\n- Plataformas (levam
     os personagens e itens)\r\n- Tirolesa (\"Coleta\" o rob\xF4 e objetos met\xE1licos,
     levando de um ponto a outro) \r\n\r\nOutros sistemas:\r\n- Shader \xE1gua\r\n-
-    Movimenta\xE7\xE3o personagens - com diferencia\xE7\xE3o, sendo o Rob\xF4 mais
-    lento e com pulo mais baixo e a humana mais r\xE1pida, com pulo mais alto.\r\n-
-    Menu principal/UI/Settings\r\n- Multiplayer (podendo ser local ou em rede, cria\xE7\xE3o
-    de servidores host/client)\r\n- Cutscenes introdut\xF3rias (cada level tem uma
-    cutscene inicial, que mostra para o player qual o caminho ele vai percorrer no
-    level e qual o objetivo final)\r\n- Delay p\xF3s-erro (o personagem, ao cair
-    na \xE1gua ap\xF3s errar uma plataforma ou ilha, tem um delay para voltar a se
-    movimentar normalmente)\r\n\r\nPersonagens (Anima\xE7\xF5es, prontas pra uso)\r\n-
-    Rob\xF4 (Idle, walk, intera\xE7\xE3o gen\xE9rica, pulo)\r\n- Humana (Idle, walk,
-    intera\xE7\xE3o gen\xE9rica, pulo)\r\n\r\nAssets (texturizados, prontos para
-    uso)\r\n- Blimp E\xF3lico (com anima\xE7\xE3o, visto no menu)\r\n- \xC1rvores
-    (4 vers\xF5es)\r\n- Banco (largo)\r\n- Banco (pequeno)\r\n- Placa de metal\r\n-
-    Muda de \xE1rvore \r\n- Pedras\r\n- Flores (6 tipos)\r\n- Folhas (4 tipos)\r\n-
-    Arbustos (2 tipos)\r\n- Carro\xE7a\r\n- Silo\r\n- Antena parab\xF3lica\r\n- Placa
-    solar\r\n- Cortador de grama \r\n- Turbina e\xF3lica\r\n- Vasos de planta (5
-    varia\xE7\xF5es)\r\n- Balde\r\n- Toldo\r\n- Tanque de \xE1gua\r\n- Assets de
-    mec\xE2nica (Alavanca, bot\xE3o, placa de press\xE3o, scanner de palma e do rob\xF4,
-    tomadas)\r\n- Cercas de madeira\r\n- Rodas de carro\xE7a\r\n\r\nLevels jog\xE1veis\r\n\r\n-
-    Level intro (garagem)\r\n- Levels iniciais (5 no total)\r\n- Level intermedi\xE1rio\r\n\r\nSplash
-    Art (level intro)\r\n- Exterior f\xE1brica\r\n- Level introdut\xF3rio (1)\r\n-
-    Garagem\r\n\r\nGame Juices\r\n- Logo animada no menu principal + \xE1udio para
-    os bot\xF5es\r\n- Efeito provis\xF3rio de part\xEDcula para mostrar o objetivo
-    final\r\n- N\xE9voa no cen\xE1rio + efeito emissivo em algumas \xE1reas (\"bloom\")\r\n-
-    Efeito de fuma\xE7a para movimenta\xE7\xE3o\u200B"
+    Shader de Fade\r\n- Movimenta\xE7\xE3o personagens - com diferencia\xE7\xE3o,
+    sendo o Rob\xF4 mais lento e com pulo mais baixo e a humana mais r\xE1pida, com
+    pulo mais alto.\r\n- Menu principal/UI/Settings\r\n- Multiplayer (podendo ser
+    local ou em rede, cria\xE7\xE3o de servidores host/client)\r\n- Cutscenes introdut\xF3rias
+    (cada level tem uma cutscene inicial, que mostra para o player qual o caminho
+    ele vai percorrer no level e qual o objetivo final)\r\n- Delay p\xF3s-erro (o
+    personagem, ao cair na \xE1gua ap\xF3s errar uma plataforma ou ilha, tem um delay
+    para voltar a se movimentar normalmente)\r\n\r\nPersonagens (Anima\xE7\xF5es,
+    prontas pra uso)\r\n- Rob\xF4 (Idle, walk, intera\xE7\xE3o gen\xE9rica, pulo)\r\n-
+    Humana (Idle, walk, intera\xE7\xE3o gen\xE9rica, pulo)\r\n\r\nAssets (texturizados,
+    prontos para uso)\r\n- Blimp E\xF3lico (com anima\xE7\xE3o, visto no menu)\r\n-
+    \xC1rvores (4 vers\xF5es)\r\n- Banco (largo)\r\n- Banco (pequeno)\r\n- Placa
+    de metal\r\n- Muda de \xE1rvore \r\n- Pedras\r\n- Flores (6 tipos)\r\n- Folhas
+    (4 tipos)\r\n- Arbustos (2 tipos)\r\n- Carro\xE7a\r\n- Silo\r\n- Antena parab\xF3lica\r\n-
+    Placa solar\r\n- Cortador de grama \r\n- Turbina e\xF3lica\r\n- Vasos de planta
+    (5 varia\xE7\xF5es)\r\n- Balde\r\n- Toldo\r\n- Tanque de \xE1gua\r\n- Assets
+    de mec\xE2nica (Alavanca, bot\xE3o, placa de press\xE3o, scanner de palma e do
+    rob\xF4, tomadas)\r\n- Cercas de madeira\r\n- Rodas de carro\xE7a\r\n\r\nLevels
+    jog\xE1veis\r\n\r\n- Level intro (garagem)\r\n- Levels iniciais (5 no total)\r\n-
+    Level intermedi\xE1rio\r\n\r\nSplash Art (level intro)\r\n- Exterior f\xE1brica\r\n-
+    Level introdut\xF3rio (1)\r\n- Garagem\r\n\r\nGame Juices\r\n- Logo animada no
+    menu principal + \xE1udio para os bot\xF5es\r\n- Efeito provis\xF3rio de part\xEDcula
+    para mostrar o objetivo final\r\n- N\xE9voa no cen\xE1rio + efeito emissivo em
+    algumas \xE1reas (\"bloom\")\r\n- Efeito de fuma\xE7a para movimenta\xE7\xE3o\u200B"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1641,30 +1653,30 @@ MonoBehaviour:
     \"AND\" ou \"OR\" que mudam a forma de ativar mecanismos)\r\n- Plataformas (levam
     os personagens e itens)\r\n- Tirolesa (\"Coleta\" o rob\xF4 e objetos met\xE1licos,
     levando de um ponto a outro) \r\n\r\nOutros sistemas:\r\n- Shader \xE1gua\r\n-
-    Movimenta\xE7\xE3o personagens - com diferencia\xE7\xE3o, sendo o Rob\xF4 mais
-    lento e com pulo mais baixo e a humana mais r\xE1pida, com pulo mais alto.\r\n-
-    Menu principal/UI/Settings\r\n- Multiplayer (podendo ser local ou em rede, cria\xE7\xE3o
-    de servidores host/client)\r\n- Cutscenes introdut\xF3rias (cada level tem uma
-    cutscene inicial, que mostra para o player qual o caminho ele vai percorrer no
-    level e qual o objetivo final)\r\n- Delay p\xF3s-erro (o personagem, ao cair
-    na \xE1gua ap\xF3s errar uma plataforma ou ilha, tem um delay para voltar a se
-    movimentar normalmente)\r\n\r\nPersonagens (Anima\xE7\xF5es, prontas pra uso)\r\n-
-    Rob\xF4 (Idle, walk, intera\xE7\xE3o gen\xE9rica, pulo)\r\n- Humana (Idle, walk,
-    intera\xE7\xE3o gen\xE9rica, pulo)\r\n\r\nAssets (texturizados, prontos para
-    uso)\r\n- Blimp E\xF3lico (com anima\xE7\xE3o, visto no menu)\r\n- \xC1rvores
-    (4 vers\xF5es)\r\n- Banco (largo)\r\n- Banco (pequeno)\r\n- Placa de metal\r\n-
-    Muda de \xE1rvore \r\n- Pedras\r\n- Flores (6 tipos)\r\n- Folhas (4 tipos)\r\n-
-    Arbustos (2 tipos)\r\n- Carro\xE7a\r\n- Silo\r\n- Antena parab\xF3lica\r\n- Placa
-    solar\r\n- Cortador de grama \r\n- Turbina e\xF3lica\r\n- Vasos de planta (5
-    varia\xE7\xF5es)\r\n- Balde\r\n- Toldo\r\n- Tanque de \xE1gua\r\n- Assets de
-    mec\xE2nica (Alavanca, bot\xE3o, placa de press\xE3o, scanner de palma e do rob\xF4,
-    tomadas)\r\n- Cercas de madeira\r\n- Rodas de carro\xE7a\r\n\r\nLevels jog\xE1veis\r\n\r\n-
-    Level intro (garagem)\r\n- Levels iniciais (5 no total)\r\n- Level intermedi\xE1rio\r\n\r\nSplash
-    Art (level intro)\r\n- Exterior f\xE1brica\r\n- Level introdut\xF3rio (1)\r\n-
-    Garagem\r\n\r\nGame Juices\r\n- Logo animada no menu principal + \xE1udio para
-    os bot\xF5es\r\n- Efeito provis\xF3rio de part\xEDcula para mostrar o objetivo
-    final\r\n- N\xE9voa no cen\xE1rio + efeito emissivo em algumas \xE1reas (\"bloom\")\r\n-
-    Efeito de fuma\xE7a para movimenta\xE7\xE3o"
+    Shader de Fade\r\n- Movimenta\xE7\xE3o personagens - com diferencia\xE7\xE3o,
+    sendo o Rob\xF4 mais lento e com pulo mais baixo e a humana mais r\xE1pida, com
+    pulo mais alto.\r\n- Menu principal/UI/Settings\r\n- Multiplayer (podendo ser
+    local ou em rede, cria\xE7\xE3o de servidores host/client)\r\n- Cutscenes introdut\xF3rias
+    (cada level tem uma cutscene inicial, que mostra para o player qual o caminho
+    ele vai percorrer no level e qual o objetivo final)\r\n- Delay p\xF3s-erro (o
+    personagem, ao cair na \xE1gua ap\xF3s errar uma plataforma ou ilha, tem um delay
+    para voltar a se movimentar normalmente)\r\n\r\nPersonagens (Anima\xE7\xF5es,
+    prontas pra uso)\r\n- Rob\xF4 (Idle, walk, intera\xE7\xE3o gen\xE9rica, pulo)\r\n-
+    Humana (Idle, walk, intera\xE7\xE3o gen\xE9rica, pulo)\r\n\r\nAssets (texturizados,
+    prontos para uso)\r\n- Blimp E\xF3lico (com anima\xE7\xE3o, visto no menu)\r\n-
+    \xC1rvores (4 vers\xF5es)\r\n- Banco (largo)\r\n- Banco (pequeno)\r\n- Placa
+    de metal\r\n- Muda de \xE1rvore \r\n- Pedras\r\n- Flores (6 tipos)\r\n- Folhas
+    (4 tipos)\r\n- Arbustos (2 tipos)\r\n- Carro\xE7a\r\n- Silo\r\n- Antena parab\xF3lica\r\n-
+    Placa solar\r\n- Cortador de grama \r\n- Turbina e\xF3lica\r\n- Vasos de planta
+    (5 varia\xE7\xF5es)\r\n- Balde\r\n- Toldo\r\n- Tanque de \xE1gua\r\n- Assets
+    de mec\xE2nica (Alavanca, bot\xE3o, placa de press\xE3o, scanner de palma e do
+    rob\xF4, tomadas)\r\n- Cercas de madeira\r\n- Rodas de carro\xE7a\r\n\r\nLevels
+    jog\xE1veis\r\n\r\n- Level intro (garagem)\r\n- Levels iniciais (5 no total)\r\n-
+    Level intermedi\xE1rio\r\n\r\nSplash Art (level intro)\r\n- Exterior f\xE1brica\r\n-
+    Level introdut\xF3rio (1)\r\n- Garagem\r\n\r\nGame Juices\r\n- Logo animada no
+    menu principal + \xE1udio para os bot\xF5es\r\n- Efeito provis\xF3rio de part\xEDcula
+    para mostrar o objetivo final\r\n- N\xE9voa no cen\xE1rio + efeito emissivo em
+    algumas \xE1reas (\"bloom\")\r\n- Efeito de fuma\xE7a para movimenta\xE7\xE3o"
   m_CaretBlinkRate: 0.85
   m_CaretWidth: 1
   m_ReadOnly: 1
@@ -1867,8 +1879,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1156915260}
   m_HandleRect: {fileID: 1156915259}
   m_Direction: 3
-  m_Value: 2.791
-  m_Size: 0.22291347
+  m_Value: 2.748
+  m_Size: 0.2202002
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -3417,6 +3429,18 @@ MonoBehaviour:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 3
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 558681885}
+        m_TargetAssemblyTypeName: UnityEngine.UI.Scrollbar, UnityEngine.UI
+        m_MethodName: set_value
+        m_Mode: 4
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0

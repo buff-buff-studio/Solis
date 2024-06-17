@@ -50,11 +50,14 @@ public class LevelCutscene : MonoBehaviour
         position = 0;
 
 #if UNITY_EDITOR
+_isPreview = false;
+/*
         _isPreview = gameObject.name.Contains(" (Preview)");
         if (_isPreview)
             Selection.activeGameObject = gameObject;
         else
             gameObject.name = gameObject.name.Replace(" (Preview)", "");
+            */
 #endif
     }
 
