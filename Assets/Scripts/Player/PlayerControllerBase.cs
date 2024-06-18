@@ -66,6 +66,7 @@ namespace Solis.Player
         public float jumpMaxHeight = 2f;
         public float jumpAcceleration = 0.1f;
         public float jumpGravityMultiplier = 0.5f;
+        public float jumpCutMinHeight = 1.5f;
         public float jumpCutGravityMultiplier = 0.75f;
         [Range(0, 1)]
         public float coyoteTime = 0.3f;
@@ -155,9 +156,22 @@ namespace Solis.Player
         private bool InputJump => Input.GetButtonDown("Jump");
         private bool InputJumpUp => Input.GetButtonUp("Jump");
         private bool CanJump => !_isJumping && (IsGrounded || _coyoteTimer > 0) && _jumpTimer <= 0 && !_isPaused;
-        private bool CanJumpCut => _isJumping && !_isJumpCut;
+
+        private bool CanJumpCut =>
+            _isJumping && !_isJumpCut && (transform.position.y - _startJumpPos) >= jumpCutMinHeight;
         private bool IsPlayerLocked => _isCinematicRunning || _isRespawning;
         private Vector3 HeadOffset => headOffset.position;
+
+        private bool IsFalling
+        {
+            get => _isFalling;
+            set
+            {
+                if (_isFalling == value) return;
+                _isFalling = value;
+                animator.SetBool("Falling", value);
+            }
+        }
         #endregion
 
         #region Unity Callbacks
@@ -286,8 +300,7 @@ namespace Solis.Player
                         _lastSafePosition = transform.position;
                     }
 
-                    animator.SetBool("Jumping", _isJumping);
-                    animator.SetBool("Grounded", !_isFalling && IsGrounded);
+                    animator.SetBool("Grounded", !IsFalling && IsGrounded);
                     animator.SetFloat("Running",
                         Mathf.Lerp(animator.GetFloat("Running"), walking ? 1 : 0, Time.deltaTime * 7f));
 
@@ -350,6 +363,13 @@ namespace Solis.Player
 #endif
         }
         #endregion
+
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            jumpCutMinHeight = Mathf.Clamp(jumpCutMinHeight, 0, jumpMaxHeight);
+        }
+#endif
 
         #region Network Callbacks
         public override void OnSpawned(bool isRetroactive)
@@ -443,10 +463,11 @@ namespace Solis.Player
         {
             if (InputJump && CanJump)
             {
+                animator.SetTrigger("Jumping");
                 _isJumping = true;
                 _isJumpingEnd = false;
                 _isJumpCut = false;
-                _isFalling = false;
+                IsFalling = false;
                 velocity.y = 0.1f;
                 _startJumpPos = transform.position.y;
                 _lastJumpHeight = transform.position.y;
@@ -456,14 +477,13 @@ namespace Solis.Player
                 jumpParticles.Play();
             }
 
-            /*
             if (InputJumpUp && CanJumpCut)
             {
                 _isJumpCut = true;
                 _isJumping = false;
                 velocity.y *= 0.5f;
                 _multiplier = jumpCutGravityMultiplier;
-            }*/
+            }
 
             if (_isJumping && !_isJumpCut)
             {
@@ -500,10 +520,10 @@ namespace Solis.Player
             if (IsGrounded)
             {
                 _multiplier = fallMultiplier;
-                if (_isFalling)
+                if (IsFalling)
                 {
                     landParticles.Play();
-                    _isFalling = false;
+                    IsFalling = false;
                 }
 
                 return;
@@ -528,7 +548,7 @@ namespace Solis.Player
                 return;
             }
 
-            _isFalling = velocity.y < (gravity * _multiplier) / 2;
+            IsFalling = velocity.y < (gravity * _multiplier) / 2;
             velocity.y += gravity * _multiplier * Time.fixedDeltaTime;
             velocity.y = Mathf.Max(velocity.y, -maxFallSpeed);
         }
