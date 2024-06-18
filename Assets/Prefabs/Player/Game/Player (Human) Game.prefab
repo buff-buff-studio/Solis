@@ -3848,11 +3848,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2195862425273019967, guid: a55a3791e379dfa42a63dd01f73de466, type: 3}
       propertyPath: id.low
-      value: 607665010
+      value: 1363871268
       objectReference: {fileID: 0}
     - target: {fileID: 2195862425273019967, guid: a55a3791e379dfa42a63dd01f73de466, type: 3}
       propertyPath: id.high
-      value: 575864875
+      value: -259504156
       objectReference: {fileID: 0}
     - target: {fileID: 4136800555700545090, guid: a55a3791e379dfa42a63dd01f73de466, type: 3}
       propertyPath: m_LocalPosition.x
@@ -3996,19 +3996,20 @@ MonoBehaviour:
   dustParticles: {fileID: 715729684961566}
   jumpParticles: {fileID: 951114704059391838}
   landParticles: {fileID: 1233122826114929891}
-  maxSpeed: 5
-  acceleration: 20
-  deceleration: 60
+  maxSpeed: 7
+  acceleration: 50
+  deceleration: 80
   rotationSpeed: 120
   jumpMaxHeight: 2
   jumpAcceleration: 50
   jumpGravityMultiplier: 1
+  jumpCutMinHeight: 1.5
   jumpCutGravityMultiplier: 4
   coyoteTime: 0
   timeToJump: 0.05
   gravity: -9.81
   fallMultiplier: 5.5
-  maxFallSpeed: 10
+  maxFallSpeed: 16
   maxHeightDecel: 0.85
   hitHeadDecel: 0.15
   state: 0
