@@ -59,6 +59,8 @@ namespace Solis.Player
         [Tooltip("Meters Per Second")]
         public float acceleration = 0.1f;
         public float deceleration = 0.1f;
+        public float accelInJumpMultiplier = 1.5f;
+        public float decelInJumpMultiplier = 1.5f;
         public float rotationSpeed = 25;
 
         [Header("JUMP")]
@@ -122,7 +124,6 @@ namespace Solis.Player
         private bool _isJumping;
         private bool _isJumpingEnd;
         private bool _isJumpCut;
-        private bool _isFalling;
         private float _lastJumpHeight;
         private float _lastJumpVelocity;
         
@@ -162,18 +163,7 @@ namespace Solis.Player
         private bool IsPlayerLocked => _isCinematicRunning || _isRespawning;
         private Vector3 HeadOffset => headOffset.position;
 
-        private bool IsFalling
-        {
-            get => _isFalling;
-            set
-            {
-                if (_isFalling == value) return;
-
-                _isFalling = value;
-                animator.SetBool("Falling", value);
-                Debug.Log("Is Falling: " + value);
-            }
-        }
+        private bool IsFalling => !IsGrounded && velocity.y < 0;
         #endregion
 
         #region Unity Callbacks
@@ -303,6 +293,7 @@ namespace Solis.Player
                     }
 
                     animator.SetBool("Grounded", !IsFalling && IsGrounded);
+                    animator.SetBool("Falling", IsFalling);
                     animator.SetFloat("Running",
                         Mathf.Lerp(animator.GetFloat("Running"), walking ? 1 : 0, Time.deltaTime * 7f));
 
@@ -455,8 +446,9 @@ namespace Solis.Player
         {
             var moveInput = !_isPaused ? MoveInput.normalized : Vector2.zero;
             var target = moveInput * maxSpeed;
-            var accelerationValue = ((Mathf.Abs(moveInput.magnitude) > 0.01f) ? acceleration : deceleration) *
-                                    Time.deltaTime;
+            var accelOrDecel = (Mathf.Abs(moveInput.magnitude) > 0.01f);
+            var multiplier = _isJumping ? (accelOrDecel ? accelInJumpMultiplier : decelInJumpMultiplier) : 1;
+            var accelerationValue = ((accelOrDecel ? acceleration : deceleration)*multiplier) * Time.deltaTime;
             velocity.x = Mathf.MoveTowards(velocity.x, target.x, accelerationValue);
             velocity.z = Mathf.MoveTowards(velocity.z, target.y, accelerationValue);
         }
@@ -469,7 +461,6 @@ namespace Solis.Player
                 _isJumping = true;
                 _isJumpingEnd = false;
                 _isJumpCut = false;
-                IsFalling = false;
                 velocity.y = 0.1f;
                 _startJumpPos = transform.position.y;
                 _lastJumpHeight = transform.position.y;
@@ -510,7 +501,6 @@ namespace Solis.Player
                 if(velocity.y <= 0)
                 {
                     _isJumpingEnd = true;
-                    IsFalling = true;
 #if UNITY_EDITOR
                     debugLastJumpMaxHeight = transform.position;
 #endif
@@ -526,7 +516,6 @@ namespace Solis.Player
                 if (IsFalling)
                 {
                     landParticles.Play();
-                    IsFalling = false;
                 }
 
                 return;
