@@ -168,8 +168,10 @@ namespace Solis.Player
             set
             {
                 if (_isFalling == value) return;
+
                 _isFalling = value;
                 animator.SetBool("Falling", value);
+                Debug.Log("Is Falling: " + value);
             }
         }
         #endregion
@@ -508,6 +510,7 @@ namespace Solis.Player
                 if(velocity.y <= 0)
                 {
                     _isJumpingEnd = true;
+                    IsFalling = true;
 #if UNITY_EDITOR
                     debugLastJumpMaxHeight = transform.position;
 #endif
@@ -548,7 +551,6 @@ namespace Solis.Player
                 return;
             }
 
-            IsFalling = velocity.y < (gravity * _multiplier) / 2;
             velocity.y += gravity * _multiplier * Time.fixedDeltaTime;
             velocity.y = Mathf.Max(velocity.y, -maxFallSpeed);
         }

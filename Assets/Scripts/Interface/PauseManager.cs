@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Solis.Core;
 using Solis.Player;
+using Solis.Settings;
 using Solis.UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -53,6 +54,7 @@ public class PauseManager : WindowManager
         Cursor.lockState = !isPaused ? CursorLockMode.Locked : CursorLockMode.None;
         pauseVolume.SetActive(isPaused);
         SetVisible(false);
+        ChangeWindow(0);
         OnPause?.Invoke(isPaused);
     }
     

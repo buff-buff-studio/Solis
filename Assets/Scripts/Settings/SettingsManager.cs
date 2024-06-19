@@ -14,7 +14,6 @@ namespace Solis.Settings
 {
     public class SettingsManager : WindowManager
     {
-        private static bool _isInitialized;
         private static string Path => Application.persistentDataPath;
         
         [SerializeField]
@@ -40,11 +39,6 @@ namespace Solis.Settings
         
         private void Awake()
         {
-            if (!_isInitialized)
-            {
-                _isInitialized = true;
-            }
-
             Load();
             
             foreach (var i in intItems)
@@ -197,6 +191,9 @@ namespace Solis.Settings
                 intItems[g.Key].currentIndex = g.Value;
             foreach (var g in settingsData.floatItems)
                 floatItems[g.Key].value = g.Value;
+
+            ApplySettings();
+            OnSettingsChanged?.Invoke();
         }
 
         private void OnTabSelected(int index)
