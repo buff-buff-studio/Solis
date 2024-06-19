@@ -446,10 +446,10 @@ namespace Solis.Player
         private void _Move()
         {
             var moveInput = !_isPaused ? MoveInput.normalized : Vector2.zero;
-            var target = moveInput * maxSpeed;
+            var target = !IsGrounded ? moveInput * maxSpeed * accelInJumpMultiplier : moveInput * maxSpeed;
             var accelOrDecel = (Mathf.Abs(moveInput.magnitude) > 0.01f);
-            var multiplier = _inJumpState ? (accelOrDecel ? accelInJumpMultiplier : decelInJumpMultiplier) : 1;
-            var accelerationValue = ((accelOrDecel ? acceleration : deceleration)*multiplier) * Time.deltaTime;
+            var multiplier = !IsGrounded ? (accelOrDecel ? accelInJumpMultiplier : decelInJumpMultiplier) : 1;
+            var accelerationValue = ((accelOrDecel ? acceleration : deceleration)) * Time.deltaTime;
             Debug.Log(
                 $"AccelFinal: {(accelOrDecel ? acceleration : deceleration) * multiplier} - Accel: {(accelOrDecel ? acceleration : deceleration)} - Multiplier: {multiplier} - AccelValue: {accelerationValue}");
             velocity.x = Mathf.MoveTowards(velocity.x, target.x, accelerationValue);
