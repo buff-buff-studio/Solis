@@ -123,6 +123,7 @@ namespace Solis.Player
         private float _startJumpPos;
         private bool _isJumping;
         private bool _isJumpingEnd;
+        private bool _inJumpState;
         private bool _isJumpCut;
         private float _lastJumpHeight;
         private float _lastJumpVelocity;
@@ -447,8 +448,10 @@ namespace Solis.Player
             var moveInput = !_isPaused ? MoveInput.normalized : Vector2.zero;
             var target = moveInput * maxSpeed;
             var accelOrDecel = (Mathf.Abs(moveInput.magnitude) > 0.01f);
-            var multiplier = _isJumping ? (accelOrDecel ? accelInJumpMultiplier : decelInJumpMultiplier) : 1;
+            var multiplier = _inJumpState ? (accelOrDecel ? accelInJumpMultiplier : decelInJumpMultiplier) : 1;
             var accelerationValue = ((accelOrDecel ? acceleration : deceleration)*multiplier) * Time.deltaTime;
+            Debug.Log(
+                $"AccelFinal: {(accelOrDecel ? acceleration : deceleration) * multiplier} - Accel: {(accelOrDecel ? acceleration : deceleration)} - Multiplier: {multiplier} - AccelValue: {accelerationValue}");
             velocity.x = Mathf.MoveTowards(velocity.x, target.x, accelerationValue);
             velocity.z = Mathf.MoveTowards(velocity.z, target.y, accelerationValue);
         }
@@ -461,6 +464,7 @@ namespace Solis.Player
                 _isJumping = true;
                 _isJumpingEnd = false;
                 _isJumpCut = false;
+                _inJumpState = true;
                 velocity.y = 0.1f;
                 _startJumpPos = transform.position.y;
                 _lastJumpHeight = transform.position.y;
@@ -516,6 +520,10 @@ namespace Solis.Player
                 if (IsFalling)
                 {
                     landParticles.Play();
+                }
+                if (_inJumpState)
+                {
+                    _inJumpState = false;
                 }
 
                 return;
