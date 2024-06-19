@@ -141,8 +141,13 @@ namespace Solis.Misc.Props
             playerHolding = isOn.Value ? playerHolding : null;
             networkRigidbodyTransform.enabled = !isOn.Value;
             rb.isKinematic = isOn.Value;
-            _collider.enabled = !isOn.Value;
             rb.velocity = Vector3.zero;
+
+            _collider.excludeLayers = !isOn.Value
+                ? 0
+                : ~(playerHolding!.CharacterType == CharacterType.Human
+                    ? LayerMask.GetMask("Robot")
+                    : LayerMask.GetMask("Human"));
             
             if (isOn.Value)
             {

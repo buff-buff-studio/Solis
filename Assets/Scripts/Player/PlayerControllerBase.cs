@@ -128,6 +128,8 @@ namespace Solis.Player
         private float _lastJumpHeight;
         private float _lastJumpVelocity;
         
+        private bool _isFalling;
+        
         private bool _isCinematicRunning = true;
         private bool _isRespawning = false;
         private bool _isPaused = false;
@@ -163,8 +165,6 @@ namespace Solis.Player
             _isJumping && !_isJumpCut && (transform.position.y - _startJumpPos) >= jumpCutMinHeight;
         private bool IsPlayerLocked => _isCinematicRunning || _isRespawning;
         private Vector3 HeadOffset => headOffset.position;
-
-        private bool IsFalling => !IsGrounded && velocity.y < 0;
         #endregion
 
         #region Unity Callbacks
@@ -293,8 +293,8 @@ namespace Solis.Player
                         _lastSafePosition = transform.position;
                     }
 
-                    animator.SetBool("Grounded", !IsFalling && IsGrounded);
-                    animator.SetBool("Falling", IsFalling);
+                    animator.SetBool("Grounded", !_isFalling && IsGrounded);
+                    animator.SetBool("Falling", _isFalling);
                     animator.SetFloat("Running",
                         Mathf.Lerp(animator.GetFloat("Running"), walking ? 1 : 0, Time.deltaTime * 7f));
 
@@ -332,21 +332,6 @@ namespace Solis.Player
             {
                 Gizmos.color = Color.red;
                 Gizmos.DrawRay(debugNextMovePos, Vector3.down);
-            }
-
-            if (Physics.CheckBox(headOffset.position, headOffset.lossyScale, headOffset.rotation, ~LayerMask.GetMask("Player")))
-            {
-                Gizmos.color = Color.red;
-                Gizmos.matrix = Matrix4x4.TRS(headOffset.position, headOffset.rotation, headOffset.lossyScale);
-                Gizmos.DrawWireCube(Vector3.zero, Vector3.one);
-                Gizmos.matrix = Matrix4x4.identity;
-            }
-            else
-            {
-                Gizmos.color = Color.green;
-                Gizmos.matrix = Matrix4x4.TRS(headOffset.position, headOffset.rotation, headOffset.lossyScale);
-                Gizmos.DrawWireCube(Vector3.zero, Vector3.one);
-                Gizmos.matrix = Matrix4x4.identity;
             }
 
             Gizmos.color = IsGrounded ? Color.cyan : Color.blue;
@@ -446,12 +431,11 @@ namespace Solis.Player
         private void _Move()
         {
             var moveInput = !_isPaused ? MoveInput.normalized : Vector2.zero;
-            var target = !IsGrounded ? moveInput * maxSpeed * accelInJumpMultiplier : moveInput * maxSpeed;
+            var maxSpeedTarget = _inJumpState ? maxSpeed * accelInJumpMultiplier : maxSpeed;
+            var target = moveInput * maxSpeedTarget;
             var accelOrDecel = (Mathf.Abs(moveInput.magnitude) > 0.01f);
-            var multiplier = !IsGrounded ? (accelOrDecel ? accelInJumpMultiplier : decelInJumpMultiplier) : 1;
             var accelerationValue = ((accelOrDecel ? acceleration : deceleration)) * Time.deltaTime;
-            Debug.Log(
-                $"AccelFinal: {(accelOrDecel ? acceleration : deceleration) * multiplier} - Accel: {(accelOrDecel ? acceleration : deceleration)} - Multiplier: {multiplier} - AccelValue: {accelerationValue}");
+
             velocity.x = Mathf.MoveTowards(velocity.x, target.x, accelerationValue);
             velocity.z = Mathf.MoveTowards(velocity.z, target.y, accelerationValue);
         }
@@ -474,9 +458,11 @@ namespace Solis.Player
                 jumpParticles.Play();
             }
 
-            if (InputJumpUp && CanJumpCut)
-            {
+            if(InputJumpUp && !_isJumpingEnd)
                 _isJumpCut = true;
+            
+            if (_isJumpCut && CanJumpCut)
+            {
                 _isJumping = false;
                 velocity.y *= 0.5f;
                 _multiplier = jumpCutGravityMultiplier;
@@ -505,6 +491,7 @@ namespace Solis.Player
                 if(velocity.y <= 0)
                 {
                     _isJumpingEnd = true;
+                    _isJumpCut = false;
 #if UNITY_EDITOR
                     debugLastJumpMaxHeight = transform.position;
 #endif
@@ -517,17 +504,17 @@ namespace Solis.Player
             if (IsGrounded)
             {
                 _multiplier = fallMultiplier;
-                if (IsFalling)
-                {
-                    landParticles.Play();
-                }
-                if (_inJumpState)
+                if (_isFalling)
                 {
                     _inJumpState = false;
+                    _isFalling = false;
+                    landParticles.Play();
                 }
-
                 return;
             }
+
+            if (velocity.y < 0 && !_isFalling)
+                _isFalling = true;
 
             if (_isJumping)
             {
@@ -537,6 +524,7 @@ namespace Solis.Player
                 if(diff > 0.1f && posY < expectedYPos)
                 {
                     _isJumping = false;
+                    _isJumpCut = false;
                     _isJumpingEnd = true;
                     velocity.y *= hitHeadDecel;
                     Debug.Log($"Hit head (ExpectedYPos: {expectedYPos} - CurrPos: {posY} - LastPos: {_lastJumpHeight} - Diff: {diff} - Vel: {velocity.y} - LastVel: {_lastJumpVelocity})");
