@@ -3,12 +3,15 @@ using System.Threading.Tasks;
 using Cinemachine;
 using NetBuff.Components;
 using NetBuff.Interface;
+using NetBuff.Misc;
 using Solis.Circuit.Components;
 using Solis.Data;
 using Solis.Misc;
 using Solis.Packets;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Serialization;
+using Object = UnityEngine.Object;
 
 namespace Solis.Player
 {
@@ -38,6 +41,14 @@ namespace Solis.Player
         #endregion
 
         #region Inspector Fields
+        [Header("DATA")]
+        public PlayerData data;
+#if UNITY_EDITOR
+        [HideInInspector]
+        public bool playerDataFoldout;
+#endif
+
+        [Space]
         [Header("SCRIPTS REFERENCES")]
         public CharacterController controller;
         public NetworkAnimator animator;
@@ -53,43 +64,9 @@ namespace Solis.Player
         public ParticleSystem jumpParticles;
         public ParticleSystem landParticles;
 
-        [Space]
-        [Header("MOVEMENT")]
-        public float maxSpeed = 12f;
-        [Tooltip("Meters Per Second")]
-        public float acceleration = 0.1f;
-        public float deceleration = 0.1f;
-        public float rotationSpeed = 25;
-
-        [Header("JUMP")]
-        [Tooltip("Meters Per Second")]
-        public float jumpMaxHeight = 2f;
-        public float jumpAcceleration = 0.1f;
-        public float jumpGravityMultiplier = 0.5f;
-        public float jumpCutMinHeight = 1.5f;
-        public float jumpCutGravityMultiplier = 0.75f;
-        [Range(0, 1)]
-        public float coyoteTime = 0.3f;
-        [Range(0, 3)]
-        public float timeToJump = 0.5f;
-
-        [Header("GRAVITY")]
-        [Tooltip("The recommended value is -9.81")]
-        public float gravity = -9.81f;
-        public float fallMultiplier = 2.5f;
-        public float maxFallSpeed = 20f;
-        [FormerlySerializedAs("maxHeightDecelerationMultiplier")]
-        [Range(1, 0)] [Tooltip("The lower the value, the greater the deceleration")]
-        public float maxHeightDecel = 0.85f;
-        [FormerlySerializedAs("hitHeadDecelerationMultiplier")]
-        [Range(1, 0)] [Tooltip("The lower the value, the greater the deceleration")]
-        public float hitHeadDecel = 0.15f;
-
         [Header("STATE")]
         public State state;
         public Vector3 velocity;
-        public float interactCooldown;
-        public float respawnTimer = 3f;
         
         [Header("NETWORK")]
         public int tickRate = 50;
@@ -100,7 +77,7 @@ namespace Solis.Player
 
         [Header("HAND")]
         public Transform handPosition;
-        public uint itemsHeld = 0;
+        public IntNetworkValue itemsHeld = new(0, NetworkValue.ModifierType.Server);
 
 #if UNITY_EDITOR
         [Header("DEBUG")]
@@ -121,10 +98,12 @@ namespace Solis.Player
         private float _startJumpPos;
         private bool _isJumping;
         private bool _isJumpingEnd;
+        private bool _inJumpState;
         private bool _isJumpCut;
-        private bool _isFalling;
         private float _lastJumpHeight;
         private float _lastJumpVelocity;
+        
+        private bool _isFalling;
         
         private bool _isCinematicRunning = true;
         private bool _isRespawning = false;
@@ -150,6 +129,35 @@ namespace Solis.Player
         #endregion
 
         #region Private Properties
+
+        #region Data Properties
+
+        //MOVEMENT
+        private float MaxSpeed => data.maxSpeed;
+        private float Acceleration => data.acceleration;
+        private float Deceleration => data.deceleration;
+        private float AccelInJumpMultiplier => data.accelInJumpMultiplier;
+        private float RotationSpeed => data.rotationSpeed;
+        //JUMP
+        private float JumpMaxHeight => data.jumpMaxHeight;
+        private float JumpAcceleration => data.jumpAcceleration;
+        private float JumpGravityMultiplier => data.jumpGravityMultiplier;
+        private float JumpCutMinHeight => data.jumpCutMinHeight;
+        private float JumpCutGravityMultiplier => data.jumpCutGravityMultiplier;
+        private float CoyoteTime => data.coyoteTime;
+        private float TimeToJump => data.timeToJump;
+        //GRAVITY
+        private float Gravity => data.gravity;
+        private float FallMultiplier => data.fallMultiplier;
+        private float MaxFallSpeed => data.maxFallSpeed;
+        private float MaxHeightDecel => data.maxHeightDecel;
+        private float HitHeadDecel => data.hitHeadDecel;
+        //COOLDOWNS
+        private float InteractCooldown => data.interactCooldown;
+        private float RespawnCooldown => data.respawnCooldown;
+
+        #endregion
+
         private float InputX => Input.GetAxis("Horizontal");
         private float InputZ => Input.GetAxis("Vertical");
         private Vector2 MoveInput => new(InputX, InputZ);
@@ -158,20 +166,9 @@ namespace Solis.Player
         private bool CanJump => !_isJumping && (IsGrounded || _coyoteTimer > 0) && _jumpTimer <= 0 && !_isPaused;
 
         private bool CanJumpCut =>
-            _isJumping && !_isJumpCut && (transform.position.y - _startJumpPos) >= jumpCutMinHeight;
+            _isJumping && (transform.position.y - _startJumpPos) >= JumpCutMinHeight;
         private bool IsPlayerLocked => _isCinematicRunning || _isRespawning;
         private Vector3 HeadOffset => headOffset.position;
-
-        private bool IsFalling
-        {
-            get => _isFalling;
-            set
-            {
-                if (_isFalling == value) return;
-                _isFalling = value;
-                animator.SetBool("Falling", value);
-            }
-        }
         #endregion
 
         #region Unity Callbacks
@@ -192,7 +189,7 @@ namespace Solis.Player
 
             _remoteBodyRotation = body.localEulerAngles.y;
             _remoteBodyPosition = body.localPosition;
-            _multiplier = fallMultiplier;
+            _multiplier = FallMultiplier;
             dustParticles.Stop();
             if (controller == null) TryGetComponent(out controller);
             InvokeRepeating(nameof(_Tick), 0, 1f / tickRate);
@@ -266,10 +263,10 @@ namespace Solis.Player
                     var te = transform.eulerAngles;
                     var velocityXZ = new Vector2(velocity.x, velocity.z);
                     transform.eulerAngles = new Vector3(0,
-                        Mathf.LerpAngle(te.y, camAngle, velocityXZ.magnitude * Time.fixedDeltaTime * rotationSpeed), 0);
+                        Mathf.LerpAngle(te.y, camAngle, velocityXZ.magnitude * Time.fixedDeltaTime * RotationSpeed), 0);
                     body.localEulerAngles = new Vector3(0,
                         Mathf.LerpAngle(body.localEulerAngles.y, moveAngle,
-                            velocityXZ.magnitude * Time.fixedDeltaTime * rotationSpeed * 1f));
+                            velocityXZ.magnitude * Time.fixedDeltaTime * RotationSpeed * 1f));
                     if (velocityXZ.magnitude > 0.8f) dustParticles.Play();
                     else dustParticles.Stop();
 
@@ -300,7 +297,8 @@ namespace Solis.Player
                         _lastSafePosition = transform.position;
                     }
 
-                    animator.SetBool("Grounded", !IsFalling && IsGrounded);
+                    animator.SetBool("Grounded", !_isFalling && IsGrounded);
+                    animator.SetBool("Falling", _isFalling);
                     animator.SetFloat("Running",
                         Mathf.Lerp(animator.GetFloat("Running"), walking ? 1 : 0, Time.deltaTime * 7f));
 
@@ -340,21 +338,6 @@ namespace Solis.Player
                 Gizmos.DrawRay(debugNextMovePos, Vector3.down);
             }
 
-            if (Physics.CheckBox(headOffset.position, headOffset.lossyScale, headOffset.rotation, ~LayerMask.GetMask("Player")))
-            {
-                Gizmos.color = Color.red;
-                Gizmos.matrix = Matrix4x4.TRS(headOffset.position, headOffset.rotation, headOffset.lossyScale);
-                Gizmos.DrawWireCube(Vector3.zero, Vector3.one);
-                Gizmos.matrix = Matrix4x4.identity;
-            }
-            else
-            {
-                Gizmos.color = Color.green;
-                Gizmos.matrix = Matrix4x4.TRS(headOffset.position, headOffset.rotation, headOffset.lossyScale);
-                Gizmos.DrawWireCube(Vector3.zero, Vector3.one);
-                Gizmos.matrix = Matrix4x4.identity;
-            }
-
             Gizmos.color = IsGrounded ? Color.cyan : Color.blue;
             Gizmos.DrawWireCube(_lastSafePosition, Vector3.one);
 
@@ -363,13 +346,6 @@ namespace Solis.Player
 #endif
         }
         #endregion
-
-#if UNITY_EDITOR
-        private void OnValidate()
-        {
-            jumpCutMinHeight = Mathf.Clamp(jumpCutMinHeight, 0, jumpMaxHeight);
-        }
-#endif
 
         #region Network Callbacks
         public override void OnSpawned(bool isRetroactive)
@@ -417,13 +393,13 @@ namespace Solis.Player
         private void _Timer()
         {
             var deltaTime = Time.deltaTime;
-            _coyoteTimer = IsGrounded ? coyoteTime : _coyoteTimer - deltaTime;
+            _coyoteTimer = IsGrounded ? CoyoteTime : _coyoteTimer - deltaTime;
             _interactTimer = _interactTimer > 0 ? _interactTimer - deltaTime : 0;
-            _respawnTimer = _isRespawning ? _respawnTimer - deltaTime : respawnTimer;
+            _respawnTimer = _isRespawning ? _respawnTimer - deltaTime : RespawnCooldown;
             if (_respawnTimer <= 0)
             {
                 _isRespawning = false;
-                _respawnTimer = respawnTimer;
+                _respawnTimer = RespawnCooldown;
             }
             
             if(IsGrounded) _jumpTimer -= deltaTime;
@@ -434,7 +410,7 @@ namespace Solis.Player
             if (Input.GetButtonDown("Interact") && _interactTimer <= 0 && IsGrounded)
             {
                 animator.SetTrigger("Punch");
-                _interactTimer = interactCooldown;
+                _interactTimer = InteractCooldown;
 
                 //Run after
                 Task.Run(async () =>
@@ -452,9 +428,11 @@ namespace Solis.Player
         private void _Move()
         {
             var moveInput = !_isPaused ? MoveInput.normalized : Vector2.zero;
-            var target = moveInput * maxSpeed;
-            var accelerationValue = ((Mathf.Abs(moveInput.magnitude) > 0.01f) ? acceleration : deceleration) *
-                                    Time.deltaTime;
+            var maxSpeedTarget = _inJumpState ? MaxSpeed * AccelInJumpMultiplier : MaxSpeed;
+            var target = moveInput * maxSpeedTarget;
+            var accelOrDecel = (Mathf.Abs(moveInput.magnitude) > 0.01f);
+            var accelerationValue = ((accelOrDecel ? Acceleration : Deceleration)) * Time.deltaTime;
+
             velocity.x = Mathf.MoveTowards(velocity.x, target.x, accelerationValue);
             velocity.z = Mathf.MoveTowards(velocity.z, target.y, accelerationValue);
         }
@@ -467,32 +445,34 @@ namespace Solis.Player
                 _isJumping = true;
                 _isJumpingEnd = false;
                 _isJumpCut = false;
-                IsFalling = false;
+                _inJumpState = true;
                 velocity.y = 0.1f;
                 _startJumpPos = transform.position.y;
                 _lastJumpHeight = transform.position.y;
                 _lastJumpVelocity = velocity.y;
-                _multiplier = jumpGravityMultiplier;
-                _jumpTimer = timeToJump;
+                _multiplier = JumpGravityMultiplier;
+                _jumpTimer = TimeToJump;
                 jumpParticles.Play();
             }
 
-            if (InputJumpUp && CanJumpCut)
-            {
+            if(InputJumpUp && !_isJumpingEnd)
                 _isJumpCut = true;
+            
+            if (_isJumpCut && CanJumpCut)
+            {
                 _isJumping = false;
                 velocity.y *= 0.5f;
-                _multiplier = jumpCutGravityMultiplier;
+                //_multiplier = jumpCutGravityMultiplier;
             }
 
-            if (_isJumping && !_isJumpCut)
+            if (_isJumping)
             {
-                velocity.y += jumpAcceleration * Time.deltaTime;
+                velocity.y += JumpAcceleration * Time.deltaTime;
                 var diff = Mathf.Abs(transform.position.y - _startJumpPos);
-                if (diff >= jumpMaxHeight)
+                if (diff >= JumpMaxHeight)
                 {
                     _isJumping = false;
-                    velocity.y *= maxHeightDecel;
+                    velocity.y *= MaxHeightDecel;
                 }
             }
 
@@ -508,6 +488,7 @@ namespace Solis.Player
                 if(velocity.y <= 0)
                 {
                     _isJumpingEnd = true;
+                    _isJumpCut = false;
 #if UNITY_EDITOR
                     debugLastJumpMaxHeight = transform.position;
 #endif
@@ -519,15 +500,19 @@ namespace Solis.Player
         {
             if (IsGrounded)
             {
-                _multiplier = fallMultiplier;
-                if (IsFalling)
+                _multiplier = FallMultiplier;
+                if (_isFalling)
                 {
+                    _inJumpState = false;
+                    _isFalling = false;
                     landParticles.Play();
-                    IsFalling = false;
+                    Debug.Log("Landed");
                 }
-
                 return;
             }
+
+            if (velocity.y < 0 && !_isFalling)
+                _isFalling = true;
 
             if (_isJumping)
             {
@@ -537,8 +522,9 @@ namespace Solis.Player
                 if(diff > 0.1f && posY < expectedYPos)
                 {
                     _isJumping = false;
+                    _isJumpCut = false;
                     _isJumpingEnd = true;
-                    velocity.y *= hitHeadDecel;
+                    velocity.y *= HitHeadDecel;
                     Debug.Log($"Hit head (ExpectedYPos: {expectedYPos} - CurrPos: {posY} - LastPos: {_lastJumpHeight} - Diff: {diff} - Vel: {velocity.y} - LastVel: {_lastJumpVelocity})");
                     return;
                 }
@@ -548,9 +534,8 @@ namespace Solis.Player
                 return;
             }
 
-            IsFalling = velocity.y < (gravity * _multiplier) / 2;
-            velocity.y += gravity * _multiplier * Time.fixedDeltaTime;
-            velocity.y = Mathf.Max(velocity.y, -maxFallSpeed);
+            velocity.y += Gravity * _multiplier * Time.fixedDeltaTime;
+            velocity.y = Mathf.Max(velocity.y, -MaxFallSpeed);
         }
 
         private void _HandlePlatform()
@@ -602,7 +587,7 @@ namespace Solis.Player
                     velocity = Vector3.zero;
                     landParticles.Play();
                     _isRespawning = true;
-                    _respawnTimer = respawnTimer;
+                    _respawnTimer = RespawnCooldown;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(death), death, null);
@@ -612,4 +597,43 @@ namespace Solis.Player
 
         #endregion
     }
+
+    #if UNITY_EDITOR
+    [UnityEditor.CustomEditor(typeof(PlayerControllerBase), true), CanEditMultipleObjects]
+    public class PlayerControllerBaseEditor : UnityEditor.Editor
+    {
+        private PlayerControllerBase _player;
+        private Editor _playerDataEditor;
+        public override void OnInspectorGUI()
+        {
+            DrawSettingsEditor(_player.data, null, ref _player.playerDataFoldout, ref _playerDataEditor);
+
+            base.OnInspectorGUI();
+        }
+
+        public void DrawSettingsEditor(Object settings, Action onSettingsUpdated, ref bool foldout, ref Editor editor)
+        {
+            if (settings == null) return;
+            using (var check = new EditorGUI.ChangeCheckScope())
+            {
+                foldout =  EditorGUILayout.InspectorTitlebar(foldout, settings);
+                if (foldout)
+                {
+                    CreateCachedEditor(settings, null, ref editor);
+                    editor.OnInspectorGUI();
+
+                    if (check.changed)
+                    {
+                        onSettingsUpdated?.Invoke();
+                    }
+                }
+            }
+        }
+
+        private void OnEnable()
+        {
+            _player = (PlayerControllerBase) target;
+        }
+    }
+    #endif
 }
