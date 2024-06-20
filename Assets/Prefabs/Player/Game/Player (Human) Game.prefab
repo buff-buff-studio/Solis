@@ -532,14 +532,6 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 12
       objectReference: {fileID: 0}
-    - target: {fileID: 2503042567479545300, guid: 3bb6760404bac5645aa2062caf017bf5, type: 3}
-      propertyPath: InitialModule.startSize.scalar
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 2503042567479545300, guid: 3bb6760404bac5645aa2062caf017bf5, type: 3}
-      propertyPath: InitialModule.startSize.minScalar
-      value: 0.1
-      objectReference: {fileID: 0}
     - target: {fileID: 5631158248037600564, guid: 3bb6760404bac5645aa2062caf017bf5, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -3982,6 +3974,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 018c84c788dc45879e9e679fcf14832c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  data: {fileID: 11400000, guid: c744307cf539a6840a3a9225081802e0, type: 2}
+  playerDataFoldout: 0
   controller: {fileID: 1608107723115469906}
   animator: {fileID: 4980455893260842252}
   emoteController: {fileID: 8554980401512840443}
@@ -3991,34 +3985,15 @@ MonoBehaviour:
   dustParticles: {fileID: 715729684961566}
   jumpParticles: {fileID: 951114704059391838}
   landParticles: {fileID: 1233122826114929891}
-  data: {fileID: 11400000, guid: c744307cf539a6840a3a9225081802e0, type: 2}
-  playerDataFoldout: 1
-  maxSpeed: 7
-  acceleration: 50
-  deceleration: 80
-  accelInJumpMultiplier: 1.25
-  rotationSpeed: 120
-  jumpMaxHeight: 2
-  jumpAcceleration: 50
-  jumpGravityMultiplier: 1
-  jumpCutMinHeight: 1.5
-  jumpCutGravityMultiplier: 4
-  coyoteTime: 0
-  timeToJump: 0.05
-  gravity: -9.81
-  fallMultiplier: 5.5
-  maxFallSpeed: 16
-  maxHeightDecel: 0.85
-  hitHeadDecel: 0.15
-  interactCooldown: 0.75
-  respawnCooldown: 3
   state: 0
   velocity: {x: 0, y: 0, z: 0}
   tickRate: 128
   magnetReferenceLocalPosition: {x: 0, y: 2, z: 0}
   magnetAnchor: {fileID: 0}
   handPosition: {fileID: 8118953567111281005}
-  itemsHeld: 0
+  itemsHeld:
+    value: 0
+    type: 1
   debugJump: 0
   debugLastJumpMaxHeight: {x: 0, y: 0, z: 0}
   debugNextMovePos: {x: 0, y: 0, z: 0}
