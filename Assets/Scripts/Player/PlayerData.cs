@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Solis.Player
 {
-    [CreateAssetMenu(fileName = "PlayerData", menuName = "Player", order = 0)]
+    [CreateAssetMenu(fileName = "PlayerData", menuName = "Solis/Player", order = 0)]
     public class PlayerData : ScriptableObject
     {
         [Header("MOVEMENT")]
