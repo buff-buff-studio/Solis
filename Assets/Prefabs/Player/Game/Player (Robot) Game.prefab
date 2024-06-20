@@ -861,6 +861,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 238833d15fe24b93a7d3ed1ebe00a37f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  data: {fileID: 11400000, guid: 4df23a7d70339ad4fb117b628b07b97f, type: 2}
+  playerDataFoldout: 1
   controller: {fileID: 1608107723115469906}
   animator: {fileID: 4980455893260842252}
   emoteController: {fileID: 7701133022374915957}
@@ -870,32 +872,15 @@ MonoBehaviour:
   dustParticles: {fileID: 715729684961566}
   jumpParticles: {fileID: 951114704059391838}
   landParticles: {fileID: 1233122826114929891}
-  maxSpeed: 6
-  acceleration: 50
-  deceleration: 80
-  accelInJumpMultiplier: 1.15
-  rotationSpeed: 120
-  jumpMaxHeight: 1
-  jumpAcceleration: 50
-  jumpGravityMultiplier: 1
-  jumpCutMinHeight: 0.6
-  jumpCutGravityMultiplier: 4
-  coyoteTime: 0
-  timeToJump: 0.05
-  gravity: -9.81
-  fallMultiplier: 5.5
-  maxFallSpeed: 16
-  maxHeightDecel: 0.85
-  hitHeadDecel: 0.15
   state: 0
   velocity: {x: 0, y: 0, z: 0}
-  interactCooldown: 0.5
-  respawnTimer: 1
   tickRate: 128
   magnetReferenceLocalPosition: {x: 0, y: 2, z: 0}
   magnetAnchor: {fileID: 0}
   handPosition: {fileID: 3989358408564720646}
-  itemsHeld: 0
+  itemsHeld:
+    value: 0
+    type: 0
   debugJump: 0
   debugLastJumpMaxHeight: {x: 0, y: 0, z: 0}
   debugNextMovePos: {x: 0, y: 0, z: 0}

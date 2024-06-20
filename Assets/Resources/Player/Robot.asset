@@ -12,22 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7145faf1338b4bca9cc02def0c3b65c6, type: 3}
   m_Name: Robot
   m_EditorClassIdentifier: 
-  maxSpeed: 12
-  acceleration: 0.1
-  deceleration: 0.1
-  accelInJumpMultiplier: 1.5
-  rotationSpeed: 25
-  jumpMaxHeight: 2
-  jumpAcceleration: 0.1
-  jumpGravityMultiplier: 0.5
-  jumpCutMinHeight: 1.5
-  jumpCutGravityMultiplier: 0.75
-  coyoteTime: 0.3
-  timeToJump: 0.5
+  maxSpeed: 6
+  acceleration: 50
+  deceleration: 80
+  accelInJumpMultiplier: 1.15
+  rotationSpeed: 120
+  jumpMaxHeight: 1
+  jumpAcceleration: 50
+  jumpGravityMultiplier: 1
+  jumpCutMinHeight: 0.6
+  jumpCutGravityMultiplier: 4
+  coyoteTime: 0
+  timeToJump: 0.05
   gravity: -9.81
-  fallMultiplier: 2.5
-  maxFallSpeed: 20
+  fallMultiplier: 5.5
+  maxFallSpeed: 16
   maxHeightDecel: 0.85
   hitHeadDecel: 0.15
-  interactCooldown: 0
-  respawnCooldown: 3
+  interactCooldown: 0.5
+  respawnCooldown: 1
