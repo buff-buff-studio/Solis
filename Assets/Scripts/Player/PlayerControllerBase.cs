@@ -462,17 +462,19 @@ namespace Solis.Player
             {
                 _isJumping = false;
                 velocity.y *= 0.5f;
-                //_multiplier = jumpCutGravityMultiplier;
+                _multiplier = JumpGravityMultiplier;
             }
 
             if (_isJumping)
             {
                 velocity.y += JumpAcceleration * Time.deltaTime;
-                var diff = Mathf.Abs(transform.position.y - _startJumpPos);
+                var diff = Mathf.Abs((transform.position.y + (velocity.y*Time.fixedDeltaTime)) - _startJumpPos);
                 if (diff >= JumpMaxHeight)
                 {
                     _isJumping = false;
                     velocity.y *= MaxHeightDecel;
+                    _multiplier = JumpGravityMultiplier;
+                    Debug.Log("Max Height Reached");
                 }
             }
 
@@ -489,6 +491,7 @@ namespace Solis.Player
                 {
                     _isJumpingEnd = true;
                     _isJumpCut = false;
+                    Debug.Log("Jump End");
 #if UNITY_EDITOR
                     debugLastJumpMaxHeight = transform.position;
 #endif
@@ -511,6 +514,11 @@ namespace Solis.Player
                 return;
             }
 
+            if (_inJumpState)
+            {
+                Debug.Log($"Pos: {transform.position} - Vel: {velocity.y}");
+            }
+
             if (velocity.y < 0 && !_isFalling)
                 _isFalling = true;
 
@@ -525,6 +533,7 @@ namespace Solis.Player
                     _isJumpCut = false;
                     _isJumpingEnd = true;
                     velocity.y *= HitHeadDecel;
+                    _multiplier = JumpGravityMultiplier;
                     Debug.Log($"Hit head (ExpectedYPos: {expectedYPos} - CurrPos: {posY} - LastPos: {_lastJumpHeight} - Diff: {diff} - Vel: {velocity.y} - LastVel: {_lastJumpVelocity})");
                     return;
                 }
