@@ -604,6 +604,8 @@ namespace NetBuff.Relays
 						    {
 							    var id = binaryReader.ReadInt32();
 							    var packet = PacketRegistry.CreatePacket(id);
+							    
+							    Debug.Log($"Received packet {packet}:{id}");
 	            
 							    packet.Deserialize(binaryReader);
 							    transport.OnClientPacketReceived?.Invoke(packet);
@@ -750,7 +752,7 @@ namespace NetBuff.Relays
 	        _server.connectionsEventsQueue = new NativeQueue<UtpConnectionEvent>(Allocator.Persistent);
 	        
 	        _server.reliablePipeline = _server.driver.CreatePipeline(typeof(FragmentationPipelineStage), typeof(ReliableSequencedPipelineStage));
-	        _server.unreliablePipeline = _server.driver.CreatePipeline(typeof(FragmentationPipelineStage), typeof(UnreliableSequencedPipelineStage));
+	        _server.unreliablePipeline = _server.driver.CreatePipeline(typeof(UnreliableSequencedPipelineStage));
 
 	        _server.driver.Bind(endpoint);
 	        if (!_server.driver.Bound)
@@ -786,8 +788,8 @@ namespace NetBuff.Relays
 		        settings.WithFragmentationStageParameters(payloadCapacity: 16384);
 
 		        _client.driver = NetworkDriver.Create(settings);
-		        _client.reliablePipeline = _client.driver.CreatePipeline(typeof(FragmentationPipelineStage), typeof(FragmentationPipelineStage), typeof(ReliableSequencedPipelineStage));
-		        _client.unreliablePipeline = _client.driver.CreatePipeline(typeof(FragmentationPipelineStage), typeof(FragmentationPipelineStage), typeof(UnreliableSequencedPipelineStage));
+		        _client.reliablePipeline = _client.driver.CreatePipeline(typeof(FragmentationPipelineStage), typeof(ReliableSequencedPipelineStage));
+		        _client.unreliablePipeline = _client.driver.CreatePipeline( typeof(UnreliableSequencedPipelineStage));
 
 		        _client.connection = _client.driver.Connect(relayServerData.Endpoint);
 
@@ -968,6 +970,8 @@ namespace NetBuff.Relays
 	        packet.Serialize(_Writer0);
 	        var segment = new ArraySegment<byte>(_Buffer0, 0, (int)_Writer0.BaseStream.Position);
 	        
+	        Debug.Log($"Sending packet {packet}:{id} to {target} {segment.Count}");
+	        
 	        if (target == -1)
 	        {
 		        _server.jobHandle.Complete();
@@ -984,6 +988,7 @@ namespace NetBuff.Relays
         private void _SendTo(ArraySegment<byte> segment, int connectionId, bool reliable)
         {
 	        _server.jobHandle.Complete();
+	        
 
 	        if (_server.TryGetConnection(connectionId, out NetworkConnection connection))
 	        {
