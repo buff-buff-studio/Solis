@@ -60,7 +60,6 @@ namespace Solis.Player
         public float acceleration = 0.1f;
         public float deceleration = 0.1f;
         public float accelInJumpMultiplier = 1.5f;
-        public float decelInJumpMultiplier = 1.5f;
         public float rotationSpeed = 25;
 
         [Header("JUMP")]
@@ -162,7 +161,7 @@ namespace Solis.Player
         private bool CanJump => !_isJumping && (IsGrounded || _coyoteTimer > 0) && _jumpTimer <= 0 && !_isPaused;
 
         private bool CanJumpCut =>
-            _isJumping && !_isJumpCut && (transform.position.y - _startJumpPos) >= jumpCutMinHeight;
+            _isJumping && (transform.position.y - _startJumpPos) >= jumpCutMinHeight;
         private bool IsPlayerLocked => _isCinematicRunning || _isRespawning;
         private Vector3 HeadOffset => headOffset.position;
         #endregion
@@ -465,10 +464,10 @@ namespace Solis.Player
             {
                 _isJumping = false;
                 velocity.y *= 0.5f;
-                _multiplier = jumpCutGravityMultiplier;
+                //_multiplier = jumpCutGravityMultiplier;
             }
 
-            if (_isJumping && !_isJumpCut)
+            if (_isJumping)
             {
                 velocity.y += jumpAcceleration * Time.deltaTime;
                 var diff = Mathf.Abs(transform.position.y - _startJumpPos);
@@ -509,6 +508,7 @@ namespace Solis.Player
                     _inJumpState = false;
                     _isFalling = false;
                     landParticles.Play();
+                    Debug.Log("Landed");
                 }
                 return;
             }
