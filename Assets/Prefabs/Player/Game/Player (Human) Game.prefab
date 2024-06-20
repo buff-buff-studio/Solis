@@ -3991,6 +3991,8 @@ MonoBehaviour:
   dustParticles: {fileID: 715729684961566}
   jumpParticles: {fileID: 951114704059391838}
   landParticles: {fileID: 1233122826114929891}
+  data: {fileID: 11400000, guid: c744307cf539a6840a3a9225081802e0, type: 2}
+  playerDataFoldout: 1
   maxSpeed: 7
   acceleration: 50
   deceleration: 80
@@ -4008,10 +4010,10 @@ MonoBehaviour:
   maxFallSpeed: 16
   maxHeightDecel: 0.85
   hitHeadDecel: 0.15
+  interactCooldown: 0.75
+  respawnCooldown: 3
   state: 0
   velocity: {x: 0, y: 0, z: 0}
-  interactCooldown: 0.75
-  respawnTimer: 1
   tickRate: 128
   magnetReferenceLocalPosition: {x: 0, y: 2, z: 0}
   magnetAnchor: {fileID: 0}

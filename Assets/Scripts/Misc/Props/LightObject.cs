@@ -14,7 +14,6 @@ namespace Solis.Misc.Props
     [RequireComponent(typeof(Rigidbody))]
     public class LightObject : NetworkBehaviour, ILightObject
     {
-        
         #region Inspector Fields
         [Header("SETTINGS")]
         public float radius = 3f;
@@ -185,7 +184,7 @@ namespace Solis.Misc.Props
                     
                     playerHolding = null;
                     isOn.Value = false;
-                    controller.itemsHeld = 0;
+                    controller.itemsHeld.Value = 0;
                     ServerBroadcastPacket(new LightObjectGrabPacket
                     {
                         Id = this.Id,
@@ -194,12 +193,12 @@ namespace Solis.Misc.Props
                     return true;
                 }
 
-                if(controller.itemsHeld > 0)
+                if(controller.itemsHeld.Value > 0)
                     return false;
                     
                 playerHolding = controller;
                 isOn.Value = true;
-                controller.itemsHeld++;
+                controller.itemsHeld.Value++;
                 ServerBroadcastPacket(new LightObjectGrabPacket
                 {
                     Id = this.Id,
