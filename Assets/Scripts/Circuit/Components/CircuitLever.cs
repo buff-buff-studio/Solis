@@ -40,9 +40,7 @@ namespace Solis.Circuit.Components
 
         protected void Update()
         {
-            handle.localEulerAngles =
-                new Vector3(Mathf.Lerp(handle.localEulerAngles.x, isOn.Value ? handleAngle : 0, Time.deltaTime * 10),
-                    0, 0);
+            handle.localRotation = Quaternion.Lerp(handle.localRotation, Quaternion.Euler(isOn.Value ? handleAngle : -handleAngle, 0, 0), Time.deltaTime * 10);
         }
 
         protected override void OnDisable()
