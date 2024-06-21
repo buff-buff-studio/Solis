@@ -177,6 +177,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7232dc9251e94e088918a6b1d29abcdd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  onToggleComponent:
+    m_PersistentCalls:
+      m_Calls: []
   from: {fileID: 7695849206737489916}
   to: {fileID: 8466256297270700852}
   claw: {fileID: 2052982630768794976}
@@ -186,8 +189,50 @@ MonoBehaviour:
     value: 0
     type: 0
   tickRate: 64
-  moveSpeed: 2
+  moveSpeed: 10
   clawRadius: 3
+  speedCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0.1
+      inSlope: 3.6
+      outSlope: 3.6
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.25
+      value: 1
+      inSlope: -0.014390653
+      outSlope: -0.014390653
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 1
+    - serializedVersion: 3
+      time: 0.75
+      value: 1
+      inSlope: -0.01944687
+      outSlope: -0.01944687
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.7307817
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0.1
+      inSlope: -3.6
+      outSlope: -3.6
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!114 &2428271975566379981
 MonoBehaviour:
   m_ObjectHideFlags: 0

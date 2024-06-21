@@ -144,9 +144,9 @@ namespace Solis.Misc.Props
 
             _collider.excludeLayers = !isOn.Value
                 ? 0
-                : ~(playerHolding!.CharacterType == CharacterType.Human
+                : ~((playerHolding!.CharacterType == CharacterType.Human
                     ? LayerMask.GetMask("Robot")
-                    : LayerMask.GetMask("Human"));
+                    : LayerMask.GetMask("Human"))+LayerMask.GetMask("Trigger"));
             
             if (isOn.Value)
             {
