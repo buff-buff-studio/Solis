@@ -292,7 +292,7 @@ namespace Solis.Player
                     }
 
                     controller.Move(new Vector3(move.x, velocity.y, move.z) * Time.fixedDeltaTime);
-                    if(IsGrounded && Physics.Raycast(nextPos, Vector3.down, out var hit, 0.1f) && hit.collider.gameObject.layer != LayerMask.NameToLayer("Platform"))
+                    if(IsGrounded && Physics.Raycast(nextPos, Vector3.down, out var hit, 0.1f, ~(LayerMask.NameToLayer("Platform")+LayerMask.NameToLayer("Trigger"))));
                     {
                         _lastSafePosition = transform.position;
                     }
