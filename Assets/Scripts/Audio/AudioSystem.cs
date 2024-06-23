@@ -69,9 +69,10 @@ namespace Solis.Audio
             for (var i = 0; i < audioSourcePoolSize; i++)
                 _CreateAudioSource(i);
 
-
+            
             PlayMusic("BaseMusic");
             PlayVfx("BackGround", true);
+            OnSettingsChanged();
         }
 
         private void OnEnable()
@@ -81,6 +82,7 @@ namespace Solis.Audio
             SettingsManager.OnSettingsChanged += OnSettingsChanged;
             
             DontDestroyOnLoad(gameObject);
+            OnSettingsChanged();
         }
 
         private void OnDisable()
@@ -236,7 +238,7 @@ namespace Solis.Audio
             go.SetActive(false);
             go.transform.SetParent(transform);
             var audioSource = go.AddComponent<AudioSource>();
-            audioSource.spatialBlend = 1;
+            audioSource.spatialBlend = 0;
             audioSource.transform.localPosition = Vector3.zero;
             freeAudioSources.Add(audioSource);
         }

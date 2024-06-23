@@ -4,6 +4,7 @@ using Cinemachine;
 using NetBuff.Components;
 using NetBuff.Interface;
 using NetBuff.Misc;
+using Solis.Audio;
 using Solis.Circuit.Components;
 using Solis.Data;
 using Solis.Misc;
@@ -453,6 +454,7 @@ namespace Solis.Player
                 _multiplier = JumpGravityMultiplier;
                 _jumpTimer = TimeToJump;
                 jumpParticles.Play();
+                AudioSystem.PlayVfxStatic("Jump");
             }
 
             if(InputJumpUp && !_isJumpingEnd)
