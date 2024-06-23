@@ -1,16 +1,20 @@
 using AYellowpaper.SerializedCollections;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Solis.Data
 {
     [CreateAssetMenu(fileName = "Settings", menuName = "Solis/Settings", order = 0)]
     public class SettingsData : ScriptableObject
     {
-        public SerializedDictionary<string, bool> boolItems;
+        [FormerlySerializedAs("boolItems")] 
+        public SerializedDictionary<string, bool> toggleItems;
         
-        public SerializedDictionary<string, int> intItems;
+        [FormerlySerializedAs("intItems")] 
+        public SerializedDictionary<string, int> arrowItems;
         
-        public SerializedDictionary<string, float> floatItems;
+        [FormerlySerializedAs("floatItems")] 
+        public SerializedDictionary<string, float> sliderItems;
 
         public void LoadFromJson(string json)
         {

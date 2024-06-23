@@ -120,13 +120,13 @@ namespace Solis.Audio
         private void OnSettingsChanged()
         {
             Debug.Log("Settings Changed");
-            var musicVolume = Mathf.Clamp(settingData.floatItems["musicVolume"] / 100, 0.0001f, 1f);
+            var musicVolume = Mathf.Clamp(settingData.sliderItems["musicVolume"] / 100, 0.0001f, 1f);
             musicMixer.audioMixer.SetFloat("musicVolume", Mathf.Log10(musicVolume) * 20);
             
-            var fxVolume = Mathf.Clamp(settingData.floatItems["sfxVolume"] / 100, 0.0001f, 1f);
+            var fxVolume = Mathf.Clamp(settingData.sliderItems["sfxVolume"] / 100, 0.0001f, 1f);
             vfxMixer.audioMixer.SetFloat("sfxVolume", Mathf.Log10(fxVolume) * 20);
             
-            var masterVolume = Mathf.Clamp(settingData.floatItems["masterVolume"] / 100, 0.0001f, 1f);
+            var masterVolume = Mathf.Clamp(settingData.sliderItems["masterVolume"] / 100, 0.0001f, 1f);
             masterMixer.audioMixer.SetFloat("masterVolume", Mathf.Log10(masterVolume) * 20);
         }
 
