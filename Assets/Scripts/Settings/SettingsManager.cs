@@ -269,6 +269,7 @@ namespace Solis.Settings
             //Sound
             settingsData.sliderItems["masterVolume"] = 100;
             settingsData.sliderItems["musicVolume"] = 50;
+            settingsData.sliderItems["characterVolume"] = 50;
             settingsData.sliderItems["sfxVolume"] = 50;
             
             SetItems();
