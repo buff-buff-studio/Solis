@@ -19,7 +19,7 @@ namespace Solis.Audio
                     "GrassLayer" => "GrassLayer",
                     _ => "GrassLayer"
                 };
-                AudioSystem.Instance.PlayVfx(audioToPlay);
+                AudioSystem.Instance.PlayCharacter(audioToPlay);
             }
             else
             {

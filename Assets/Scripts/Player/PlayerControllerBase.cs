@@ -454,7 +454,7 @@ namespace Solis.Player
                 _multiplier = JumpGravityMultiplier;
                 _jumpTimer = TimeToJump;
                 jumpParticles.Play();
-                AudioSystem.PlayVfxStatic("Jump");
+                AudioSystem.Instance.PlayCharacter("Jump");
             }
 
             if(InputJumpUp && !_isJumpingEnd)
@@ -599,6 +599,7 @@ namespace Solis.Player
                     landParticles.Play();
                     _isRespawning = true;
                     _respawnTimer = RespawnCooldown;
+                    AudioSystem.PlayVfxStatic("Death");
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(death), death, null);
