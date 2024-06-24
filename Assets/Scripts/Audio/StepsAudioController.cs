@@ -23,13 +23,8 @@ namespace Solis.Audio
             }
             else
             {
-                Debug.Log("Raycast did not hit anything.");
+                Debug.Log("Not hit");
             }
-        }
-
-        private void OnDrawGizmos()
-        {
-            Debug.DrawRay(transform.position, Vector3.down * 1000);
         }
     }
 }
