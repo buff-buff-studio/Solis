@@ -296,7 +296,6 @@ namespace Solis.Player
                     if(IsGrounded && Physics.Raycast(nextPos, Vector3.down, out var hit, 0.1f,
                            ~(LayerMask.NameToLayer("Platform")+LayerMask.NameToLayer("Trigger"))))
                     {
-                        Debug.Log("Hit: " + hit.collider.name);
                         _lastSafePosition = transform.position;
                     }
 

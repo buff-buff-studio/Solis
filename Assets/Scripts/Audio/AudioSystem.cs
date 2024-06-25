@@ -123,7 +123,7 @@ namespace Solis.Audio
         
         private void OnSettingsChanged()
         {
-            Debug.Log("Settings Changed");
+            Debug.Log("Volume Settings Changed");
             var musicVolume = Mathf.Clamp(settingData.sliderItems["musicVolume"] / 100, 0.0001f, 1f);
             musicMixer.audioMixer.SetFloat("musicVolume", Mathf.Log10(musicVolume) * 20);
             
