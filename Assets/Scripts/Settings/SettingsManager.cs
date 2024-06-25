@@ -185,7 +185,7 @@ namespace Solis.Settings
                     intItems["resolution"].currentIndex = settingsData.arrowItems["resolution"];
                 }
                 Screen.SetResolution(_supportedResolutions[settingsData.arrowItems["resolution"]].width, _supportedResolutions[settingsData.arrowItems["resolution"]].height, settingsData.toggleItems["fullscreen"]);
-                Debug.Log($"Settings applied: {QualitySettings.GetQualityLevel()} {Screen.width}x{Screen.height} {Screen.fullScreen} - VSync: {QualitySettings.vSyncCount}");
+                //Debug.Log($"Settings applied: {QualitySettings.GetQualityLevel()} {Screen.width}x{Screen.height} {Screen.fullScreen} - VSync: {QualitySettings.vSyncCount}");
             }
             catch (Exception e)
             {

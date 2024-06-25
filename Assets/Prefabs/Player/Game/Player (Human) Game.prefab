@@ -506,11 +506,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ef64e6572022fbb47969c1618d73ef20, type: 3}
---- !u!198 &951114704059391838 stripped
-ParticleSystem:
-  m_CorrespondingSourceObject: {fileID: 1998379763863090506, guid: ef64e6572022fbb47969c1618d73ef20, type: 3}
-  m_PrefabInstance: {fileID: 1623725812647668244}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &7428126139589010067 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8187160771688401031, guid: ef64e6572022fbb47969c1618d73ef20, type: 3}
@@ -3785,6 +3780,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 9592165b6127f3340abdb74110eb30d3, type: 3}
       insertIndex: -1
       addedObject: {fileID: 6018867155341239511}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 9592165b6127f3340abdb74110eb30d3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 334986936733364084}
   m_SourcePrefab: {fileID: 100100000, guid: 9592165b6127f3340abdb74110eb30d3, type: 3}
 --- !u!4 &3451874288275282608 stripped
 Transform:
@@ -3818,6 +3816,18 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &334986936733364084
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3643732251445208457}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10b33ec1af834e6ba321eb1a22788411, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &4168912144533225267 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 9592165b6127f3340abdb74110eb30d3, type: 3}
@@ -3838,11 +3848,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2195862425273019967, guid: a55a3791e379dfa42a63dd01f73de466, type: 3}
       propertyPath: id.low
-      value: 1892771475
+      value: 1258792052
       objectReference: {fileID: 0}
     - target: {fileID: 2195862425273019967, guid: a55a3791e379dfa42a63dd01f73de466, type: 3}
       propertyPath: id.high
-      value: -64026492
+      value: -1707033136
       objectReference: {fileID: 0}
     - target: {fileID: 4136800555700545090, guid: a55a3791e379dfa42a63dd01f73de466, type: 3}
       propertyPath: m_LocalPosition.x
@@ -3983,7 +3993,7 @@ MonoBehaviour:
   lookAt: {fileID: 6721387208844707837}
   headOffset: {fileID: 2022477272680672439}
   dustParticles: {fileID: 715729684961566}
-  jumpParticles: {fileID: 951114704059391838}
+  jumpParticles: {fileID: 1233122826114929891}
   landParticles: {fileID: 1233122826114929891}
   state: 0
   velocity: {x: 0, y: 0, z: 0}

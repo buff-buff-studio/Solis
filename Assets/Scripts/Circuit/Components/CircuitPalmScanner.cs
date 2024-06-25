@@ -25,6 +25,7 @@ namespace Solis.Circuit.Components
         public BoolNetworkValue isOn = new(false);
         public CircuitPlug output;
         public Image palm;
+        public ParticleSystem fx;
         #endregion
 
         #region Unity Callbacks
@@ -97,6 +98,7 @@ namespace Solis.Circuit.Components
         
         private void _OnValueChanged(bool old, bool @new)
         {
+            if(@new) fx.Play();
             Refresh();
         }
         #endregion

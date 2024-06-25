@@ -26,6 +26,7 @@ namespace Solis.Circuit.Components
         public Transform claw;
         public Transform anchor;
         public CircuitPlug input;
+        public ParticleSystem fxBlue, fxRed;
         
         [Header("STATE")]
         public FloatNetworkValue position = new(0);
@@ -39,6 +40,7 @@ namespace Solis.Circuit.Components
 
         #region Private Fields
         private bool _wasMoving;
+        private bool _lastValue;
         #endregion
 
         #region Unity Callbacks
@@ -47,6 +49,9 @@ namespace Solis.Circuit.Components
             WithValues(position);
             
             base.OnEnable();
+
+            fxRed.Stop();
+            fxBlue.Stop();
             InvokeRepeating(nameof(_Tick), 0, 1f / tickRate);
         }
 
@@ -130,6 +135,13 @@ namespace Solis.Circuit.Components
             var isMoving = Mathf.Abs(newValue - position.Value) > 0.001f;
             position.Value = newValue;
 
+            if (_lastValue != value)
+            {
+                _lastValue = value;
+                fxRed.Play();
+                fxBlue.Play();
+            }
+
             if (isMoving != _wasMoving)
             {
                 if (isMoving)
@@ -165,6 +177,8 @@ namespace Solis.Circuit.Components
                             Magnetized = false
                         });
                     }
+                    fxRed.Stop();
+                    fxBlue.Stop();
                 }
             }
             

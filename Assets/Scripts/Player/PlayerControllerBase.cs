@@ -4,6 +4,7 @@ using Cinemachine;
 using NetBuff.Components;
 using NetBuff.Interface;
 using NetBuff.Misc;
+using Solis.Audio;
 using Solis.Circuit.Components;
 using Solis.Data;
 using Solis.Misc;
@@ -275,7 +276,7 @@ namespace Solis.Player
                         move = Vector3.zero;
 
                     var walking = velocityXZ.magnitude > 0.1f;
-                    var nextPos = transform.position + (new Vector3(move.x, 0, move.z) * (Time.fixedDeltaTime * 10f));
+                    var nextPos = transform.position + (new Vector3(move.x, 0, move.z) * (Time.fixedDeltaTime * data.nextMoveMultiplier));
 
                     #if UNITY_EDITOR
                     debugNextMovePos = nextPos;
@@ -292,7 +293,8 @@ namespace Solis.Player
                     }
 
                     controller.Move(new Vector3(move.x, velocity.y, move.z) * Time.fixedDeltaTime);
-                    if(IsGrounded && Physics.Raycast(nextPos, Vector3.down, out var hit, 0.1f, ~(LayerMask.NameToLayer("Platform")+LayerMask.NameToLayer("Trigger"))));
+                    if(IsGrounded && Physics.Raycast(nextPos, Vector3.down, out var hit, 0.1f,
+                           ~(LayerMask.NameToLayer("Platform")+LayerMask.NameToLayer("Trigger"))))
                     {
                         _lastSafePosition = transform.position;
                     }
@@ -314,7 +316,7 @@ namespace Solis.Player
         public void OnDrawGizmos()
         {
 #if UNITY_EDITOR
-            if (Physics.Raycast(transform.position, Vector3.down, out var hit, 1.1f))
+            if (Physics.Raycast(transform.position, Vector3.down, out var hit, 1.1f, ~(LayerMask.NameToLayer("Platform")+LayerMask.NameToLayer("Trigger"))))
             {
                 Gizmos.color = hit.collider.gameObject.layer == LayerMask.NameToLayer("SafeGround")
                     ? Color.green
@@ -453,6 +455,7 @@ namespace Solis.Player
                 _multiplier = JumpGravityMultiplier;
                 _jumpTimer = TimeToJump;
                 jumpParticles.Play();
+                AudioSystem.Instance.PlayCharacter("Jump");
             }
 
             if(InputJumpUp && !_isJumpingEnd)
@@ -597,6 +600,7 @@ namespace Solis.Player
                     landParticles.Play();
                     _isRespawning = true;
                     _respawnTimer = RespawnCooldown;
+                    AudioSystem.PlayVfxStatic("Death");
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(death), death, null);
