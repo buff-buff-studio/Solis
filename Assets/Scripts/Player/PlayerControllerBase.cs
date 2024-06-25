@@ -275,7 +275,7 @@ namespace Solis.Player
                         move = Vector3.zero;
 
                     var walking = velocityXZ.magnitude > 0.1f;
-                    var nextPos = transform.position + (new Vector3(move.x, 0, move.z) * (Time.fixedDeltaTime * 10f));
+                    var nextPos = transform.position + (new Vector3(move.x, 0, move.z) * (Time.fixedDeltaTime * data.nextMoveMultiplier));
 
                     #if UNITY_EDITOR
                     debugNextMovePos = nextPos;
@@ -292,8 +292,10 @@ namespace Solis.Player
                     }
 
                     controller.Move(new Vector3(move.x, velocity.y, move.z) * Time.fixedDeltaTime);
-                    if(IsGrounded && Physics.Raycast(nextPos, Vector3.down, out var hit, 0.1f, ~(LayerMask.NameToLayer("Platform")+LayerMask.NameToLayer("Trigger"))));
+                    if(IsGrounded && Physics.Raycast(nextPos, Vector3.down, out var hit, 0.1f,
+                           ~(LayerMask.NameToLayer("Platform")+LayerMask.NameToLayer("Trigger"))))
                     {
+                        Debug.Log("Hit: " + hit.collider.name);
                         _lastSafePosition = transform.position;
                     }
 
@@ -314,7 +316,7 @@ namespace Solis.Player
         public void OnDrawGizmos()
         {
 #if UNITY_EDITOR
-            if (Physics.Raycast(transform.position, Vector3.down, out var hit, 1.1f))
+            if (Physics.Raycast(transform.position, Vector3.down, out var hit, 1.1f, ~(LayerMask.NameToLayer("Platform")+LayerMask.NameToLayer("Trigger"))))
             {
                 Gizmos.color = hit.collider.gameObject.layer == LayerMask.NameToLayer("SafeGround")
                     ? Color.green

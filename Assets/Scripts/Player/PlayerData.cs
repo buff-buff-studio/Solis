@@ -47,6 +47,9 @@ namespace Solis.Player
         public float interactCooldown;
         public float respawnCooldown = 3f;
 
+        [Header("MISC")]
+        public float nextMoveMultiplier = 15f;
+
 #if UNITY_EDITOR
         protected internal bool debugJumpSim = false;
 #endif
@@ -55,7 +58,7 @@ namespace Solis.Player
         {
             jumpCutMinHeight = Mathf.Clamp(jumpCutMinHeight, 0, jumpMaxHeight);
             Debug.Log("PlayerData Updated");
-            coyoteTime = 0;
+            //coyoteTime = 0;
         }
     }
 
