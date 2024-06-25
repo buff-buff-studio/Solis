@@ -4,6 +4,7 @@ using Cinemachine;
 using NetBuff.Components;
 using NetBuff.Interface;
 using NetBuff.Misc;
+using Solis.Audio;
 using Solis.Circuit.Components;
 using Solis.Data;
 using Solis.Misc;
@@ -455,6 +456,7 @@ namespace Solis.Player
                 _multiplier = JumpGravityMultiplier;
                 _jumpTimer = TimeToJump;
                 jumpParticles.Play();
+                AudioSystem.Instance.PlayCharacter("Jump");
             }
 
             if(InputJumpUp && !_isJumpingEnd)
@@ -599,6 +601,7 @@ namespace Solis.Player
                     landParticles.Play();
                     _isRespawning = true;
                     _respawnTimer = RespawnCooldown;
+                    AudioSystem.PlayVfxStatic("Death");
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(death), death, null);
