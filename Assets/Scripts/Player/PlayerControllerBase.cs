@@ -59,6 +59,7 @@ namespace Solis.Player
         public Transform body;
         public Transform lookAt;
         public Transform headOffset;
+        public LayerMask groundMask;
 
         [Header("FX REFERENCES")]
         public ParticleSystem dustParticles;
@@ -293,8 +294,7 @@ namespace Solis.Player
                     }
 
                     controller.Move(new Vector3(move.x, velocity.y, move.z) * Time.fixedDeltaTime);
-                    if(IsGrounded && Physics.Raycast(nextPos, Vector3.down, out var hit, 0.1f,
-                           ~(LayerMask.NameToLayer("Platform")+LayerMask.NameToLayer("Trigger"))))
+                    if(IsGrounded && Physics.Raycast(nextPos, Vector3.down, out var hit, 0.1f, groundMask))
                     {
                         _lastSafePosition = transform.position;
                     }
@@ -316,7 +316,7 @@ namespace Solis.Player
         public void OnDrawGizmos()
         {
 #if UNITY_EDITOR
-            if (Physics.Raycast(transform.position, Vector3.down, out var hit, 1.1f, ~(LayerMask.NameToLayer("Platform")+LayerMask.NameToLayer("Trigger"))))
+            if (Physics.Raycast(transform.position, Vector3.down, out var hit, 1.1f, groundMask))
             {
                 Gizmos.color = hit.collider.gameObject.layer == LayerMask.NameToLayer("SafeGround")
                     ? Color.green
@@ -515,11 +515,6 @@ namespace Solis.Player
                     Debug.Log("Landed");
                 }
                 return;
-            }
-
-            if (_inJumpState)
-            {
-                Debug.Log($"Pos: {transform.position} - Vel: {velocity.y}");
             }
 
             if (velocity.y < 0 && !_isFalling)
