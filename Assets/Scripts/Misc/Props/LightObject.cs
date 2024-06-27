@@ -184,7 +184,7 @@ namespace Solis.Misc.Props
                     
                     playerHolding = null;
                     isOn.Value = false;
-                    controller.itemsHeld.Value = 0;
+                    controller.itemsHeld = 0;
                     ServerBroadcastPacket(new LightObjectGrabPacket
                     {
                         Id = this.Id,
@@ -193,12 +193,12 @@ namespace Solis.Misc.Props
                     return true;
                 }
 
-                if(controller.itemsHeld.Value > 0)
+                if(controller.itemsHeld > 0)
                     return false;
                     
                 playerHolding = controller;
                 isOn.Value = true;
-                controller.itemsHeld.Value++;
+                controller.itemsHeld++;
                 ServerBroadcastPacket(new LightObjectGrabPacket
                 {
                     Id = this.Id,

@@ -4068,6 +4068,10 @@ PrefabInstance:
       propertyPath: m_WholeNumbers
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 3930589516678435253, guid: 334ac0c24d6d50f4285d3d571992c5b7, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7634872190701559488, guid: 334ac0c24d6d50f4285d3d571992c5b7, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -4225,6 +4229,10 @@ PrefabInstance:
       propertyPath: m_WholeNumbers
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 3930589516678435253, guid: 334ac0c24d6d50f4285d3d571992c5b7, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6229872484440342646, guid: 334ac0c24d6d50f4285d3d571992c5b7, type: 3}
       propertyPath: m_text
       value: 75%
@@ -4284,7 +4292,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1400784424945759178, guid: 72294a24fe6f27e42a4ba477b7138a0a, type: 3}
       propertyPath: invert
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3295578747017415249, guid: 72294a24fe6f27e42a4ba477b7138a0a, type: 3}
       propertyPath: m_Pivot.x
@@ -4505,11 +4513,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3930589516678435253, guid: 334ac0c24d6d50f4285d3d571992c5b7, type: 3}
       propertyPath: m_Value
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 3930589516678435253, guid: 334ac0c24d6d50f4285d3d571992c5b7, type: 3}
       propertyPath: m_MaxValue
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3930589516678435253, guid: 334ac0c24d6d50f4285d3d571992c5b7, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.size
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6229872484440342646, guid: 334ac0c24d6d50f4285d3d571992c5b7, type: 3}
       propertyPath: m_text
@@ -4667,6 +4679,10 @@ PrefabInstance:
     - target: {fileID: 3930589516678435253, guid: 334ac0c24d6d50f4285d3d571992c5b7, type: 3}
       propertyPath: m_WholeNumbers
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3930589516678435253, guid: 334ac0c24d6d50f4285d3d571992c5b7, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.size
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7634872190701559488, guid: 334ac0c24d6d50f4285d3d571992c5b7, type: 3}
       propertyPath: m_AnchorMax.x
@@ -4851,20 +4867,24 @@ PrefabInstance:
     m_TransformParent: {fileID: 9089955250563635315}
     m_Modifications:
     - target: {fileID: 1400784424945759178, guid: 72294a24fe6f27e42a4ba477b7138a0a, type: 3}
+      propertyPath: invert
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1400784424945759178, guid: 72294a24fe6f27e42a4ba477b7138a0a, type: 3}
       propertyPath: items.Array.size
-      value: 4
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 1400784424945759178, guid: 72294a24fe6f27e42a4ba477b7138a0a, type: 3}
       propertyPath: 'items.Array.data[0]'
-      value: Alta Performance
-      objectReference: {fileID: 0}
-    - target: {fileID: 1400784424945759178, guid: 72294a24fe6f27e42a4ba477b7138a0a, type: 3}
-      propertyPath: 'items.Array.data[1]'
       value: Performance
       objectReference: {fileID: 0}
     - target: {fileID: 1400784424945759178, guid: 72294a24fe6f27e42a4ba477b7138a0a, type: 3}
-      propertyPath: 'items.Array.data[2]'
+      propertyPath: 'items.Array.data[1]'
       value: Balanceado
+      objectReference: {fileID: 0}
+    - target: {fileID: 1400784424945759178, guid: 72294a24fe6f27e42a4ba477b7138a0a, type: 3}
+      propertyPath: 'items.Array.data[2]'
+      value: Qualidade
       objectReference: {fileID: 0}
     - target: {fileID: 1400784424945759178, guid: 72294a24fe6f27e42a4ba477b7138a0a, type: 3}
       propertyPath: 'items.Array.data[3]'
@@ -4960,11 +4980,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4044421839939688466, guid: 72294a24fe6f27e42a4ba477b7138a0a, type: 3}
       propertyPath: m_text
-      value: Alta Performance
+      value: Performance
       objectReference: {fileID: 0}
     - target: {fileID: 4044421839939688466, guid: 72294a24fe6f27e42a4ba477b7138a0a, type: 3}
       propertyPath: m_fontSize
-      value: 31.65
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 6068646200116272506, guid: 72294a24fe6f27e42a4ba477b7138a0a, type: 3}
       propertyPath: m_Name
@@ -5239,6 +5259,10 @@ PrefabInstance:
     - target: {fileID: 3930589516678435253, guid: 334ac0c24d6d50f4285d3d571992c5b7, type: 3}
       propertyPath: m_WholeNumbers
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3930589516678435253, guid: 334ac0c24d6d50f4285d3d571992c5b7, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.size
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6229872484440342646, guid: 334ac0c24d6d50f4285d3d571992c5b7, type: 3}
       propertyPath: m_text
