@@ -53,6 +53,7 @@ namespace Solis.Settings
         
         private void Awake()
         {
+            DetectDisplay();
             Load();
             
             foreach (var i in intItems)
@@ -216,15 +217,12 @@ namespace Solis.Settings
 
         private void SetItems()
         {
-            foreach (var g in settingsData.toggleItems)
-                boolItems[g.Key].isOn = g.Value;
-            foreach (var g in settingsData.arrowItems)
-                intItems[g.Key].currentIndex = g.Value;
-            foreach (var g in settingsData.sliderItems)
-            {
-                floatItems[g.Key].value = g.Value;
-                floatItems[g.Key].onValueChanged.Invoke(g.Value);
-            }
+            foreach (var t in settingsData.toggleItems)
+                boolItems[t.Key].isOn = t.Value;
+            foreach (var a in settingsData.arrowItems)
+                intItems[a.Key].currentIndex = a.Value;
+            foreach (var s in settingsData.sliderItems)
+                floatItems[s.Key].value = (float)s.Value;
 
             ApplySettings();
             OnSettingsChanged?.Invoke();
@@ -285,6 +283,23 @@ namespace Solis.Settings
             else if(_supportedResolutions.Exists(r => r.height == display.height))
                 return _supportedResolutions.FindIndex(r => r.height == display.height);
             else return _supportedResolutions.FindIndex(r => r is { width: 1920, height: 1080 });
+        }
+
+        public void DetectDisplay()
+        {
+            //Sort width first then height
+            _supportedResolutions.Sort((r1, r2) => r1.width.CompareTo(r2.width) == 0 ? r1.height.CompareTo(r2.height) : r1.width.CompareTo(r2.width));
+            Debug.Log($"Supported Resolutions: {string.Join(", ", _supportedResolutions.Select(r => $"{r.width}x{r.height}"))}");
+            var display = UnityEngine.Device.Screen.mainWindowDisplayInfo;
+            if (!_supportedResolutions.Exists(r => r.width == display.width && r.height == display.height))
+            {
+                //Add in list on order
+                _supportedResolutions.Add(new Resolution {width = display.width, height = display.height});
+                _supportedResolutions.Sort((r1, r2) => r1.width.CompareTo(r2.width) == 0 ? r1.height.CompareTo(r2.height) : r1.width.CompareTo(r2.width));
+
+                Debug.Log($"Added new resolution: {display.width}x{display.height}");
+                Debug.Log($"New Supported Resolutions: {string.Join(", ", _supportedResolutions.Select(r => $"{r.width}x{r.height}"))}");
+            }
         }
 
         [Serializable]

@@ -79,7 +79,7 @@ namespace Solis.Player
 
         [Header("HAND")]
         public Transform handPosition;
-        public IntNetworkValue itemsHeld = new(0, NetworkValue.ModifierType.Server);
+        public int itemsHeld = 0;
 
 #if UNITY_EDITOR
         [Header("DEBUG")]

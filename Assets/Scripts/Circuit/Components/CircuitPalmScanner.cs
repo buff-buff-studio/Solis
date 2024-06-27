@@ -98,7 +98,7 @@ namespace Solis.Circuit.Components
         
         private void _OnValueChanged(bool old, bool @new)
         {
-            if(@new) fx.Play();
+            if(@new && fx != null) fx.Play();
             Refresh();
         }
         #endregion
