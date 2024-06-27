@@ -64,7 +64,7 @@ void water_GetDirtyRegion_float(float3 position, out float Out)
     Out = value;
 }
 
-void water_GetMainData_float(float3 position, float waveStrength, float waveSpeed, out float2 Out, out float Displacement)
+void water_GetMainData_float(float3 position, float waveStrength, float waveSpeed, out float2 FinalResult, out float Displacement)
 {
     float2 pos = position.xz;
     float2 direction =_waterFlowDirection;
@@ -93,8 +93,8 @@ void water_GetMainData_float(float3 position, float waveStrength, float waveSpee
     //water_GetDirtyRegion_float(position, dirty);
     //direction = lerp(direction, -direction, saturate((dirty - 0.5f) * 2.f)); 
 
-    float fac = length(direction)/2000;
-    float wave = waveStrength * fac * sin(fac * waveSpeed * _Time.y);
+    float fac = length(direction)/100;
+    float wave = waveStrength * fac * sin((position.x + position.z + _Time.y % 16) / 3.0f);
     
     //Pipes
     float2 pipeCenter;
@@ -102,8 +102,8 @@ void water_GetMainData_float(float3 position, float waveStrength, float waveSpee
     water_PipeExit_float(position, pipeCenter, pipeStrength);
     direction = lerp(direction, float2(1,1) * _Time.x, pipeStrength);
     wave = lerp(wave, -0.5f, pipeStrength);
-    
-    Out = waveSpeed * direction;
+   
+    FinalResult = waveSpeed * direction;
     Displacement = wave;
 }
 
