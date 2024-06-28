@@ -122,11 +122,13 @@ namespace Solis.Misc.Props
             transform.position = _initialPosition + Vector3.up;
             transform.rotation = Quaternion.identity;
             rb.velocity = Vector3.zero;
-            if (isOn.Value)
+            playerHolding = null;
+            isOn.Value = false;
+            /*if (isOn.Value)
             {
                 playerHolding = null;
                 isOn.Value = false;
-            }
+            }*/
         }
 
         private void _OnValueChanged(bool old, bool @new)
@@ -167,7 +169,7 @@ namespace Solis.Misc.Props
         {
             var player = GetNetworkObject(arg1.Id);
             var dist = Vector3.Distance(player.transform.position, transform.position);
-
+            Debug.Log(dist);
             if (dist > radius)
                 return false;
 
