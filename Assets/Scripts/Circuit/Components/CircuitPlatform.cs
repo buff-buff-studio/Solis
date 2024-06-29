@@ -3,7 +3,6 @@ using System.Linq;
 using NetBuff.Misc;
 using Solis.Circuit.Interfaces;
 using UnityEngine;
-using VFX;
 
 namespace Solis.Circuit.Components
 {
@@ -59,8 +58,8 @@ namespace Solis.Circuit.Components
             CancelInvoke(nameof(_Tick));
             CancelInvoke(nameof(_TickCheck));
         }
-
-        protected virtual void FixedUpdate()
+       
+        private void FixedUpdate()
         {
             var newPosition = Vector3.Lerp(from.position, to.position, position.Value);
             DeltaSinceLastFrame = newPosition - platform.position;
@@ -110,8 +109,8 @@ namespace Solis.Circuit.Components
         }
         #endregion
 
-        private protected float speed;
-        private protected bool value;
+        private float speed;
+        bool value;
         #region Private Methods
         private void _Tick()
         {

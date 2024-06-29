@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using AYellowpaper.SerializedCollections;
@@ -15,6 +14,7 @@ namespace Solis.Settings
 {
     public class SettingsManager : WindowManager
     {
+        private static bool _isInitialized;
         private static string Path => Application.persistentDataPath;
         
         [SerializeField]
@@ -35,42 +35,27 @@ namespace Solis.Settings
 #endif
         
         public static Action OnSettingsChanged;
-        
-        private readonly List<Resolution> _supportedResolutions = new List<Resolution>
-        {//4k 21:9 to FHD, 4k 16:9 to HD, FHD 4:3 to SD
-            new Resolution {width = 3840, height = 1600}, //21:9
-            new Resolution {width = 3840, height = 2160}, //16:9
-            new Resolution {width = 2560, height = 1080}, //21:9
-            new Resolution {width = 1920, height = 1080}, //16:9
-            new Resolution {width = 1440, height = 1080}, //4:3
-            new Resolution {width = 1280, height = 960}, //4:3
-            new Resolution {width = 1280, height = 720}, //16:9
-            new Resolution {width = 1024, height = 768}, //4:3
-            new Resolution {width = 800, height = 600}, //4:3
-        };
 
         #region Unity Callbacks
         
         private void Awake()
         {
-            DetectDisplay();
+            if (!_isInitialized)
+            {
+                _isInitialized = true;
+            }
+
             Load();
             
             foreach (var i in intItems)
-                i.Value.onChangeItem.AddListener(index => { settingsData.arrowItems[i.Key] = index; OnSettingsChanged?.Invoke(); });
+                i.Value.onChangeItem.AddListener(index => { settingsData.intItems[i.Key] = index; OnSettingsChanged?.Invoke(); });
             foreach (var f in floatItems)
-                f.Value.onValueChanged.AddListener(value => { settingsData.sliderItems[f.Key] = value; OnSettingsChanged?.Invoke(); });
+                f.Value.onValueChanged.AddListener(value => { settingsData.floatItems[f.Key] = value; OnSettingsChanged?.Invoke(); });
             foreach (var b in boolItems)
-                b.Value.onValueChanged.AddListener(value => { settingsData.toggleItems[b.Key] = value; OnSettingsChanged?.Invoke(); });
+                b.Value.onValueChanged.AddListener(value => { settingsData.boolItems[b.Key] = value; OnSettingsChanged?.Invoke(); });
             
             
-            intItems["resolution"].SetItems(_supportedResolutions.Select(r => $"{r.width}x{r.height}").ToList());
-        }
-
-        private void Update()
-        {
-            if(Input.GetKeyDown(KeyCode.F))
-                Screen.fullScreen = !Screen.fullScreen;
+            intItems["resolution"].SetItems(Screen.resolutions.Select(r => $"{r.width}x{r.height}").ToList());
         }
 
         private void OnEnable()
@@ -78,7 +63,7 @@ namespace Solis.Settings
             OnSettingsChanged += ApplySettings;
         }
 
-        private void OnDisable()
+        private void OnDestroy()
         {
             OnSettingsChanged -= ApplySettings;
         }
@@ -115,11 +100,11 @@ namespace Solis.Settings
                 intItems.Clear();
                 floatItems.Clear();
 
-                foreach (var b in settingsData.toggleItems)
+                foreach (var b in settingsData.boolItems)
                     boolItems.Add(b.Key, null);
-                foreach (var i in settingsData.arrowItems)
+                foreach (var i in settingsData.intItems)
                     intItems.Add(i.Key, null);
-                foreach (var f in settingsData.sliderItems)
+                foreach (var f in settingsData.floatItems)
                     floatItems.Add(f.Key, null);
                 
                 resetItems = false;
@@ -148,16 +133,16 @@ namespace Solis.Settings
             }
             if (resetSO)
             {
-                settingsData.toggleItems.Clear();
-                settingsData.arrowItems.Clear();
-                settingsData.sliderItems.Clear();
+                settingsData.boolItems.Clear();
+                settingsData.intItems.Clear();
+                settingsData.floatItems.Clear();
                 
                 foreach (var item in boolItems)
-                    settingsData.toggleItems.Add(item.Key, false);
+                    settingsData.boolItems.Add(item.Key, false);
                 foreach (var item in intItems)
-                    settingsData.arrowItems.Add(item.Key, 0);
+                    settingsData.intItems.Add(item.Key, 0);
                 foreach (var item in floatItems)
-                    settingsData.sliderItems.Add(item.Key, 0);
+                    settingsData.floatItems.Add(item.Key, 0);
                 
                 resetSO = false;
             }
@@ -175,57 +160,43 @@ namespace Solis.Settings
         
         private void ApplySettings()
         {
-            try
-            {
-                QualitySettings.vSyncCount = settingsData.toggleItems["vsync"] ? 1 : 0;
-                QualitySettings.SetQualityLevel(settingsData.arrowItems["graphics"]);
-                Screen.fullScreen = settingsData.toggleItems["fullscreen"];
-                if (settingsData.arrowItems["resolution"] < 0 || settingsData.arrowItems["resolution"] >= _supportedResolutions.Count)
-                {
-                    settingsData.arrowItems["resolution"] = GetScreenResolution();
-                    intItems["resolution"].currentIndex = settingsData.arrowItems["resolution"];
-                }
-                Screen.SetResolution(_supportedResolutions[settingsData.arrowItems["resolution"]].width, _supportedResolutions[settingsData.arrowItems["resolution"]].height, settingsData.toggleItems["fullscreen"]);
-                //Debug.Log($"Settings applied: {QualitySettings.GetQualityLevel()} {Screen.width}x{Screen.height} {Screen.fullScreen} - VSync: {QualitySettings.vSyncCount}");
-            }
-            catch (Exception e)
-            {
-                Debug.LogError(e);
-            }
+            QualitySettings.vSyncCount = settingsData.boolItems["vsync"] ? 1 : 0;
+            QualitySettings.SetQualityLevel(settingsData.intItems["graphics"]);
+            Screen.fullScreen = settingsData.boolItems["fullscreen"];
+            if(settingsData.intItems["resolution"] != -1)
+                Screen.SetResolution(Screen.resolutions[settingsData.intItems["resolution"]].width, Screen.resolutions[settingsData.intItems["resolution"]].height, settingsData.boolItems["fullscreen"]);
         }
 
         private void Load()
         {
-            if (File.Exists(Path + "/game.config"))
+            if (File.Exists(Path + "/settings.json"))
             {
-                settingsData.LoadFromJson(File.ReadAllText(Path + "/game.config"));
+                settingsData.LoadFromJson(File.ReadAllText(Path + "/settings.json"));
                 SetItems();
             }else this.Save();
         }
 
         public void Save()
         {
-            if (!File.Exists(Path + "/game.config"))
+            if (!File.Exists(Path + "/settings.json"))
             {
-                File.Create(Path + "/game.config").Dispose();
-                ResetToDefault();
+                File.Create(Path + "/settings.json").Dispose();
+                settingsData.intItems["resolution"] = Screen.resolutions.ToList().FindIndex(r => r.width == Screen.width && r.height == Screen.height);
+                settingsData.intItems["graphics"] = QualitySettings.GetQualityLevel();
+                SetItems();
             }
-            File.WriteAllText(Path + "/game.config", JsonUtility.ToJson(settingsData, true));
+            File.WriteAllText(Path + "/settings.json", JsonUtility.ToJson(settingsData, true));
             OnSettingsChanged?.Invoke();
-            ApplySettings();
         }
 
         private void SetItems()
         {
-            foreach (var t in settingsData.toggleItems)
-                boolItems[t.Key].isOn = t.Value;
-            foreach (var a in settingsData.arrowItems)
-                intItems[a.Key].currentIndex = a.Value;
-            foreach (var s in settingsData.sliderItems)
-                floatItems[s.Key].value = (float)s.Value;
-
-            ApplySettings();
-            OnSettingsChanged?.Invoke();
+            foreach (var g in settingsData.boolItems)
+                boolItems[g.Key].isOn = g.Value;
+            foreach (var g in settingsData.intItems)
+                intItems[g.Key].currentIndex = g.Value;
+            foreach (var g in settingsData.floatItems)
+                floatItems[g.Key].value = g.Value;
         }
 
         private void OnTabSelected(int index)
@@ -248,58 +219,6 @@ namespace Solis.Settings
         {
             base.ChangeWindow(index);
             OnTabSelected(index);
-        }
-
-        public void ResetToDefault()
-        {
-            //Video
-            settingsData.arrowItems["resolution"] = GetScreenResolution();
-            settingsData.arrowItems["graphics"] = 1;
-            settingsData.toggleItems["fullscreen"] = true;
-            settingsData.toggleItems["vsync"] = true;
-            settingsData.toggleItems["motionBlur"] = true;
-            
-            //Gameplay
-            settingsData.sliderItems["cameraSensitivity"] = 1;
-            settingsData.toggleItems["invertXAxis"] = false;
-            settingsData.toggleItems["invertYAxis"] = true;
-            
-            //Sound
-            settingsData.sliderItems["masterVolume"] = 100;
-            settingsData.sliderItems["musicVolume"] = 50;
-            settingsData.sliderItems["characterVolume"] = 50;
-            settingsData.sliderItems["sfxVolume"] = 50;
-            
-            SetItems();
-        }
-        
-        public int GetScreenResolution()
-        {
-            var display = UnityEngine.Device.Screen.mainWindowDisplayInfo;
-            if(_supportedResolutions.Exists(r => r.width == display.width && r.height == display.height))
-                return _supportedResolutions.FindIndex(r => r.width == display.width && r.height == display.height);
-            else if(_supportedResolutions.Exists(r => r.width == display.width))
-                return _supportedResolutions.FindIndex(r => r.width == display.width);
-            else if(_supportedResolutions.Exists(r => r.height == display.height))
-                return _supportedResolutions.FindIndex(r => r.height == display.height);
-            else return _supportedResolutions.FindIndex(r => r is { width: 1920, height: 1080 });
-        }
-
-        public void DetectDisplay()
-        {
-            //Sort width first then height
-            _supportedResolutions.Sort((r1, r2) => r1.width.CompareTo(r2.width) == 0 ? r1.height.CompareTo(r2.height) : r1.width.CompareTo(r2.width));
-            Debug.Log($"Supported Resolutions: {string.Join(", ", _supportedResolutions.Select(r => $"{r.width}x{r.height}"))}");
-            var display = UnityEngine.Device.Screen.mainWindowDisplayInfo;
-            if (!_supportedResolutions.Exists(r => r.width == display.width && r.height == display.height))
-            {
-                //Add in list on order
-                _supportedResolutions.Add(new Resolution {width = display.width, height = display.height});
-                _supportedResolutions.Sort((r1, r2) => r1.width.CompareTo(r2.width) == 0 ? r1.height.CompareTo(r2.height) : r1.width.CompareTo(r2.width));
-
-                Debug.Log($"Added new resolution: {display.width}x{display.height}");
-                Debug.Log($"New Supported Resolutions: {string.Join(", ", _supportedResolutions.Select(r => $"{r.width}x{r.height}"))}");
-            }
         }
 
         [Serializable]

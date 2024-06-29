@@ -44,7 +44,6 @@ namespace Solis.Player
             TryGetComponent(out _boxCollider);
             _boxCollider.isTrigger = true;
             gameObject.tag = "DeathTrigger";
-            gameObject.layer = LayerMask.NameToLayer("Trigger");
         }
 
 #endif

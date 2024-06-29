@@ -19,9 +19,8 @@ namespace Solis.Circuit.Components
         #region Unity Callbacks
         protected override void OnEnable()
         {
-            WithValues(isOpen);
             base.OnEnable();
-            
+            WithValues(isOpen);
             _OnValueChanged(isOpen.Value, isOpen.Value);
             isOpen.OnValueChanged += _OnValueChanged;
         }
@@ -46,8 +45,7 @@ namespace Solis.Circuit.Components
 
         protected override void OnRefresh()
         {
-            if(isOpen.AttachedTo != null && HasAuthority)
-                isOpen.Value = input.ReadOutput().power > 0;
+            isOpen.Value = input.ReadOutput().power > 0;
         }
         #endregion
 

@@ -11,12 +11,10 @@ using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using Unity.Networking.Transport;
 using Unity.Networking.Transport.Relay;
-using Unity.Networking.Transport.Utilities;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
 using Unity.Services.Relay;
 using Unity.Services.Relay.Models;
-using UnityEngine;
 
 namespace NetBuff.Relays
 {
@@ -446,7 +444,7 @@ namespace NetBuff.Relays
                 jobHandle.Complete();
                 _driverMaxHeaderSize[Channels.RELIABLE] = driver.MaxHeaderSize(reliablePipeline);
                 _driverMaxHeaderSize[Channels.UNRELIABLE] = driver.MaxHeaderSize(unreliablePipeline);
-                
+
                 // Create a new jobs
                 var serverUpdateJob = new ServerUpdateJob
                 {
@@ -604,8 +602,6 @@ namespace NetBuff.Relays
 						    {
 							    var id = binaryReader.ReadInt32();
 							    var packet = PacketRegistry.CreatePacket(id);
-							    
-							    Debug.Log($"Received packet {packet}:{id}");
 	            
 							    packet.Deserialize(binaryReader);
 							    transport.OnClientPacketReceived?.Invoke(packet);
@@ -724,7 +720,6 @@ namespace NetBuff.Relays
 	        
 	        var settings = new NetworkSettings();
 	        settings.WithNetworkConfigParameters(disconnectTimeoutMS: timeout);
-	        settings.WithFragmentationStageParameters(payloadCapacity: 16384);
 
 	        //Create IPV4 endpoint
 	        var endpoint = NetworkEndPoint.AnyIpv4;
@@ -751,7 +746,7 @@ namespace NetBuff.Relays
 	        _server.connections = new NativeList<NetworkConnection>(16, Allocator.Persistent);
 	        _server.connectionsEventsQueue = new NativeQueue<UtpConnectionEvent>(Allocator.Persistent);
 	        
-	        _server.reliablePipeline = _server.driver.CreatePipeline(typeof(FragmentationPipelineStage), typeof(ReliableSequencedPipelineStage));
+	        _server.reliablePipeline = _server.driver.CreatePipeline(typeof(ReliableSequencedPipelineStage));
 	        _server.unreliablePipeline = _server.driver.CreatePipeline(typeof(UnreliableSequencedPipelineStage));
 
 	        _server.driver.Bind(endpoint);
@@ -785,11 +780,10 @@ namespace NetBuff.Relays
 
 		        var settings = new NetworkSettings();
 		        settings.WithRelayParameters(ref relayServerData);
-		        settings.WithFragmentationStageParameters(payloadCapacity: 16384);
 
 		        _client.driver = NetworkDriver.Create(settings);
-		        _client.reliablePipeline = _client.driver.CreatePipeline(typeof(FragmentationPipelineStage), typeof(ReliableSequencedPipelineStage));
-		        _client.unreliablePipeline = _client.driver.CreatePipeline( typeof(UnreliableSequencedPipelineStage));
+		        _client.reliablePipeline = _client.driver.CreatePipeline(typeof(ReliableSequencedPipelineStage));
+		        _client.unreliablePipeline = _client.driver.CreatePipeline(typeof(UnreliableSequencedPipelineStage));
 
 		        _client.connection = _client.driver.Connect(relayServerData.Endpoint);
 
@@ -825,7 +819,7 @@ namespace NetBuff.Relays
 		        settings.WithNetworkConfigParameters(disconnectTimeoutMS: timeout);
 
 		        _client.driver = NetworkDriver.Create(settings);
-		        _client.reliablePipeline = _client.driver.CreatePipeline(typeof(FragmentationPipelineStage), typeof(ReliableSequencedPipelineStage));
+		        _client.reliablePipeline = _client.driver.CreatePipeline(typeof(ReliableSequencedPipelineStage));
 		        _client.unreliablePipeline = _client.driver.CreatePipeline(typeof(UnreliableSequencedPipelineStage));
 
 		        _client.connection = _client.driver.Connect(endpoint);
@@ -969,9 +963,7 @@ namespace NetBuff.Relays
 	        _Writer0.Write(id);
 	        packet.Serialize(_Writer0);
 	        var segment = new ArraySegment<byte>(_Buffer0, 0, (int)_Writer0.BaseStream.Position);
-	        
-	        Debug.Log($"Sending packet {packet}:{id} to {target} {segment.Count}");
-	        
+
 	        if (target == -1)
 	        {
 		        _server.jobHandle.Complete();
@@ -988,17 +980,16 @@ namespace NetBuff.Relays
         private void _SendTo(ArraySegment<byte> segment, int connectionId, bool reliable)
         {
 	        _server.jobHandle.Complete();
-	        
 
 	        if (_server.TryGetConnection(connectionId, out NetworkConnection connection))
 	        {
 		        //Get pipeline for job
 		        var pipeline = reliable ? _server.reliablePipeline : _server.unreliablePipeline;
-		        
+
 		        //Convert ArraySegment to NativeArray for burst compile
 		        var segmentArray = new NativeArray<byte>(segment.Count, Allocator.Persistent);
 		        NativeArray<byte>.Copy(segment.Array, segment.Offset, segmentArray, 0, segment.Count);
-		        
+
 		        // Create a new job
 		        var job = new ServerSendJob
 		        {

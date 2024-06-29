@@ -97,8 +97,6 @@ namespace Solis.Circuit.Connections
         [Header("VISUAL")]
         public Material material;
         public float width = 0.3f;
-        [Range(0.01f,1)]
-        public float shockFXTime = .25f;
 
         [Header("REFERENCES")]
         public GameObject prefabShockVFX;
@@ -136,7 +134,7 @@ namespace Solis.Circuit.Connections
             base.OnEnable();
 
             if (Application.isPlaying)
-                InvokeRepeating(nameof(_ShockEffects), 0f, shockFXTime);
+                InvokeRepeating(nameof(_ShockEffects), 0f, 0.25f);
         }
 
         protected override void OnDisable()
@@ -261,7 +259,7 @@ namespace Solis.Circuit.Connections
             var pos = BezierCurveData.BezierCurve(points[ri], points[ri + 1], UnityEngine.Random.Range(0f, 1f));
 
             shockVFX.transform.position = transform.TransformPoint(pos);
-            shockVFX.Emit(1);
+            shockVFX.Play();
         }
         #endregion
     }

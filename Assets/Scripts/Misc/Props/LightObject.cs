@@ -14,6 +14,7 @@ namespace Solis.Misc.Props
     [RequireComponent(typeof(Rigidbody))]
     public class LightObject : NetworkBehaviour, ILightObject
     {
+        
         #region Inspector Fields
         [Header("SETTINGS")]
         public float radius = 3f;
@@ -122,13 +123,11 @@ namespace Solis.Misc.Props
             transform.position = _initialPosition + Vector3.up;
             transform.rotation = Quaternion.identity;
             rb.velocity = Vector3.zero;
-            playerHolding = null;
-            isOn.Value = false;
-            /*if (isOn.Value)
+            if (isOn.Value)
             {
                 playerHolding = null;
                 isOn.Value = false;
-            }*/
+            }
         }
 
         private void _OnValueChanged(bool old, bool @new)
@@ -142,13 +141,8 @@ namespace Solis.Misc.Props
             playerHolding = isOn.Value ? playerHolding : null;
             networkRigidbodyTransform.enabled = !isOn.Value;
             rb.isKinematic = isOn.Value;
+            _collider.enabled = !isOn.Value;
             rb.velocity = Vector3.zero;
-
-            _collider.excludeLayers = !isOn.Value
-                ? 0
-                : ~((playerHolding!.CharacterType == CharacterType.Human
-                    ? LayerMask.GetMask("Robot")
-                    : LayerMask.GetMask("Human"))+LayerMask.GetMask("Trigger"));
             
             if (isOn.Value)
             {
@@ -169,7 +163,7 @@ namespace Solis.Misc.Props
         {
             var player = GetNetworkObject(arg1.Id);
             var dist = Vector3.Distance(player.transform.position, transform.position);
-            Debug.Log(dist);
+
             if (dist > radius)
                 return false;
 
