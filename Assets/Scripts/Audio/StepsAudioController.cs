@@ -17,12 +17,7 @@ namespace Solis.Audio
                     "GrassLayer" => "GrassLayer",
                     _ => "GrassLayer"
                 };
-                Debug.Log("Hit: " + layer);
                 //AudioSystem.Instance.PlayCharacter(audioToPlay);
-            }
-            else
-            {
-                Debug.Log("Not hit");
             }
         }
     }
