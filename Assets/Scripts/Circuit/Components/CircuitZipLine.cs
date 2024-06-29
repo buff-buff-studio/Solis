@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using NetBuff.Components;
 using NetBuff.Interface;
@@ -111,6 +112,20 @@ namespace Solis.Circuit.Components
                 else
                     magnetic.Demagnetize(claw.gameObject, anchor);
             }
+
+            if (packet is PacketClawFxChanged fxChanged)
+            {
+                if (fxChanged.Enabled)
+                {
+                    fxRed.Play();
+                    fxBlue.Play();
+                }
+                else
+                {
+                    fxRed.Stop();
+                    fxBlue.Stop();
+                }
+            }
         }
 
         public override void OnSpawned(bool isRetroactive)
@@ -138,8 +153,12 @@ namespace Solis.Circuit.Components
             if (_lastValue != value)
             {
                 _lastValue = value;
-                fxRed.Play();
-                fxBlue.Play();
+                
+                SendPacket(new PacketClawFxChanged
+                {
+                    Id = Id,
+                    Enabled = true
+                }, true);
             }
 
             if (isMoving != _wasMoving)
@@ -158,7 +177,7 @@ namespace Solis.Circuit.Components
                             Id = Id,
                             Object = identity.Id,
                             Magnetized = true
-                        });
+                        }, true);
                     }
                 }
                 else
@@ -175,10 +194,14 @@ namespace Solis.Circuit.Components
                             Id = Id,
                             Object = identity.Id,
                             Magnetized = false
-                        });
+                        }, true);
                     }
-                    fxRed.Stop();
-                    fxBlue.Stop();
+                    
+                    SendPacket(new PacketClawFxChanged
+                    {
+                        Id = Id,
+                        Enabled = false
+                    }, true);
                 }
             }
             
@@ -196,5 +219,23 @@ namespace Solis.Circuit.Components
             return FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).OfType<IMagneticObject>().Where(c => c.GetCurrentAnchor() == anchor).ToArray();
         }
         #endregion
+    }
+    
+    public class PacketClawFxChanged : IOwnedPacket
+    {
+        public NetworkId Id { get; set; }
+        public bool Enabled { get; set; }
+        
+        public void Serialize(BinaryWriter writer)
+        {
+            Id.Serialize(writer);
+            writer.Write(Enabled);
+        }
+
+        public void Deserialize(BinaryReader reader)
+        {
+            Id = NetworkId.Read(reader);
+            Enabled = reader.ReadBoolean();
+        }
     }
 }
