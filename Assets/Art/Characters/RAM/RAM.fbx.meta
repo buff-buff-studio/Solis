@@ -14,6 +14,11 @@ ModelImporter:
       assembly: UnityEngine.CoreModule
       name: MaterialUpperBoddy
     second: {fileID: 2100000, guid: 94de27975d2b715468b370b60d9a1ae8, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: RAMGlass_Material
+    second: {fileID: 2100000, guid: a0cc863567ddb7a43a7a50cae110f604, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -122,7 +127,21 @@ ModelImporter:
       mirror: 0
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
-      events: []
+      events:
+      - time: 0.20571429
+        functionName: PlayStepSound
+        data: 
+        objectReferenceParameter: {fileID: 11500000, guid: 10b33ec1af834e6ba321eb1a22788411, type: 3}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
+      - time: 0.69714284
+        functionName: PlayStepSound
+        data: 
+        objectReferenceParameter: {fileID: 11500000, guid: 10b33ec1af834e6ba321eb1a22788411, type: 3}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
       transformMask: []
       maskType: 3
       maskSource: {instanceID: 0}

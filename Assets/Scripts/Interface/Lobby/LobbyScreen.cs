@@ -157,6 +157,9 @@ namespace Solis.Interface.Lobby
 
             canStartGame &= humanCount == 1 && robotCount == 1;
             buttonStartGame.interactable = canStartGame;
+#if UNITY_EDITOR
+            buttonStartGame.interactable = true;
+#endif
         }
         #endregion
     }

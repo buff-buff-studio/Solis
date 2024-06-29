@@ -28,7 +28,8 @@ namespace Solis.Audio
         public AudioMixerGroup vfxMixer;
         public AudioMixerGroup musicMixer;
         public AudioMixerGroup masterMixer;
-      
+        public AudioMixerGroup characterMixer;
+        
         
         
         [Header("SETTINGS")]
@@ -65,13 +66,15 @@ namespace Solis.Audio
                 return;
             }
             Instance = this;
-            
+            OnSettingsChanged();
             for (var i = 0; i < audioSourcePoolSize; i++)
                 _CreateAudioSource(i);
 
-
+            
             PlayMusic("BaseMusic");
             PlayVfx("BackGround", true);
+            
+            
         }
 
         private void OnEnable()
@@ -81,6 +84,7 @@ namespace Solis.Audio
             SettingsManager.OnSettingsChanged += OnSettingsChanged;
             
             DontDestroyOnLoad(gameObject);
+            OnSettingsChanged();
         }
 
         private void OnDisable()
@@ -119,15 +123,18 @@ namespace Solis.Audio
         
         private void OnSettingsChanged()
         {
-            Debug.Log("Settings Changed");
-            var musicVolume = Mathf.Clamp(settingData.floatItems["musicVolume"] / 100, 0.0001f, 1f);
+            Debug.Log("Volume Settings Changed");
+            var musicVolume = Mathf.Clamp(settingData.sliderItems["musicVolume"] / 100, 0.0001f, 1f);
             musicMixer.audioMixer.SetFloat("musicVolume", Mathf.Log10(musicVolume) * 20);
             
-            var fxVolume = Mathf.Clamp(settingData.floatItems["sfxVolume"] / 100, 0.0001f, 1f);
+            var fxVolume = Mathf.Clamp(settingData.sliderItems["sfxVolume"] / 100, 0.0001f, 1f);
             vfxMixer.audioMixer.SetFloat("sfxVolume", Mathf.Log10(fxVolume) * 20);
             
-            var masterVolume = Mathf.Clamp(settingData.floatItems["masterVolume"] / 100, 0.0001f, 1f);
+            var masterVolume = Mathf.Clamp(settingData.sliderItems["masterVolume"] / 100, 0.0001f, 1f);
             masterMixer.audioMixer.SetFloat("masterVolume", Mathf.Log10(masterVolume) * 20);
+            
+            var characterVolume = Mathf.Clamp(settingData.sliderItems["characterVolume"] / 100, 0.0001f, 1f);
+            characterMixer.audioMixer.SetFloat("characterVolume", Mathf.Log10(characterVolume) * 20);
         }
 
         #endregion
@@ -166,6 +173,19 @@ namespace Solis.Audio
         }
         
         /// <summary>
+        /// Starts playing a sound effect. The loop parameter is used to determine if the sound will loop or not.
+        /// </summary>
+        /// <param name="audioName"></param>
+        /// <param name="loop"></param>
+        /// <returns></returns>
+        public AudioPlayer PlayCharacter(string audioName, bool loop = false)
+        {
+            var player = CreateVfx(audioName);
+            return player?.Play(loop);
+        }
+
+        
+        /// <summary>
         /// Creates a sound effect player, without playing it.
         /// </summary>
         /// <param name="audioName"></param>
@@ -174,6 +194,17 @@ namespace Solis.Audio
         {
             return _CreatePlayer(audioName, AudioType.Vfx);
         }
+        
+        /// <summary>
+        /// Creates a sound effect player, without playing it.
+        /// </summary>
+        /// <param name="audioName"></param>
+        /// <returns></returns>
+        public AudioPlayer CreateCharacter(string audioName)
+        {
+            return _CreatePlayer(audioName, AudioType.Character);
+        }
+        
         
         /// <summary>
         /// Kills a player, stopping the audio and returning the audio source to the pool.
@@ -236,7 +267,7 @@ namespace Solis.Audio
             go.SetActive(false);
             go.transform.SetParent(transform);
             var audioSource = go.AddComponent<AudioSource>();
-            audioSource.spatialBlend = 1;
+            audioSource.spatialBlend = 0;
             audioSource.transform.localPosition = Vector3.zero;
             freeAudioSources.Add(audioSource);
         }
@@ -260,7 +291,16 @@ namespace Solis.Audio
             
             var player = new AudioPlayer(type, clip, source, this, volume);
             audioPlayers.Add(player);
-            player.AudioSource.outputAudioMixerGroup = type == AudioType.Music? musicMixer : vfxMixer;
+
+            AudioMixerGroup group = type switch
+            {
+                AudioType.Vfx => vfxMixer,
+                AudioType.Music => musicMixer,
+                AudioType.Character => characterMixer,
+                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+            };
+
+            player.AudioSource.outputAudioMixerGroup = group;
             
             return player;
         }

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b275c1f52ba84289a2830f1e08f0e813, type: 3}
   m_Name: Settings
   m_EditorClassIdentifier: 
-  boolItems:
+  toggleItems:
     _serializedList:
     - Key: fullscreen
       Value: 1
@@ -24,19 +24,21 @@ MonoBehaviour:
       Value: 0
     - Key: invertYAxis
       Value: 1
-  intItems:
+  arrowItems:
     _serializedList:
     - Key: resolution
-      Value: 0
+      Value: 3
     - Key: graphics
-      Value: 0
-  floatItems:
+      Value: 1
+  sliderItems:
     _serializedList:
     - Key: cameraSensitivity
-      Value: 1
+      Value: 0.9970343
     - Key: masterVolume
       Value: 100
     - Key: musicVolume
-      Value: 25
+      Value: 50
+    - Key: characterVolume
+      Value: 50
     - Key: sfxVolume
-      Value: 75
+      Value: 50

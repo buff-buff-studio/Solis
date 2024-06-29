@@ -26,6 +26,7 @@ namespace Solis.Circuit.Components
         public Transform claw;
         public Transform anchor;
         public CircuitPlug input;
+        public ParticleSystem fxBlue, fxRed;
         
         [Header("STATE")]
         public FloatNetworkValue position = new(0);
@@ -34,10 +35,12 @@ namespace Solis.Circuit.Components
         public int tickRate = 64;
         public float moveSpeed = 2f;
         public float clawRadius = 2f;
+        public AnimationCurve speedCurve = AnimationCurve.Linear(0, 0, 1, 1);
         #endregion
 
         #region Private Fields
         private bool _wasMoving;
+        private bool _lastValue;
         #endregion
 
         #region Unity Callbacks
@@ -46,6 +49,9 @@ namespace Solis.Circuit.Components
             WithValues(position);
             
             base.OnEnable();
+
+            fxRed.Stop();
+            fxBlue.Stop();
             InvokeRepeating(nameof(_Tick), 0, 1f / tickRate);
         }
 
@@ -123,11 +129,18 @@ namespace Solis.Circuit.Components
             var value = input.ReadOutput().power > 0.5f;
             
             var distance = Vector3.Distance(from.position, to.position);
-            var speed = moveSpeed / distance / tickRate;
+            var speed = (speedCurve.Evaluate(position.Value)*moveSpeed) / distance / tickRate;
             
             var newValue = Mathf.Clamp01(position.Value + (value ? speed : -speed));
             var isMoving = Mathf.Abs(newValue - position.Value) > 0.001f;
             position.Value = newValue;
+
+            if (_lastValue != value)
+            {
+                _lastValue = value;
+                fxRed.Play();
+                fxBlue.Play();
+            }
 
             if (isMoving != _wasMoving)
             {
@@ -164,6 +177,8 @@ namespace Solis.Circuit.Components
                             Magnetized = false
                         });
                     }
+                    fxRed.Stop();
+                    fxBlue.Stop();
                 }
             }
             
