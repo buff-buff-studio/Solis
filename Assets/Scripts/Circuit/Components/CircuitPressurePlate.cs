@@ -121,7 +121,6 @@ namespace Solis.Circuit.Components
         {
             var color = timeOn < 1 ? instantColor : timerColor;
             _material.SetColor("_BaseColor", isOn.Value ? color : Color.clear);
-            _material.SetColor("_Emission_Color", isOn.Value ? color : Color.clear);
             Refresh();
         }
         #endregion

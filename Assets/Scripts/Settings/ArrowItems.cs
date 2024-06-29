@@ -11,9 +11,8 @@ namespace Solis.Settings
     {
         [SerializeField]
         private bool interactable;
-
-        [Space] 
-        public bool invert = false;
+        
+        [Space]
         public List<string> items;
         public int currentIndex;
         
@@ -38,8 +37,8 @@ namespace Solis.Settings
         
         private void Awake()
         {
-            previousButton.onClick.AddListener(!invert ? PreviousItem : NextItem);
-            nextButton.onClick.AddListener(invert ? PreviousItem : NextItem);
+            previousButton.onClick.AddListener(PreviousItem);
+            nextButton.onClick.AddListener(NextItem);
         }
 
         private void Start()

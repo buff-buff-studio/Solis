@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using Solis.Core;
 using Solis.Player;
-using Solis.Settings;
 using Solis.UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -37,31 +36,24 @@ public class PauseManager : WindowManager
         if(gameManager.IsOnLobby || !gameManager.isGameStarted) return;
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if (isPaused) ResumeGame();
-            else PauseGame();
+            Debug.Log(SceneManager.GetActiveScene().name);
+            isPaused = !isPaused;
+            Cursor.visible = isPaused;
+            Cursor.lockState = !isPaused ? CursorLockMode.Locked : CursorLockMode.None;
+            pauseVolume.SetActive(isPaused);
+            SetVisible(isPaused);
+            OnPause?.Invoke(isPaused);
         }
     }
     
     public void ResumeGame()
     {
         isPaused = false;
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = isPaused;
+        Cursor.lockState = !isPaused ? CursorLockMode.Locked : CursorLockMode.None;
         pauseVolume.SetActive(isPaused);
         SetVisible(false);
-        ChangeWindow(0);
-        OnPause?.Invoke(false);
-    }
-    
-    public void PauseGame()
-    {
-        isPaused = true;
-        Cursor.visible = true;
-        Cursor.lockState = CursorLockMode.None;
-        pauseVolume.SetActive(isPaused);
-        SetVisible(true);
-        ChangeWindow(0);
-        OnPause?.Invoke(true);
+        OnPause?.Invoke(isPaused);
     }
     
     public void BugReport()

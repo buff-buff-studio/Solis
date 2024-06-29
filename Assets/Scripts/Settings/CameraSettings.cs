@@ -57,8 +57,8 @@ public class CameraSettings : MonoBehaviour
     
     private void ApplyCameraSettings()
     {
-        _senseX = settingsData.sliderItems["cameraSensitivity"] * CamSenseX;
-        _senseY = settingsData.sliderItems["cameraSensitivity"] * CamSenseY;
+        _senseX = settingsData.floatItems["cameraSensitivity"] * CamSenseX;
+        _senseY = settingsData.floatItems["cameraSensitivity"] * CamSenseY;
         if (isPaused)
         {
             freeLookCamera.m_XAxis.m_MaxSpeed = 0;
@@ -68,10 +68,10 @@ public class CameraSettings : MonoBehaviour
             freeLookCamera.m_XAxis.m_MaxSpeed = _senseX;
             freeLookCamera.m_YAxis.m_MaxSpeed = _senseY;
         }
-        freeLookCamera.m_XAxis.m_InvertInput = settingsData.toggleItems["invertXAxis"];
-        freeLookCamera.m_YAxis.m_InvertInput = settingsData.toggleItems["invertYAxis"];
+        freeLookCamera.m_XAxis.m_InvertInput = settingsData.boolItems["invertXAxis"];
+        freeLookCamera.m_YAxis.m_InvertInput = settingsData.boolItems["invertYAxis"];
         volumePFX.profile.TryGet(out MotionBlur motionBlur);
-        motionBlur.active = settingsData.toggleItems["motionBlur"];
+        motionBlur.active = settingsData.boolItems["motionBlur"];
     }
     
     private void OnLevelCutsceneOnOnCinematicStarted() => freeLookCamera.enabled = false;

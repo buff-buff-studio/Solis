@@ -1,14 +1,11 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 [RequireComponent(typeof(TextMeshProUGUI))]
 public class ToStringInUI : MonoBehaviour
 {
-    private Slider slider;
     private TextMeshProUGUI text;
     public string prefix;
     public string suffix;
@@ -21,15 +18,13 @@ public class ToStringInUI : MonoBehaviour
     private void Awake()
     {
         text = GetComponent<TextMeshProUGUI>();
-        slider = GetComponentInParent<Slider>();
-        if (slider == null) Destroy(this.gameObject);
     }
-
-    private void FixedUpdate()
+    
+    public void SetText(int value)
     {
-        SetText(slider.value);
+        text.text = $"{prefix}{value.ToString(format)}{suffix}";
     }
-
+    
     public void SetText(float value)
     {
         text.text = $"{prefix}{value.ToString(format)}{suffix}";
