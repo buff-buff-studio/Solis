@@ -190,7 +190,7 @@ namespace Solis.Misc.Props
                     ServerBroadcastPacket(new LightObjectGrabPacket
                     {
                         Id = this.Id,
-                        HandId = null
+                        HandId = ""
                     });
                     return true;
                 }
