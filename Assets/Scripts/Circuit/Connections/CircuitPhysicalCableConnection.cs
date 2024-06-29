@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using NetBuff;
 using NetBuff.Components;
 using NetBuff.Interface;
 using NetBuff.Misc;
@@ -106,7 +107,7 @@ namespace Solis.Circuit.Connections
                     }
 
                     if (HasAuthority)
-                        ServerBroadcastPacket(_CreatePacket());
+                        ServerBroadcastPacket(_CreatePacket(), true);
                 }
 
                 OnValidate();
@@ -264,6 +265,8 @@ namespace Solis.Circuit.Connections
 
             if (packet is PhysicalCableConnectionPacket p)
             {
+                Debug.Log($"Received cable connection packet for {p.Id} {HasAuthority} {NetworkManager.Instance.EnvironmentType}");
+                
                 if (HasAuthority)
                     return;
 
