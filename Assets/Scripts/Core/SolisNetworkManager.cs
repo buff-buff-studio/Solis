@@ -102,10 +102,13 @@ namespace Solis.Core
                     if (!isJoining)
                     {
                         StartServer();
-                        LoadScene(scene);
+                        LoadScene(scene).Then(_ =>
+                        {
+                            StartClient();
+                        });
                     }
-
-                    StartClient();
+                    else
+                        StartClient();
                 }
 
                 usingRelay = false;
@@ -178,10 +181,13 @@ namespace Solis.Core
                     if (!isJoining)
                     {
                         StartServer();
-                        LoadScene("Lobby");
+                        LoadScene("Lobby").Then(_ =>
+                        {
+                            StartClient();
+                        });
                     }
-
-                    StartClient();
+                    else
+                        StartClient();
                 }
 
                 networkAddress = null;

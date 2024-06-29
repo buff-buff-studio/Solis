@@ -69,16 +69,17 @@ MonoBehaviour:
   minNodeCount: 3
   maxNodeCount: 100
   nodeDistance: 0.5
+  connectorNodeDistance: 0.5
   nodePrefab: {fileID: 6273937213845151152, guid: a85ba9e0da583a4488e85972fa0ba316, type: 3}
   prefabShockVFX: {fileID: 805163032588283336, guid: 715f25973ccc7dc4ea28e35d9a229eb1, type: 3}
-  shockVFX: {fileID: 0}
   plugBase: {fileID: 0}
   connectorPrefabInput: {fileID: 6339524820657000993, guid: 6d7299b5298f96c43a109537d6213b85, type: 3}
   connectorPrefabOutput: {fileID: 6339524820657000993, guid: 1c3fa7f83685521469650bf8c938a686, type: 3}
   nodes: []
-  helder: {fileID: 0}
-  helderJoint: {fileID: 0}
+  holder: {fileID: 0}
+  holderJoint: {fileID: 0}
   connector: {fileID: 9089897997338933885}
+  shockVFX: {fileID: 0}
 --- !u!120 &3750733229677746213
 LineRenderer:
   serializedVersion: 2
@@ -172,8 +173,8 @@ LineRenderer:
       m_ColorSpace: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    numCornerVertices: 0
-    numCapVertices: 0
+    numCornerVertices: 8
+    numCapVertices: 4
     alignment: 0
     textureMode: 0
     textureScale: {x: 1, y: 1}
