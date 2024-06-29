@@ -370,7 +370,7 @@ namespace Solis.Player
                     break;
                 case PlayerDeathPacket deathPacket:
                     if (clientId == OwnerId)
-                        ServerBroadcastPacketExceptFor(deathPacket, clientId);
+                        ServerBroadcastPacket(deathPacket);
                     break;
             }
         }
