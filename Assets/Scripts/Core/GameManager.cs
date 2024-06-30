@@ -100,8 +100,11 @@ namespace Solis.Core
 
         private void Update()
         {
-            if(Input.GetKeyDown(KeyCode.K))
-                ButtonRestartLevel();
+            if (Input.GetKeyDown(KeyCode.K) && SaveData.currentLevel % 2 == 1)
+            {
+                SaveData.currentLevel++;
+                LoadLevel();
+            }
 
             if (!isGameStarted)
                 isGameStarted = !NetworkManager.Instance.LoadedScenes.Contains(registry.sceneLobby.Name);
