@@ -122,7 +122,11 @@ namespace Solis.Misc.Props
             transform.position = _initialPosition + Vector3.up;
             transform.rotation = Quaternion.identity;
             rb.velocity = Vector3.zero;
-            playerHolding = null;
+            if (playerHolding)
+            {
+                playerHolding.itemsHeld = 0;
+                playerHolding = null;
+            }
             isOn.Value = false;
             /*if (isOn.Value)
             {
@@ -139,6 +143,7 @@ namespace Solis.Misc.Props
         private void _Refresh()
         {
             var pBody = playerHolding ? playerHolding.body : null;
+
             playerHolding = isOn.Value ? playerHolding : null;
             networkRigidbodyTransform.enabled = !isOn.Value;
             rb.isKinematic = isOn.Value;
@@ -165,6 +170,7 @@ namespace Solis.Misc.Props
                 transform.position = newPos + (pBody.forward*1.25f);
             }
         }
+
         private bool _OnPlayerInteract(PlayerInteractPacket arg1, int arg2)
         {
             var player = GetNetworkObject(arg1.Id);
