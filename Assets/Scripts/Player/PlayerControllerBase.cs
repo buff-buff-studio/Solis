@@ -583,6 +583,7 @@ namespace Solis.Player
         {
             Debug.Log("Player ID: " + Id + " died with type: " + death);
             controller.enabled = false;
+            itemsHeld = 0;
             switch (death)
             {
                 case Death.Stun:
