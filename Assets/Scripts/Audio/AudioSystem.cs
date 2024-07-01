@@ -6,6 +6,7 @@ using Solis.Settings;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Audio;
+using UnityEngine.SceneManagement;
 
 namespace Solis.Audio
 {
