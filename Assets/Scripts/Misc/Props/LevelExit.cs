@@ -59,6 +59,18 @@ namespace Solis.Misc.Props
             playerInsideBox = null;
         }
 
+#if UNITY_EDITOR
+        private BoxCollider _boxCollider;
+
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.green;
+            Gizmos.matrix = transform.localToWorldMatrix;
+            Gizmos.DrawCube(Vector3.zero, Vector3.one);
+            Gizmos.DrawWireCube(Vector3.zero, Vector3.one);
+        }
+#endif
+
         #endregion
     }
 }

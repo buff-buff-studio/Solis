@@ -93,7 +93,17 @@ namespace Solis.Core
 #if UNITY_EDITOR
             var scene = SolisNetworkManager.sceneToLoad;
             if(!string.IsNullOrEmpty(scene) && scene != "Null" && scene != "Lobby")
+            {
                 isGameStarted = true;
+                if(registry.levels.Any(x => x.scene.sceneName == scene))
+                {
+                    var registryLevels = registry.levels.ToList();
+                    var item = registryLevels.Find(x => x.scene.sceneName == scene);
+                    save.data.currentLevel = registryLevels.IndexOf(item);
+                    Debug.Log("Level found in registry: " + scene + " at index: " + SaveData.currentLevel);
+                }
+                else Debug.LogWarning("Scene not found in registry: " + scene);
+            }
 #endif
             LoadingLobby(isGameStarted);
         }
