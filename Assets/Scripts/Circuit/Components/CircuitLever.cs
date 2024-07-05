@@ -68,6 +68,16 @@ namespace Solis.Circuit.Components
         }
         #endregion
 
+        public void ChangeState(bool state)
+        {
+            isOn.Value = state;
+        }
+
+        public void ChangeState()
+        {
+            isOn.Value = !isOn.Value;
+        }
+
         #region Private Methods
         private bool _OnPlayerInteract(PlayerInteractPacket arg1, int arg2)
         {
