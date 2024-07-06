@@ -21,7 +21,10 @@ namespace Solis.Circuit.Gates
             Nand,
             Nor,
             Xor,
-            Number
+            NumberEqual,
+            NumberNotEqual,
+            NumberLess,
+            NumberGreater
         }
         #endregion
 
@@ -30,8 +33,9 @@ namespace Solis.Circuit.Gates
         public CircuitPlug input;
         public CircuitPlug output;
         public TMP_Text label;
-        
+
         [Header("SETTINGS")]
+        public bool invisibleOnPlay = false;
         public Mode mode = Mode.And;
         public int number;
         #endregion
@@ -41,6 +45,11 @@ namespace Solis.Circuit.Gates
         {
             base.OnEnable();
             _UpdateLabel();
+            if(invisibleOnPlay)
+            {
+                transform.GetChild(0).gameObject.SetActive(false);
+                label.gameObject.SetActive(false);
+            }
         }
         
         private void OnValidate()
@@ -74,8 +83,14 @@ namespace Solis.Circuit.Gates
                     return new CircuitData(result > 0 ? 0 : 1);
                 case Mode.Xor:
                     return new CircuitData(result == 1 ? 1 : 0);
-                case Mode.Number:
+                case Mode.NumberEqual:
                     return new CircuitData(result == number ? 1 : 0);
+                case Mode.NumberNotEqual:
+                    return new CircuitData(result != number ? 1 : 0);
+                case Mode.NumberLess:
+                    return new CircuitData(result < number ? 1 : 0);
+                case Mode.NumberGreater:
+                    return new CircuitData(result > number ? 1 : 0);
                 default:
                     return new CircuitData(0);
             }
@@ -104,7 +119,10 @@ namespace Solis.Circuit.Gates
                 Mode.Nand => "NAND",
                 Mode.Nor => "NOR",
                 Mode.Xor => "XOR",
-                Mode.Number => number.ToString(),
+                Mode.NumberEqual => $"X = {number}",
+                Mode.NumberNotEqual => $"X != {number}",
+                Mode.NumberGreater => $"X > {number}",
+                Mode.NumberLess => $"X < {number}",
                 _ => "?"
             };
         }

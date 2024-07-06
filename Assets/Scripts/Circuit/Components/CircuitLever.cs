@@ -76,6 +76,7 @@ namespace Solis.Circuit.Components
         public void ChangeState()
         {
             isOn.Value = !isOn.Value;
+            onToggleComponent?.Invoke();
         }
 
         #region Private Methods
