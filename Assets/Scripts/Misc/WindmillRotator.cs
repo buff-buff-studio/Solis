@@ -16,6 +16,8 @@ namespace Solis.Misc
         [SerializeField]
         private float acceleration = 0.1f;
 
+        public float Power => _currentSpeed / speed;
+
         private float SpeedMultiplier => (_isRotating ? acceleration : -acceleration) * Time.fixedDeltaTime;
         private float _currentSpeed = 0;
         private bool _isRotating = true;
@@ -47,6 +49,12 @@ namespace Solis.Misc
         {
             if(_isRotating) Pause();
             else Play();
+        }
+
+        public void ChangeState(bool state, bool forceSpeed = false)
+        {
+            if(state) Play(forceSpeed);
+            else Pause(forceSpeed);
         }
     }
 }
