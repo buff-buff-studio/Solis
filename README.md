@@ -15,3 +15,14 @@
 
 ### Teaser
 <a href="https://youtu.be/W_hOIR2WtTk?si=8ecKOaBlP2iMr62R"> <img alt="License" width="400" src="https://jogospuc.com.br/ti/img_thumb/jogo_64_1719842640.jpg"> </a>
+
+## Built With
+Solis and its assets were built using the following software:
+* [Unity](https://unity.com/)
+* [Blender](https://www.blender.org/)
+* [Adobe Photoshop](https://www.adobe.com/products/photoshop.html)
+* [Krita](https://krita.org)
+* [Adobe Audition](https://www.adobe.com/products/audition.html)
+* [Audacity](https://www.audacityteam.org/)
+* [Visual Studio Code](https://code.visualstudio.com/)
+* [JetBrains Rider](https://www.jetbrains.com/rider/)
