@@ -6,9 +6,12 @@
   </a>
   <p align="center">
     <img alt="GitHub repo size" src="https://img.shields.io/github/repo-size/buff-buff-studio/Solis">
-    <img alt="Lines of code" src="http://tokei.ekzhang.com/b1/github/buff-buff-studio/Solis?color=#7CEC1D">
+    <img alt="Lines of code" src="http://tokei.ekzhang.com/b1/github/buff-buff-studio/Solis">
   </p>
 </p>
 
 > [!IMPORTANT]
 > [**Open Beta**](https://drive.google.com/drive/folders/1kT7oN0CRlv7Xpwd_E88Zc9x70eI5c70l)
+
+### Teaser
+<a href="https://youtu.be/W_hOIR2WtTk?si=8ecKOaBlP2iMr62R"> <img alt="License" width="400" src="https://jogospuc.com.br/ti/img_thumb/jogo_64_1719842640.jpg"> </a>
