@@ -10,8 +10,7 @@
   </p>
 </p>
 
-> [!IMPORTANT]
-> [**Open Beta**](https://drive.google.com/drive/folders/1kT7oN0CRlv7Xpwd_E88Zc9x70eI5c70l)
+## **[Open Beta](https://github.com/buff-buff-studio/Solis/releases/tag/0.5.2)**
 
 ### Teaser
 <a href="https://youtu.be/W_hOIR2WtTk?si=8ecKOaBlP2iMr62R"> <img alt="License" width="400" src="https://jogospuc.com.br/ti/img_thumb/jogo_64_1719842640.jpg"> </a>
