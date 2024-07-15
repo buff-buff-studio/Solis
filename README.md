@@ -1,4 +1,4 @@
-# **Solis**
+# **Solis** <sup>by Buff Buff Studios 🐸<sup> 
 
 <p align="center">
   <a href="https://jogospuc.com.br/mostra">
