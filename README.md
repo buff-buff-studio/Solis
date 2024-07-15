@@ -9,3 +9,6 @@
     <img alt="Lines of code" src="http://tokei.ekzhang.com/b1/github/buff-buff-studio/Solis?color=#7CEC1D">
   </p>
 </p>
+
+> [!IMPORTANT]
+> [**Open Beta**](https://drive.google.com/drive/folders/1kT7oN0CRlv7Xpwd_E88Zc9x70eI5c70l)
