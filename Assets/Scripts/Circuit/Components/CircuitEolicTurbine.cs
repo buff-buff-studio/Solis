@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using NetBuff.Misc;
 using Solis.Misc;
+using UnityEditor;
 using UnityEngine;
 
 namespace Solis.Circuit.Components
@@ -24,13 +25,13 @@ namespace Solis.Circuit.Components
         #region Unity Callbacks
         protected override void OnEnable()
         {
-            base.OnEnable();
             WithValues(isOn);
 
             isOn.OnValueChanged += _OnValueChanged;
 
             if(!windmillRotator) windmillRotator = GetComponentInChildren<WindmillRotator>();
             windmillRotator.ChangeState(isOn.Value, true);
+            base.OnEnable();
         }
 
         protected override void OnDisable()
