@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="https://jogospuc.com.br/mostra">
-    <img src="https://cdn.discordapp.com/attachments/819932891956903962/1250454696775389244/LogoSolisFull.png?ex=669681b0&is=66953030&hm=8c956b331788520f36260f61c13381fffcaf7b9dd0796688987b632c77e5c708&" width="400" alt="Logo">
+    <img src="https://github.com/user-attachments/assets/99a6afd7-6230-4b39-9f18-cfa7b5c7e422" width="400" alt="Logo">
   </a>
   <p align="center">
     <img alt="GitHub repo size" src="https://img.shields.io/github/repo-size/buff-buff-studio/Solis">
