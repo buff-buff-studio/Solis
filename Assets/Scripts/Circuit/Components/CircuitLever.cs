@@ -68,6 +68,20 @@ namespace Solis.Circuit.Components
         }
         #endregion
 
+        public void ChangeState(bool state)
+        {
+            if(!IsServer) return;
+
+            isOn.Value = state;
+        }
+
+        public void ChangeState()
+        {
+            if(!IsServer) return;
+
+            isOn.Value = !isOn.Value;
+        }
+
         #region Private Methods
         private bool _OnPlayerInteract(PlayerInteractPacket arg1, int arg2)
         {
@@ -84,7 +98,6 @@ namespace Solis.Circuit.Components
             if (playerTypeFilter.Filter(controller.CharacterType))
             {
                 isOn.Value = !isOn.Value;
-                onToggleComponent?.Invoke();
                 return true;
             }
 
@@ -94,6 +107,7 @@ namespace Solis.Circuit.Components
         private void _OnValueChanged(bool old, bool @new)
         {
             Refresh();
+            onToggleComponent?.Invoke();
         }
         #endregion
     }

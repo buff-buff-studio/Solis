@@ -93,7 +93,10 @@ namespace Solis.Core
 #if UNITY_EDITOR
             var scene = SolisNetworkManager.sceneToLoad;
             if(!string.IsNullOrEmpty(scene) && scene != "Null" && scene != "Lobby")
+            {
                 isGameStarted = true;
+                save.data.currentLevel = FindActiveLevel(scene);
+            }
 #endif
             LoadingLobby(isGameStarted);
         }
@@ -315,6 +318,21 @@ namespace Solis.Core
             if (!save.IsSaved)
                 save.New();
         }
+
+#if UNITY_EDITOR
+        public int FindActiveLevel(string scene)
+        {
+            if(registry.levels.Any(x => x.scene.sceneName == scene))
+            {
+                var registryLevels = registry.levels.ToList();
+                var item = registryLevels.Find(x => x.scene.sceneName == scene);
+                Debug.Log("Level found in registry: " + scene + " at index: " + SaveData.currentLevel);
+                return registryLevels.IndexOf(item);
+            }
+            Debug.LogWarning("Scene not found in registry: " + scene);
+            return save.data.currentLevel;
+        }
+#endif
         #endregion
 
         #region Private Methods

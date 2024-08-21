@@ -13,13 +13,20 @@ namespace Solis.Circuit.Components
         #pragma warning disable 0109
         public new Renderer renderer;
         public new Light light;
-        [ColorUsage(false, true)]
-        public Color colorOn = Color.red;
         #pragma warning restore 0109
         public CircuitPlug input;
+        [Space]
+        [ColorUsage(false, true)]
+        public Color colorOn = Color.red;
+
+        public bool useColorOff = false;
+        [ColorUsage(false, true)]
+        public Color colorOff = Color.black;
         private static readonly int EmissionColor = Shader.PropertyToID("_EmissionColor");
 
         #endregion
+
+        private Color offColor => useColorOff ? colorOff : Color.black;
 
         #region Abstract Methods Implementation
         public override CircuitData ReadOutput(CircuitPlug plug)
@@ -29,8 +36,8 @@ namespace Solis.Circuit.Components
 
         protected override void OnRefresh()
         {
-            renderer.material.SetColor(EmissionColor, input.ReadOutput().power > 0.5f ? colorOn : Color.black);
-            light.color = input.ReadOutput().power > 0.5f ? colorOn : Color.black;
+            renderer.material.SetColor(EmissionColor, input.ReadOutput().power > 0.5f ? colorOn : offColor);
+            light.color = input.ReadOutput().power > 0.5f ? colorOn : offColor;
         }
 
         public override IEnumerable<CircuitPlug> GetPlugs()

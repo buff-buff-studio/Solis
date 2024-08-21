@@ -143,12 +143,6 @@ namespace Solis.Misc.Props
         private void _Refresh()
         {
             var pBody = playerHolding ? playerHolding.body : null;
-
-            playerHolding = isOn.Value ? playerHolding : null;
-            networkRigidbodyTransform.enabled = !isOn.Value;
-            rb.isKinematic = isOn.Value;
-            rb.velocity = Vector3.zero;
-
             _collider.excludeLayers = !isOn.Value
                 ? 0
                 : ~((playerHolding!.CharacterType == CharacterType.Human
@@ -168,7 +162,13 @@ namespace Solis.Misc.Props
                 var pPos = pBody.position;
                 var newPos = new Vector3(pPos.x, transform.position.y, pPos.z);
                 transform.position = newPos + (pBody.forward*1.25f);
+                playerHolding.itemsHeld = 0;
             }
+
+            playerHolding = isOn.Value ? playerHolding : null;
+            networkRigidbodyTransform.enabled = !isOn.Value;
+            rb.isKinematic = isOn.Value;
+            rb.velocity = Vector3.zero;
         }
 
         private bool _OnPlayerInteract(PlayerInteractPacket arg1, int arg2)

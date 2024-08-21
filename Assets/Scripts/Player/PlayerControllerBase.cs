@@ -384,7 +384,7 @@ namespace Solis.Player
                     _remoteBodyPosition = bodyLerpPacket.BodyPosition;
                     break;
                 case PlayerDeathPacket deathPacket:
-                    if (deathPacket.Id == Id)
+                    if (deathPacket.Id == Id && !_isRespawning)
                         PlayerDeath(deathPacket.Type);
                     break;
             }
