@@ -109,7 +109,7 @@ namespace Solis.Player
         
         private bool _isCinematicRunning = true;
         private bool _isRespawning = false;
-        private bool _isPaused = false;
+        private BoolNetworkValue _isPaused = new(false, NetworkValue.ModifierType.OwnerOnly);
         private float _respawnTimer;
         private float _interactTimer;
         private float _multiplier;
@@ -165,7 +165,7 @@ namespace Solis.Player
         private Vector2 MoveInput => new(InputX, InputZ);
         private bool InputJump => Input.GetButtonDown("Jump");
         private bool InputJumpUp => Input.GetButtonUp("Jump");
-        private bool CanJump => !_isJumping && (IsGrounded || _coyoteTimer > 0) && _jumpTimer <= 0 && !_isPaused;
+        private bool CanJump => !_isJumping && (IsGrounded || _coyoteTimer > 0) && _jumpTimer <= 0 && !_isPaused.Value;
 
         private bool CanJumpCut =>
             _isJumping && (transform.position.y - _startJumpPos) >= JumpCutMinHeight;
@@ -180,14 +180,13 @@ namespace Solis.Player
             Cursor.visible = false;
 
             _isCinematicRunning = LevelCutscene.IsPlaying;
-            LevelCutscene.OnCinematicEnded += () =>
-            {
-                _isCinematicRunning = false;
-            };
+            LevelCutscene.OnCinematicEnded += () => _isCinematicRunning = false;
             PauseManager.OnPause += isPaused =>
             {
-                _isPaused = isPaused;
+                if (!IsOwnedByClient) return;
+                _isPaused.Value = isPaused;
             };
+            _isPaused.OnValueChanged += (_, newValue) => emoteController.SetStatusText(newValue ? "stats.pause" : "");
 
             _remoteBodyRotation = body.localEulerAngles.y;
             _remoteBodyPosition = body.localPosition;
@@ -195,6 +194,7 @@ namespace Solis.Player
             dustParticles.Stop();
             if (controller == null) TryGetComponent(out controller);
             InvokeRepeating(nameof(_Tick), 0, 1f / tickRate);
+            WithValues(_isPaused);
         }
 
         private void OnDisable()
@@ -429,7 +429,7 @@ namespace Solis.Player
 
         private void _Move()
         {
-            var moveInput = !_isPaused ? MoveInput.normalized : Vector2.zero;
+            var moveInput = !_isPaused.Value ? MoveInput.normalized : Vector2.zero;
             var maxSpeedTarget = _inJumpState ? MaxSpeed * AccelInJumpMultiplier : MaxSpeed;
             var target = moveInput * maxSpeedTarget;
             var accelOrDecel = (Mathf.Abs(moveInput.magnitude) > 0.01f);
