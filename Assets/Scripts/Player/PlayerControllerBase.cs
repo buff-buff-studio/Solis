@@ -8,6 +8,7 @@ using Solis.Audio;
 using Solis.Circuit.Components;
 using Solis.Data;
 using Solis.Misc;
+using Solis.Misc.Cam;
 using Solis.Packets;
 using UnityEditor;
 using UnityEngine;
@@ -115,6 +116,8 @@ namespace Solis.Player
         private float _multiplier;
 
         private Vector3 _lastSafePosition;
+        private Transform _camera;
+
         #endregion
 
         #region Public Properties
@@ -174,6 +177,7 @@ namespace Solis.Player
         #endregion
 
         #region Unity Callbacks
+
         public void OnEnable()
         {
             Cursor.lockState = CursorLockMode.Locked;
@@ -260,7 +264,7 @@ namespace Solis.Player
                     _Gravity();
                     _HandlePlatform();
 
-                    var camAngle = Camera.main!.transform.eulerAngles.y;
+                    var camAngle = _camera!.eulerAngles.y;
                     var moveAngle = Mathf.Atan2(velocity.x, velocity.z) * Mathf.Rad2Deg;
                     var te = transform.eulerAngles;
                     var velocityXZ = new Vector2(velocity.x, velocity.z);
@@ -354,10 +358,8 @@ namespace Solis.Player
         {
             if (!HasAuthority)
                 return;
-            
-            var cam = Camera.main!.GetComponentInChildren<CinemachineFreeLook>();
-            cam.Follow = transform;
-            cam.LookAt = lookAt;
+
+            _camera = MulticamCamera.Instance.SetPlayerTarget(transform, lookAt);
         }
         
         public override void OnServerReceivePacket(IOwnedPacket packet, int clientId)

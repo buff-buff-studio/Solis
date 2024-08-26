@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Cinemachine;
+using Solis.Misc.Cam;
 using UnityEditor;
 using UnityEngine;
 
@@ -17,6 +18,8 @@ public class LevelCutscene : MonoBehaviour
 
     [Space]
     [Header("SETTINGS")]
+    [SerializeField]
+    private bool playOnAwake = true;
     [SerializeField]
     [Range(0,60)]
     private float duration = 5f;
@@ -48,6 +51,8 @@ public class LevelCutscene : MonoBehaviour
 
         ending = 0;
         position = 0;
+
+        MulticamCamera.Instance.SetCinematic(virtualCamera,null, playOnAwake);
 
 #if UNITY_EDITOR
 _isPreview = false;
