@@ -18,16 +18,25 @@ namespace Solis.Misc.Cam
         [Serializable]
         public struct MulticamTarget
         {
-            public enum TargetTransition
+            public enum CameraTransition
             {
                 Instant,
                 Smooth
             }
+
+            public enum CameraMovement
+            {
+                Static,
+                ZoomOut,
+                ZoomIn
+            }
+
             [Header("Target")]
             public Transform follow;
             public Transform lookAt;
             [Header("Settings")]
-            public TargetTransition transition;
+            public CameraTransition transition;
+            public CameraMovement movement;
         }
 
         public static MulticamCamera Instance { get; private set; }
@@ -85,7 +94,7 @@ namespace Solis.Misc.Cam
                     throw new ArgumentOutOfRangeException();
             }
         }
-        public Transform SetPlayerTarget(Transform follow, Transform lookAt, MulticamTarget.TargetTransition transition = MulticamTarget.TargetTransition.Instant, bool changeState = false)
+        public Transform SetPlayerTarget(Transform follow, Transform lookAt, MulticamTarget.CameraTransition transition = MulticamTarget.CameraTransition.Instant, bool changeState = false)
         {
             playerTarget.follow = follow;
             playerTarget.lookAt = lookAt;

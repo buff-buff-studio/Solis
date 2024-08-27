@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Cinemachine;
 using Solis.Settings;
 using Solis.Data;
+using Solis.Misc.Cam;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
