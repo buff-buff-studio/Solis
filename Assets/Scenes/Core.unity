@@ -3203,7 +3203,10 @@ MonoBehaviour:
   playerTarget:
     follow: {fileID: 0}
     lookAt: {fileID: 0}
+    duration: 0
     transition: 0
+    transitionDuration: 0
+    movement: 0
   cinematicCamera: {fileID: 0}
   cinematicTargets: []
   dialogueCamera: {fileID: 0}
@@ -3757,6 +3760,10 @@ PrefabInstance:
     - target: {fileID: 7933777645009738360, guid: 98f9ac76a654c9a438a29650d81ab9e7, type: 3}
       propertyPath: m_FollowOffset.z
       value: -4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8286538708262552873, guid: 98f9ac76a654c9a438a29650d81ab9e7, type: 3}
+      propertyPath: m_DefaultBlend.m_Style
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8930590351321276414, guid: 98f9ac76a654c9a438a29650d81ab9e7, type: 3}
       propertyPath: m_Follow

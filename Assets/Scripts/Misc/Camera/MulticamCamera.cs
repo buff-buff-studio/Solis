@@ -16,12 +16,14 @@ namespace Solis.Misc.Cam
         }
 
         [Serializable]
-        public struct MulticamTarget
+        public class MulticamTarget
         {
+            [Flags]
             public enum CameraTransition
             {
-                Instant,
-                Smooth
+                Instant = 0,
+                SmoothFollow = 1,
+                SmoothLookAt = 2,
             }
 
             public enum CameraMovement
@@ -34,9 +36,39 @@ namespace Solis.Misc.Cam
             [Header("Target")]
             public Transform follow;
             public Transform lookAt;
+
             [Header("Settings")]
+            [Tooltip("In seconds.")] [Range(0, 10f)]
+            public float duration = 1f;
             public CameraTransition transition;
+            [Tooltip("Only for Smooth transitions.")] [Range(0, 5f)]
+            public float transitionDuration;
             public CameraMovement movement;
+
+            public MulticamTarget(Transform follow, Transform lookAt, CameraTransition transition, CameraMovement movement)
+            {
+                this.follow = follow;
+                this.lookAt = lookAt;
+                this.transition = transition;
+                this.movement = movement;
+            }
+            public MulticamTarget(Camera camera, out Transform follow, out Transform lookAt)
+            {
+                follow = new GameObject("Follow").transform;
+                lookAt = new GameObject("LookAt").transform;
+
+                follow.position = camera.transform.position;
+                follow.rotation = camera.transform.rotation;
+
+                Physics.Raycast(camera.transform.position, camera.transform.forward, out var hit, 1000);
+                lookAt.position = hit.transform.position;
+                lookAt.rotation = hit.transform.rotation;
+
+                this.follow = follow;
+                this.lookAt = lookAt;
+                transition = CameraTransition.Instant;
+                movement = CameraMovement.Static;
+            }
         }
 
         public static MulticamCamera Instance { get; private set; }
@@ -74,13 +106,14 @@ namespace Solis.Misc.Cam
 
         #region Public Methods
 
-        public void ChangeCameraState(CameraState newState)
+        public void ChangeCameraState(CameraState newState, CinemachineBlendDefinition.Style blend = CinemachineBlendDefinition.Style.Cut, float blendTime = 0)
         {
+            mainCamera.GetComponent<CinemachineBrain>().m_DefaultBlend = new CinemachineBlendDefinition(blend, blendTime);
+
             gameplayCamera.gameObject.SetActive(newState == CameraState.Gameplay);
             cinematicCamera.gameObject.SetActive(newState == CameraState.Cinematic);
             dialogueCamera.gameObject.SetActive(newState == CameraState.Dialogue);
             state = newState;
-
             switch (state)
             {
                 case CameraState.Gameplay:
