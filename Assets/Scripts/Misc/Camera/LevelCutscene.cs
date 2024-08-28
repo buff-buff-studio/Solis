@@ -130,6 +130,7 @@ namespace Solis.Misc.Cam
                 }
                 else
                 {
+                //Talvez converter em animator?
                     _follow.position = rolls[currentRoll].GetFollow().position;
                     _follow.rotation = rolls[currentRoll].GetFollow().rotation;
                     _lookAt.position = rolls[currentRoll].GetLookAt().position;
