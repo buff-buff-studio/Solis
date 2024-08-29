@@ -1,4 +1,4 @@
-using System;
+/*using System;
 using System.Collections.Generic;
 using _Scripts.Helpers;
 using TMPro;
@@ -63,12 +63,11 @@ namespace _Scripts.Helpers
             for (int i =0; i< _textWriterSingle.Count; i++)
             {
                 var destroyInstance = _textWriterSingle[i].Update();
-
+                
                 if (!destroyInstance) continue;
                 _textWriterSingle.RemoveAt(i);
                 i--;
             }
-            
         }
     }
 }
@@ -82,6 +81,7 @@ public class TextWriterSingle
     private int _characterIndex;
     private bool _invisibleCharacters;
     public Action onFinishWriting;
+    public bool isWriting = false;
 
     public TextWriterSingle(TextMeshProUGUI uiText, string textToWrite, float timerPerCharacter, bool invisibleCharacters, Action onFinishWriting = null)
     {
@@ -105,20 +105,44 @@ public class TextWriterSingle
     public bool Update()
     {
         _timer -= Time.deltaTime;
-
+        
         while (_timer <= 0f)
         {
             //display next character
             _timer += _timePerCharacter;
             _characterIndex++;
+            if (_characterIndex >= _textToWrite.Length)
+            {
+                return true;
+            }
             string text = _textToWrite.Substring(0, _characterIndex);
+            Debug.Log(text);
+            var currentCharacter = _textToWrite.Substring(_characterIndex,1);
+            if (currentCharacter == "<")
+            {
+                string auxString = currentCharacter;
+                
+                while (currentCharacter != ">")
+                {
+                    _characterIndex++;
+                    currentCharacter = _textToWrite.Substring(_characterIndex,1);
+                    auxString += currentCharacter;
+                }
+                
+                text += auxString;
+            }
+            else
+            {
+                if (_invisibleCharacters)
+                    text += _textToWrite.Substring(0, _characterIndex);
+            }
 
-            if (_invisibleCharacters)
-                text += "<color=#00000000>" + _textToWrite.Substring(_characterIndex) + "</color>";
-            
 
             if (_uiText != null)
+            {
+                _uiText.text = "";
                 _uiText.text = text;
+            }
 
             if (_characterIndex >= _textToWrite.Length)
             {
@@ -145,8 +169,9 @@ public class TextWriterSingle
     public void WriteAllAndDestroy()
     {
         _uiText.text = _textToWrite;
+        isWriting = false;
         _characterIndex = _textToWrite.Length;
         WriterText.Instance.RemoveWriter(_uiText);
         onFinishWriting?.Invoke();
     }
-}
+}*/

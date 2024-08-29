@@ -1,14 +1,14 @@
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using _Scripts.Helpers;
 using _Scripts.UI;
+using DefaultNamespace;
 using Solis.Data;
 using TMPro;
 using UI;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 [Serializable]
@@ -44,15 +44,14 @@ namespace _Scripts.UI
     {
         private static DialogPanel _instance;
         public static DialogPanel Instance => _instance ? _instance : FindFirstObjectByType<DialogPanel>();
-        public TextWriterSingle textWriterSingle;
+        public TextScaler textWriterSingle;
         [SerializeField]private GameObject orderTextGameObject;
-        [SerializeField] private TextMeshProUGUI orderText;
         [SerializeField] private float timePerCharacter = 0.1f;
         [SerializeField] private Image characterImage;
         [SerializeField] private List<CharacterTypeAndImages> characterTypesAndEmotions;
        
-        public List<DialogData> dialogs;
-     
+        public List<DialogData> currentDialog;
+        private int _index = 0;
         private void Awake()
         {
             if (_instance != null)
@@ -67,24 +66,43 @@ namespace _Scripts.UI
         private void Update()
         {
             if(Input.GetKeyDown(KeyCode.P))
-                TypeWriteText(dialogs[0], null);
+                TypeWriteText(currentDialog[0]);
+            
+            
         }
-
 
         public void OnClickDialog()
         {
-            if (textWriterSingle != null && textWriterSingle.IsActive())
-                textWriterSingle.WriteAllAndDestroy();
+            if (textWriterSingle == null) return;
+
+            if (textWriterSingle.isWriting)
+            {
+                // textWriterSingle.WriteAll();
+            } 
+            else
+            {
+                if (_index >= currentDialog.Count-1)
+                    ClosePanel();
+                else
+                {
+                    _index++;
+                    TypeWriteText(currentDialog[_index]);
+                }
+            }
         }
-        
-        private void TypeWriteText(DialogData dialogData, Action onFinishWriting = null)
+
+        private void ClosePanel()
+        {
+            _index = 0;
+            orderTextGameObject.SetActive(false);
+        }
+
+        private void TypeWriteText(DialogData dialogData)
         {
             characterImage.gameObject.SetActive(false);
-            orderTextGameObject.SetActive(true);
-            orderText.text = "";
-            textWriterSingle = WriterText.Instance.AddWriter(orderText, dialogData.text, timePerCharacter,true, true);
             EnterImage(dialogData.characterType);
-            
+            textWriterSingle.SetText(dialogData.text);
+            orderTextGameObject.SetActive(true);
         }
 
         private void EnterImage(CharacterAndEmotion characterType)
