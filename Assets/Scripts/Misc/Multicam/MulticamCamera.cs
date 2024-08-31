@@ -4,7 +4,7 @@ using UnityEngine;
 using NetBuff.Components;
 using Solis.Player;
 
-namespace Solis.Misc.Cam
+namespace Solis.Misc.Multicam
 {
     public class MulticamCamera : NetworkBehaviour
     {
@@ -22,8 +22,9 @@ namespace Solis.Misc.Cam
             public enum CameraTransition
             {
                 Instant = 0,
-                SmoothFollow = 1,
-                SmoothLookAt = 2,
+                Smooth = 1,
+                FadeIn = 2,
+                FadeOut = 4
             }
 
             public enum CameraMovement

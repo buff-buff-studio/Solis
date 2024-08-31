@@ -8,7 +8,7 @@ using Solis.Audio;
 using Solis.Circuit.Components;
 using Solis.Data;
 using Solis.Misc;
-using Solis.Misc.Cam;
+using Solis.Misc.Multicam;
 using Solis.Packets;
 using UnityEditor;
 using UnityEngine;
@@ -183,8 +183,8 @@ namespace Solis.Player
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
 
-            _isCinematicRunning = LevelCutscene.IsPlaying;
-            LevelCutscene.OnCinematicEnded += () => _isCinematicRunning = false;
+            _isCinematicRunning = CinematicController.IsPlaying;
+            CinematicController.OnCinematicEnded += () => _isCinematicRunning = false;
             PauseManager.OnPause += isPaused =>
             {
                 if (!IsOwnedByClient) return;
