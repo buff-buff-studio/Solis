@@ -187,7 +187,7 @@ namespace Solis.Player
             CinematicController.OnCinematicEnded += () => _isCinematicRunning = false;
             PauseManager.OnPause += isPaused =>
             {
-                if (!IsOwnedByClient) return;
+                if (!HasAuthority || !IsOwnedByClient) return;
                 _isPaused.Value = isPaused;
             };
             _isPaused.OnValueChanged += (_, newValue) => emoteController.SetStatusText(newValue ? "stats.pause" : "");
