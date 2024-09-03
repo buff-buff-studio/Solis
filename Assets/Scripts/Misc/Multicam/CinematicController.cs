@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using AYellowpaper.SerializedCollections;
 using Cinemachine;
 using NetBuff.Components;
@@ -16,32 +17,15 @@ namespace Solis.Misc.Multicam
     [Icon("Assets/Editor/Multicam/Icons/CinematicControllerIcon.png")]
     public class CinematicController : MonoBehaviour
     {
-        [Serializable]
-        public class CinematicRoll
-        {
-            public string name;
-            [FormerlySerializedAs("followAnimation")] public AnimationClip clip;
-            public int currentFrame;
-            public List<MulticamCamera.MulticamTarget> framing;
-            public Transform GetFollow()
-            {
-                return framing[currentFrame].follow;
-            }
-            public Transform GetLookAt()
-            {
-                return framing[currentFrame].lookAt;
-            }
-            public MulticamCamera.MulticamTarget GetFrame()
-            {
-                return framing[currentFrame];
-            }
-        }
+        public static CinematicController Instance { get; private set; }
 
         [Header("REFERENCES")]
         [SerializeField]
         internal CinemachineVirtualCamera virtualCamera;
         [SerializeField]
         internal Animation animation;
+        [SerializeField]
+        private Transform _follow, _lookAt;
 
         public Transform Camera => virtualCamera.transform;
 
@@ -51,21 +35,9 @@ namespace Solis.Misc.Multicam
         [Space]
         [Header("CINEMATIC")]
         public int currentRoll;
-        [SerializeField]
-        private List<CinematicRoll> rolls;
+        [SerializeField] internal List<CinematicRoll> rolls;
         public CinematicRoll CurrentRoll => rolls[currentRoll];
         public List<string> GetRollsName => rolls.ConvertAll(roll => roll.name);
-
-        [Space] [Header("STATE")]
-        [SerializeField] private float rollTime = 1f;
-        [SerializeField] private float frameTime = 1f;
-        [Space(1)]
-        [SerializeField] private float duration = 5f;
-        [SerializeField] private float frameDuration = 1f;
-        [SerializeField] private float frameTransitionDuration = 1f;
-        [SerializeField] private bool isTransitioning = false;
-
-        private Transform _follow, _lookAt;
 
         public static bool IsPlaying = false;
         public static event Action OnCinematicStarted;
@@ -73,21 +45,24 @@ namespace Solis.Misc.Multicam
 
         private bool _isPaused = false;
 
+#if UNITY_EDITOR
+        protected internal bool NeedToBake = false;
+#endif
+
         private void Awake()
         {
+            Instance = this;
+
             TryGetComponent(out animation);
-
-            IsPlaying = true;
-            OnCinematicStarted?.Invoke();
-
-            _follow = new GameObject("Follow").transform;
-            _lookAt = new GameObject("LookAt").transform;
-            _follow.SetParent(this.transform);
-            _lookAt.SetParent(this.transform);
+            rolls.ForEach(roll =>
+            {
+                animation.AddClip(roll.clip, roll.name);
+            });
+            TryFindTarget();
             virtualCamera.m_Follow = _follow;
             virtualCamera.m_LookAt = _lookAt;
 
-            MulticamCamera.Instance.SetCinematic(virtualCamera, null, playOnAwake);
+            MulticamCamera.Instance.SetCinematic(virtualCamera, playOnAwake);
         }
 
         private void OnEnable()
@@ -102,44 +77,87 @@ namespace Solis.Misc.Multicam
 
         private void Update()
         {
-            if (Input.GetButtonDown("Cutscene"))
+            if(!IsPlaying) return;
+            if (Input.GetButtonDown("Cutscene") || !animation.isPlaying)
             {
-                virtualCamera.enabled = false;
-                this.enabled = false;
-                OnCinematicEnded?.Invoke();
-                IsPlaying = false;
+                Stop();
+            }
+
+            if (!CurrentRoll.CurrentFrame.invoked)
+            {
+                CurrentRoll.CurrentFrame.onFrameShow?.Invoke();
+                CurrentRoll.CurrentFrame.invoked = true;
             }
         }
 
-        private void FixedUpdate()
-        {
-
-        }
+        public void Play()
+        { Play(currentRoll);}
 
         public void Play(int roll)
         {
             currentRoll = roll;
+            CurrentRoll.currentFrame = 0;
+            CurrentRoll.framing.ForEach(frame => { frame.invoked = false; });
+            animation.clip = animation.GetClip(rolls[currentRoll].name);
+            animation.Play();
 
-            var clip = BakeAnimation();
+            MulticamCamera.Instance.ChangeCameraState(MulticamCamera.CameraState.Cinematic, CurrentRoll.blend, CurrentRoll.blendTime);
+            IsPlaying = true;
+        }
 
-            animation.AddClip(rolls[currentRoll].clip, rolls[currentRoll].name);
-            animation.Play(rolls[currentRoll].name);
+        public void Stop()
+        {
+            MulticamCamera.Instance.ChangeCameraState(MulticamCamera.CameraState.Gameplay, CurrentRoll.blend, CurrentRoll.blendTime);
 
-            _isPaused = false;
+            animation.Stop();
+            OnCinematicEnded?.Invoke();
+            IsPlaying = false;
+        }
+
+        protected internal void Reset()
+        {
+            Play(currentRoll);
+        }
+
+        public void OnFrameChange(int frame)
+        {
+            CurrentRoll.currentFrame = frame;
+        }
+
+#if UNITY_EDITOR
+        public void AddFrame()
+        {
+            if (rolls == null) rolls = new List<CinematicRoll>();
+            if (rolls.Count == 0) rolls.Add(new CinematicRoll {name = "Roll 1"});
+            if (rolls[currentRoll].framing == null) rolls[currentRoll].framing = new List<CinematicFrame>();
+            rolls[currentRoll].framing.Add(new CinematicFrame(SceneView.lastActiveSceneView.camera));
+            CurrentRoll.currentFrame = CurrentRoll.framing.Count - 1;
+
+            NeedToBake = true;
+        }
+
+        public void UpdateFrame(CameraTransition transition, CameraMovement movement)
+        {
+            var updatedFrame = new CinematicFrame(SceneView.lastActiveSceneView.camera);
+            updatedFrame.behaviour.transition = transition;
+            updatedFrame.behaviour.movement = movement;
+
+            CurrentRoll.framing[CurrentRoll.currentFrame] = updatedFrame;
+            NeedToBake = true;
         }
 
         public AnimationClip BakeAnimation()
         {
-            if (rolls[currentRoll].clip == null)
+            if (CurrentRoll.clip == null)
             {
                 var c = new AnimationClip
                 {
                     name = SceneManager.GetActiveScene().name + " - " + rolls[currentRoll].name
                 };
                 AssetDatabase.CreateAsset(c, $"Assets/Animations/Cinematic/{c.name}.anim");
-                rolls[currentRoll].clip = c;
+                CurrentRoll.clip = c;
             }
-            var clip = rolls[currentRoll].clip;
+            var clip = CurrentRoll.clip;
 
             var followPos = new []
             {
@@ -153,28 +171,56 @@ namespace Solis.Misc.Multicam
                 new AnimationCurve(),
                 new AnimationCurve()
             };
+            var events = new AnimationEvent[CurrentRoll.framing.Count];
 
             var s = 0f;
-            for (var i = 0; i < rolls[currentRoll].framing.Count; i++)
+            for (var i = 0; i < CurrentRoll.framing.Count; i++)
             {
-                var frame = rolls[currentRoll].framing[i];
-                var sStart = frame.transitionDuration == 0 ? s : s + frame.transitionDuration;
-                var sEnd = sStart + frame.duration - 0.017f;
+                var frame = CurrentRoll.framing[i];
+                var transition = frame.transition;
+                var sStart = (frame.transitionDuration == 0 || transition == CameraTransition.Instant) ? s : s + frame.transitionDuration;
+                var sEnd = sStart + (frame.duration <= 0 ? 0.017f : frame.duration - 0.017f);
 
-                foreach (var keyframe in AnimationCurve.Linear(sStart, frame.follow.position.x, sEnd, frame.follow.position.x).keys)
-                    followPos[0].AddKey(keyframe);
-                foreach (var keyframe in AnimationCurve.Linear(sStart, frame.follow.position.y, sEnd, frame.follow.position.y).keys)
-                    followPos[1].AddKey(keyframe);
-                foreach (var keyframe in AnimationCurve.Linear(sStart, frame.follow.position.z, sEnd, frame.follow.position.z).keys)
-                    followPos[2].AddKey(keyframe);
+                if (frame.movement == CameraMovement.Transition)
+                {
+                    sStart -= 0.017f;
+                    followPos[0].AddKey(sStart, frame.follow.x);
+                    followPos[1].AddKey(sStart, frame.follow.y);
+                    followPos[2].AddKey(sStart, frame.follow.z);
 
-                foreach (var keyframe in AnimationCurve.Linear(sStart, frame.lookAt.position.x, sEnd, frame.lookAt.position.x).keys)
-                    lookAtPos[0].AddKey(keyframe);
-                foreach (var keyframe in AnimationCurve.Linear(sStart, frame.lookAt.position.y, sEnd, frame.lookAt.position.y).keys)
-                    lookAtPos[1].AddKey(keyframe);
-                foreach (var keyframe in AnimationCurve.Linear(sStart, frame.lookAt.position.z, sEnd, frame.lookAt.position.z).keys)
-                    lookAtPos[2].AddKey(keyframe);
+                    lookAtPos[0].AddKey(sStart, frame.lookAt.x);
+                    lookAtPos[1].AddKey(sStart, frame.lookAt.y);
+                    lookAtPos[2].AddKey(sStart, frame.lookAt.z);
+                }
+                else
+                {
+                    foreach (var keyframe in AnimationCurve
+                                 .Linear(sStart, frame.follow.x, sEnd, frame.follow.x).keys)
+                        followPos[0].AddKey(keyframe);
+                    foreach (var keyframe in AnimationCurve
+                                 .Linear(sStart, frame.follow.y, sEnd, frame.follow.y).keys)
+                        followPos[1].AddKey(keyframe);
+                    foreach (var keyframe in AnimationCurve
+                                 .Linear(sStart, frame.follow.z, sEnd, frame.follow.z).keys)
+                        followPos[2].AddKey(keyframe);
 
+                    foreach (var keyframe in AnimationCurve
+                                 .Linear(sStart, frame.lookAt.x, sEnd, frame.lookAt.x).keys)
+                        lookAtPos[0].AddKey(keyframe);
+                    foreach (var keyframe in AnimationCurve
+                                 .Linear(sStart, frame.lookAt.y, sEnd, frame.lookAt.y).keys)
+                        lookAtPos[1].AddKey(keyframe);
+                    foreach (var keyframe in AnimationCurve
+                                 .Linear(sStart, frame.lookAt.z, sEnd, frame.lookAt.z).keys)
+                        lookAtPos[2].AddKey(keyframe);
+                }
+
+                events[i] = new AnimationEvent
+                {
+                    functionName = "OnFrameChange",
+                    time = sStart,
+                    intParameter = i
+                };
                 s += frame.duration + frame.transitionDuration;
             }
 
@@ -186,116 +232,59 @@ namespace Solis.Misc.Multicam
             clip.SetCurve("LookAt", typeof(Transform), "localPosition.x", lookAtPos[0]);
             clip.SetCurve("LookAt", typeof(Transform), "localPosition.y", lookAtPos[1]);
             clip.SetCurve("LookAt", typeof(Transform), "localPosition.z", lookAtPos[2]);
+
+            AnimationUtility.SetAnimationEvents(clip, events);
+
             clip.legacy = true;
             return clip;
         }
 
-        public void Stop()
+        public void SetCameraToCurrentFrame()
         {
-            virtualCamera.enabled = false;
-            this.enabled = false;
-            OnCinematicEnded?.Invoke();
-            IsPlaying = false;
+            if(Application.isPlaying) return;
+            Debug.Log("Setting Camera to Current Frame");
+            TryFindTarget();
+            virtualCamera.m_Follow = _follow;
+            virtualCamera.m_LookAt = _lookAt;
         }
 
-        protected internal void Reset()
+        private void TryFindTarget()
         {
-            //IsPlaying = true;
-            //rollTime = 0;
-            //frameTime = 0;
-            virtualCamera.enabled = true;
-            this.enabled = true;
-            Play(currentRoll);
-        }
-
-#if UNITY_EDITOR
-        public void AddFrame()
-        {
-            if (rolls == null) rolls = new List<CinematicRoll>();
-            if (rolls.Count == 0) rolls.Add(new CinematicRoll {name = "Roll 1"});
-            if (rolls[currentRoll].framing == null) rolls[currentRoll].framing = new List<MulticamCamera.MulticamTarget>();
-            rolls[currentRoll].framing.Add(
-                new MulticamCamera.MulticamTarget(
-                    SceneView.lastActiveSceneView.camera,
-                    out var follow, out var lookAt));
-
-            follow.name = $"{rolls[currentRoll].framing.Count} - Follow";
-            lookAt.name = $"{rolls[currentRoll].framing.Count} - LookAt";
-
-            OrganizeRolls();
-            var parent = transform.Find("Rolls");
-            var roll = parent.Find(rolls[currentRoll].name);
-            follow.SetParent(roll);
-            lookAt.SetParent(roll);
-        }
-
-        public void UpdateFrame()
-        {
-            if (rolls == null) rolls = new List<CinematicRoll>();
-            if (rolls.Count == 0) rolls.Add(new CinematicRoll {name = "Roll 1"});
-            if (rolls[currentRoll].framing == null)
+            if(_follow == null)
             {
-                AddFrame();
-                return;
-            }
-            var updatedFrame = new MulticamCamera.MulticamTarget(
-                    SceneView.lastActiveSceneView.camera,
-                    out var follow, out var lookAt);
-
-            follow.name = $"{rolls[currentRoll].framing.Count} - Follow";
-            lookAt.name = $"{rolls[currentRoll].framing.Count} - LookAt";
-
-            rolls[currentRoll].framing[rolls[currentRoll].currentFrame] = updatedFrame;
-
-            OrganizeRolls();
-            var parent = transform.Find("Rolls");
-            var roll = parent.Find(rolls[currentRoll].name);
-            follow.SetParent(roll);
-            lookAt.SetParent(roll);
-        }
-
-        public void OrganizeRolls()
-        {
-            if (rolls == null) return;
-
-            var parent = transform.Find("Rolls");
-            if (parent == null)
-            {
-                parent = new GameObject("Rolls").transform;
-                parent.SetParent(transform);
-            }
-            parent.SetAsFirstSibling();
-            var i = 0;
-            rolls.ForEach(roll =>
-            {
-                var rollObj = parent.Find(roll.name);
-                if (rollObj == null)
+                _follow = transform.Find("Follow");
+                if(_follow == null)
                 {
-                    rollObj = new GameObject(roll.name).transform;
-                    rollObj.SetParent(parent);
+                    _follow = new GameObject("Follow").transform;
+                    _follow.SetParent(this.transform);
                 }
-                rollObj.SetSiblingIndex(i);
-                i++;
-            });
+            }
+            if(_lookAt == null)
+            {
+                _lookAt = transform.Find("LookAt");
+                if(_lookAt == null)
+                {
+                    _lookAt = new GameObject("LookAt").transform;
+                    _lookAt.SetParent(this.transform);
+                }
+            }
+
+            _follow.position = CurrentRoll.GetFollow();
+            _lookAt.position = CurrentRoll.GetLookAt();
         }
 
         private void OnValidate()
         {
             if (Application.isPlaying) return;
 
+            Debug.Log(animation.clip.events[0].functionName + " - " + animation.clip.events[0].time);
+            Debug.Log(animation.clip.events[1]);
+
             currentRoll = Mathf.Clamp(currentRoll, 0, rolls.Count - 1);
             rolls?.ForEach(roll =>
             {
                 roll.currentFrame = Mathf.Clamp(roll.currentFrame, 0, roll.framing.Count - 1);
             });
-
-            SetCameraToCurrentFrame();
-        }
-
-        public void SetCameraToCurrentFrame()
-        {
-            virtualCamera.m_Follow = rolls[currentRoll].GetFollow();
-            virtualCamera.m_LookAt = rolls[currentRoll].GetLookAt();
         }
 #endif
     }
@@ -304,47 +293,119 @@ namespace Solis.Misc.Multicam
     [UnityEditor.CustomEditor(typeof(CinematicController))]
     public class LevelCutsceneEditor : UnityEditor.Editor
     {
+        private SerializedProperty virtualCamera;
+        private SerializedProperty animation;
+        private SerializedProperty follow;
+        private SerializedProperty lookAt;
+
+        private SerializedProperty playOnAwake;
+
+        private SerializedProperty currentRoll;
+        private SerializedProperty rolls;
+
+        private CinematicController _cController;
+
+        private void OnEnable()
+        {
+            _cController = (CinematicController)target;
+
+            virtualCamera = serializedObject.FindProperty("virtualCamera");
+            animation = serializedObject.FindProperty("animation");
+            follow = serializedObject.FindProperty("_follow");
+            lookAt = serializedObject.FindProperty("_lookAt");
+
+            playOnAwake = serializedObject.FindProperty("playOnAwake");
+            currentRoll = serializedObject.FindProperty("currentRoll");
+            rolls = serializedObject.FindProperty("rolls");
+        }
         public override void OnInspectorGUI()
         {
-            var cutscene = (CinematicController)target;
-
-            base.OnInspectorGUI();
-            GUILayout.Space(20);
-
-            if (Application.isPlaying)
+            if (_cController.rolls.Exists(x => x.clip == null))
             {
-                if (!CinematicController.IsPlaying)
+                EditorGUILayout.HelpBox("You have rolls without baked animations.\nPlease bake all animations before playing.", MessageType.Error);
+                if (GUILayout.Button("Bake All Animations"))
                 {
-                    if (GUILayout.Button("Play"))
+                    var cRoll = _cController.currentRoll;
+                    for (var i = 0; i < _cController.rolls.Count; i++)
                     {
-                        cutscene.Reset();
+                        _cController.currentRoll = i;
+                        _cController.BakeAnimation();
                     }
-                }
-                else
-                {
-                    if (GUILayout.Button("Stop"))
-                    {
-                        cutscene.Stop();
-                    }
+
+                    _cController.currentRoll = cRoll;
+                    _cController.NeedToBake = false;
                 }
             }
-            else
+            else if (_cController.NeedToBake)
             {
-                GUILayout.Label("Editing Roll: " + cutscene.CurrentRoll.name, EditorStyles.boldLabel);
-                GUILayout.Label("Frames: " + cutscene.CurrentRoll.framing.Count, EditorStyles.miniLabel);
-                GUILayout.BeginHorizontal();
-                if (GUILayout.Button("Add Frame", GUILayout.Width(120), GUILayout.Height(40)))
-                    cutscene.AddFrame();
-                if (GUILayout.Button($"Update Frame {cutscene.CurrentRoll.currentFrame}", GUILayout.Width(120), GUILayout.Height(40)))
-                    cutscene.UpdateFrame();
-                GUILayout.EndHorizontal();
-                GUILayout.Space(10);
-                GUILayout.BeginHorizontal();
-                if (GUILayout.Button("Bake Roll Animation", GUILayout.Width(120), GUILayout.Height(40)))
-                    cutscene.BakeAnimation();
-                if (GUILayout.Button("Bake All Animations", GUILayout.Width(120), GUILayout.Height(40)))
-                    cutscene.BakeAnimation();
-                GUILayout.EndHorizontal();
+                EditorGUILayout.HelpBox("You probably have animations that need to be baked.\nWithout baking, the camera will not move.", MessageType.Warning);
+                if (GUILayout.Button("Bake All Animations"))
+                {
+                    var cRoll = _cController.currentRoll;
+                    for (var i = 0; i < _cController.rolls.Count; i++)
+                    {
+                        _cController.currentRoll = i;
+                        _cController.BakeAnimation();
+                    }
+
+                    _cController.currentRoll = cRoll;
+                    _cController.NeedToBake = false;
+                }
+                if(GUILayout.Button("Dismiss"))
+                {
+                    _cController.NeedToBake = false;
+                }
+            }
+
+            serializedObject.Update();
+
+            EditorGUILayout.PropertyField(virtualCamera);
+            EditorGUILayout.PropertyField(animation);
+            EditorGUILayout.PropertyField(follow);
+            EditorGUILayout.PropertyField(lookAt);
+
+            EditorGUILayout.PropertyField(playOnAwake);
+
+            EditorGUILayout.PropertyField(currentRoll);
+
+            using (var check = new EditorGUI.ChangeCheckScope())
+            {
+                EditorGUILayout.PropertyField(rolls, true);
+                if (check.changed)
+                {
+                    _cController.NeedToBake = true;
+                }
+            }
+
+            if(Application.isPlaying)
+            {
+                if (GUILayout.Button("Play")) _cController.Reset();
+                if (GUILayout.Button("Stop")) _cController.Stop();
+            }
+
+            serializedObject.ApplyModifiedProperties();
+        }
+
+        private void OnSceneGUI()
+        {
+            EditorGUI.BeginChangeCheck();
+            var frame = _cController.CurrentRoll.framing[_cController.CurrentRoll.currentFrame];
+            var newFollowPos = Handles.PositionHandle(frame.follow, Quaternion.identity);
+            var newLookAtPos = Handles.RotationHandle(Quaternion.LookRotation(frame.lookAt - frame.follow), frame.follow);
+
+            Handles.color = Color.green;
+            Handles.DrawWireDisc(newFollowPos, newLookAtPos * Vector3.forward, 0.5f);
+            Handles.color = Color.red;
+            Handles.DrawDottedLine(newFollowPos, frame.lookAt, 5);
+            Handles.color = Color.yellow;
+            Handles.DrawWireCube(frame.lookAt, Vector3.one * 0.5f);
+
+            if (EditorGUI.EndChangeCheck())
+            {
+                _cController.CurrentRoll.framing[_cController.CurrentRoll.currentFrame].follow = newFollowPos;
+                Physics.Raycast(newFollowPos, newLookAtPos * Vector3.forward, out var hit, 1000, ~LayerMask.GetMask("InvisibleWall", "Ignore Raycast"));
+                _cController.CurrentRoll.framing[_cController.CurrentRoll.currentFrame].lookAt = hit.point;
+                _cController.SetCameraToCurrentFrame();
             }
         }
     }

@@ -15,63 +15,6 @@ namespace Solis.Misc.Multicam
             Dialogue
         }
 
-        [Serializable]
-        public class MulticamTarget
-        {
-            [Flags]
-            public enum CameraTransition
-            {
-                Instant = 0,
-                Smooth = 1,
-                FadeIn = 2,
-                FadeOut = 4
-            }
-
-            public enum CameraMovement
-            {
-                Static,
-                ZoomOut,
-                ZoomIn
-            }
-
-            [Header("Target")]
-            public Transform follow;
-            public Transform lookAt;
-
-            [Header("Settings")]
-            [Tooltip("In seconds.")] [Range(0, 10f)]
-            public float duration = 1f;
-            public CameraTransition transition;
-            [Tooltip("Only for Smooth transitions.")] [Range(0, 5f)]
-            public float transitionDuration;
-            public CameraMovement movement;
-
-            public MulticamTarget(Transform follow, Transform lookAt, CameraTransition transition, CameraMovement movement)
-            {
-                this.follow = follow;
-                this.lookAt = lookAt;
-                this.transition = transition;
-                this.movement = movement;
-            }
-            public MulticamTarget(Camera camera, out Transform follow, out Transform lookAt)
-            {
-                follow = new GameObject("Follow").transform;
-                lookAt = new GameObject("LookAt").transform;
-
-                follow.position = camera.transform.position;
-                follow.rotation = camera.transform.rotation;
-
-                Physics.Raycast(camera.transform.position, camera.transform.forward, out var hit, 1000);
-                lookAt.position = hit.transform.position;
-                lookAt.rotation = hit.transform.rotation;
-
-                this.follow = follow;
-                this.lookAt = lookAt;
-                transition = CameraTransition.Instant;
-                movement = CameraMovement.Static;
-            }
-        }
-
         public static MulticamCamera Instance { get; private set; }
 
         #region Inspector Fields
@@ -82,18 +25,13 @@ namespace Solis.Misc.Multicam
 
         [Header("GAMEPLAY")]
         public CinemachineFreeLook gameplayCamera;
-        public MulticamTarget playerTarget;
+        public CinematicFrame playerTarget;
 
         [Header("CINEMATIC")]
         public CinemachineVirtualCamera cinematicCamera;
-        public MulticamTarget[] cinematicTargets;
 
         [Header("DIALOGUE")]
         public CinemachineVirtualCamera dialogueCamera;
-
-        #endregion
-
-        #region Private Fields
 
         #endregion
 
@@ -113,47 +51,44 @@ namespace Solis.Misc.Multicam
 
             gameplayCamera.gameObject.SetActive(newState == CameraState.Gameplay);
             cinematicCamera.gameObject.SetActive(newState == CameraState.Cinematic);
-            dialogueCamera.gameObject.SetActive(newState == CameraState.Dialogue);
+            //dialogueCamera.gameObject.SetActive(newState == CameraState.Dialogue);
             state = newState;
             switch (state)
             {
                 case CameraState.Gameplay:
-                    target = playerTarget.lookAt;
+                    //target = playerTarget.lookAt;
                     break;
                 case CameraState.Cinematic:
                     break;
                 case CameraState.Dialogue:
+                    Debug.LogError("Dialogue Camera not implemented yet! Sorry :P");
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
-        public Transform SetPlayerTarget(Transform follow, Transform lookAt, MulticamTarget.CameraTransition transition = MulticamTarget.CameraTransition.Instant, bool changeState = false)
+        public Transform SetPlayerTarget(Transform follow, Transform lookAt, CameraTransition transition = CameraTransition.Instant, bool changeState = false)
         {
-            playerTarget.follow = follow;
-            playerTarget.lookAt = lookAt;
-            playerTarget.transition = transition;
+            playerTarget.behaviour.transition = transition;
 
             gameplayCamera.Follow = follow;
             gameplayCamera.LookAt = lookAt;
 
             if(changeState)
             {
-                //ChangeCameraState(CameraState.Gameplay);
+                ChangeCameraState(CameraState.Gameplay);
                 state = CameraState.Gameplay;
             }
             return mainCamera.transform;
         }
 
-        public void SetCinematic(CinemachineVirtualCamera cinematic, MulticamTarget[] targets, bool changeState = false)
+        public void SetCinematic(CinemachineVirtualCamera cinematic, bool changeState = false)
         {
             cinematicCamera = cinematic;
-            cinematicTargets = targets;
 
             if(changeState)
             {
-                //ChangeCameraState(CameraState.Cinematic);
-                state = CameraState.Cinematic;
+                CinematicController.Instance.Play(0);
             }
         }
 

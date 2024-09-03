@@ -13,9 +13,13 @@ namespace Editor.Multicam
     {
         private CinematicController _controller;
 
+        //Enums Values
+        private CameraTransition _transition;
+        private CameraMovement _movement;
+
         //Icons
         private Texture2D _addFrameIcon, _updateFrameIcon, _bakeRollIcon, _bakeAllRollsIcon;
-        private Texture2D _alignSceneCameraIcon;
+        private Texture2D _alignSceneCameraIcon, _selectCinematicControllerIcon;
 
         public override void OnCreated()
         {
@@ -26,7 +30,8 @@ namespace Editor.Multicam
             _bakeRollIcon = Resources.Load<Texture2D>("Editor/CinematicController/BakeRoll");
             _bakeAllRollsIcon = Resources.Load<Texture2D>("Editor/CinematicController/BakeAllRolls");
 
-            _alignSceneCameraIcon = EditorGUIUtility.IconContent("SceneViewCamera").image as Texture2D;
+            _alignSceneCameraIcon = EditorGUIUtility.IconContent("Camera Icon").image as Texture2D;
+            _selectCinematicControllerIcon = EditorGUIUtility.IconContent("Prefab Icon").image as Texture2D;
 
             _controller = Object.FindObjectsByType<CinematicController>(FindObjectsSortMode.None)[0];
 
@@ -78,7 +83,7 @@ namespace Editor.Multicam
             horizontalAlign.Add(header);
 
             //Change Camera Roll
-            var dropdown = new DropdownField("", _controller.GetRollsName, _controller.currentRoll){style = { width = 150}};
+            var dropdown = new DropdownField("", _controller.GetRollsName, _controller.currentRoll){style = { width = 170}};
             dropdown.RegisterValueChangedCallback(evt =>
             {
                 _controller.currentRoll = _controller.GetRollsName.IndexOf(evt.newValue);
@@ -105,7 +110,7 @@ namespace Editor.Multicam
             {
                 style =
                 {
-                    unityFontStyleAndWeight = FontStyle.Normal, marginLeft = 1, marginRight = 3, marginTop = 3.5f
+                    unityFontStyleAndWeight = FontStyle.Normal, marginLeft = 1, marginRight = 3, marginTop = 3.5f, width = 55
                 }
             };
             horizontalAlign.Add(label);
@@ -115,12 +120,13 @@ namespace Editor.Multicam
                 value = _controller.CurrentRoll.currentFrame,
                 name = "Frame Slider",
                 tooltip = "Change the current frame",
-                style = {marginLeft = 3, marginBottom = 5, width = 100, marginTop = 2}
+                style = {marginLeft = 3, marginBottom = 5, width = 118, marginTop = 2}
             };
             slider.RegisterValueChangedCallback(evt =>
             {
                 _controller.CurrentRoll.currentFrame = (int) evt.newValue;
                 _controller.SetCameraToCurrentFrame();
+                _Repaint();
             });
             horizontalAlign.Add(slider);
 
@@ -136,13 +142,27 @@ namespace Editor.Multicam
             horizontalAlign.Add(button);
             root.Add(horizontalAlign);
 
+            var enumField = new EnumField("Transition", _controller.CurrentRoll.CurrentFrame.transition)
+            {
+                style = {marginLeft = 1, marginBottom = 5}
+            };
+            enumField.RegisterValueChangedCallback(evt => { _transition = (CameraTransition) evt.newValue; });
+            root.Add(enumField);
+
+            enumField = new EnumField("Movement", _controller.CurrentRoll.CurrentFrame.movement)
+            {
+                style = {marginLeft = 1, marginBottom = 5}
+            };
+            enumField.RegisterValueChangedCallback(evt => { _movement = (CameraMovement) evt.newValue; });
+            root.Add(enumField);
+
             horizontalAlign = new VisualElement() {style = {flexDirection = FlexDirection.Row, justifyContent = Justify.Center}};
             button = new Button(() => { _controller.AddFrame(); })
             {
                 name = "Add Frame", tooltip = "Add a new frame", style = { width = 38, height = 38, backgroundImage = _addFrameIcon}
             };
             horizontalAlign.Add(button);
-            button = new Button(() => { _controller.UpdateFrame(); })
+            button = new Button(() => { _controller.UpdateFrame(_transition, _movement); })
             {
                 name = "Update Frame", tooltip = "Update the current frame",  style = { width = 38, height = 38, backgroundImage = _updateFrameIcon}
             };
@@ -153,6 +173,18 @@ namespace Editor.Multicam
             button = new Button(() => { _controller.BakeAnimation(); })
             {
                 name = "Bake Roll", tooltip = "Bake the current roll", style = { width = 38, height = 38, backgroundImage = _bakeRollIcon}
+            };
+            horizontalAlign.Add(button);
+
+            //Button to select the object CinematicController in the hierarchy
+            button = new Button(() =>
+            {
+                Selection.activeGameObject = _controller.gameObject;
+                _Repaint();
+            })
+            {
+                name = "Select Cinematic Controller", tooltip = "Select the Cinematic Controller in the hierarchy", iconImage = _selectCinematicControllerIcon,
+                style = {width = 38, height = 38, marginLeft = 32}
             };
             horizontalAlign.Add(button);
             root.Add(horizontalAlign);
