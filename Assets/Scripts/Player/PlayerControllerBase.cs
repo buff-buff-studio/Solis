@@ -60,6 +60,7 @@ namespace Solis.Player
         public Transform body;
         public Transform lookAt;
         public Transform headOffset;
+        public SkinnedMeshRenderer renderer;
         public LayerMask groundMask;
 
         [Header("FX REFERENCES")]
@@ -117,6 +118,9 @@ namespace Solis.Player
 
         private Vector3 _lastSafePosition;
         private Transform _camera;
+
+        private static readonly int Respawning = Shader.PropertyToID("_Respawning");
+        private static readonly int RespawningBlinkRate = Shader.PropertyToID("_RespawnBlinkingRate");
 
         #endregion
 
@@ -399,11 +403,17 @@ namespace Solis.Player
             var deltaTime = Time.deltaTime;
             _coyoteTimer = IsGrounded ? CoyoteTime : _coyoteTimer - deltaTime;
             _interactTimer = _interactTimer > 0 ? _interactTimer - deltaTime : 0;
-            _respawnTimer = _isRespawning ? _respawnTimer - deltaTime : RespawnCooldown;
             if (_respawnTimer <= 0)
             {
                 _isRespawning = false;
                 _respawnTimer = RespawnCooldown;
+
+                if(CharacterType == CharacterType.Human)
+                    renderer.material.SetInt(Respawning, 0);
+            }
+            else
+            {
+                _respawnTimer = _isRespawning ? _respawnTimer - deltaTime : RespawnCooldown;
             }
             
             if(IsGrounded) _jumpTimer -= deltaTime;
@@ -597,6 +607,8 @@ namespace Solis.Player
                     velocity = Vector3.zero;
                     landParticles.Play();
                     _isRespawning = true;
+                    if(CharacterType == CharacterType.Human)
+                        renderer.material.SetInt(Respawning, 1);
                     _respawnTimer = RespawnCooldown;
                     AudioSystem.PlayVfxStatic("Death");
                     break;

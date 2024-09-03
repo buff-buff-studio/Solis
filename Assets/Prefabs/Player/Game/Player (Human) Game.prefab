@@ -3991,6 +3991,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 9592165b6127f3340abdb74110eb30d3, type: 3}
   m_PrefabInstance: {fileID: 4490171277030168792}
   m_PrefabAsset: {fileID: 0}
+--- !u!137 &4937946243392875704 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 8851632715899057248, guid: 9592165b6127f3340abdb74110eb30d3, type: 3}
+  m_PrefabInstance: {fileID: 4490171277030168792}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &7849119250414606506 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5962175072628047986, guid: 9592165b6127f3340abdb74110eb30d3, type: 3}
@@ -4006,11 +4011,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2195862425273019967, guid: a55a3791e379dfa42a63dd01f73de466, type: 3}
       propertyPath: id.low
-      value: 54834036
+      value: 33497335
       objectReference: {fileID: 0}
     - target: {fileID: 2195862425273019967, guid: a55a3791e379dfa42a63dd01f73de466, type: 3}
       propertyPath: id.high
-      value: 1371754483
+      value: 1198296367
       objectReference: {fileID: 0}
     - target: {fileID: 4136800555700545090, guid: a55a3791e379dfa42a63dd01f73de466, type: 3}
       propertyPath: m_LocalPosition.x
@@ -4147,6 +4152,7 @@ MonoBehaviour:
   body: {fileID: 4168912144533225267}
   lookAt: {fileID: 6721387208844707837}
   headOffset: {fileID: 2022477272680672439}
+  renderer: {fileID: 4937946243392875704}
   groundMask:
     serializedVersion: 2
     m_Bits: 9703

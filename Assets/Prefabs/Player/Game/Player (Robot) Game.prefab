@@ -1063,13 +1063,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   data: {fileID: 11400000, guid: 4df23a7d70339ad4fb117b628b07b97f, type: 2}
-  playerDataFoldout: 1
+  playerDataFoldout: 0
   controller: {fileID: 1608107723115469906}
   animator: {fileID: 4980455893260842252}
   emoteController: {fileID: 7701133022374915957}
   body: {fileID: 8130503521122144198}
   lookAt: {fileID: 6460570023915028333}
   headOffset: {fileID: 547837559869387434}
+  renderer: {fileID: 5028200628914497815}
   groundMask:
     serializedVersion: 2
     m_Bits: 9703
@@ -3489,6 +3490,11 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.38, y: 1.0684599, z: 0.95892406}
   m_Center: {x: 0, y: 0.3126337, z: -0.052485943}
+--- !u!137 &5028200628914497815 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -5577671538214633158, guid: 0fc0bad2254c54340b2ac61172192917, type: 3}
+  m_PrefabInstance: {fileID: 8601840780148025389}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &5287815425886087817 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -4738358002892651868, guid: 0fc0bad2254c54340b2ac61172192917, type: 3}
