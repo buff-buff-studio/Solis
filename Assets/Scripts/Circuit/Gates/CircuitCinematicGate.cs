@@ -143,12 +143,12 @@ namespace Solis.Circuit.Gates
             EditorGUILayout.PropertyField(_frameEvent);
             if (EditorGUI.EndChangeCheck())
             {
-                _frameEvent.intValue = Mathf.Clamp(_frameEvent.intValue, 0, _cinematicController.CurrentRoll.framing.Count - 1);
+                _frameEvent.intValue = Mathf.Clamp(_frameEvent.intValue, 0, _cinematicController.rolls[_cinematicRoll.intValue].framing.Count - 1);
                 if (_frameEvent.intValue != frameEvent)
                 {
                     UnityEventTools.RemovePersistentListener(
-                        _cinematicController.CurrentRoll.framing[frameEvent].onFrameShow, _gate.CinematicCallback);
-                    var uEvent = _cinematicController.CurrentRoll.framing[_frameEvent.intValue].onFrameShow;
+                        _cinematicController.rolls[_cinematicRoll.intValue].framing[frameEvent].onFrameShow, _gate.CinematicCallback);
+                    var uEvent = _cinematicController.rolls[_cinematicRoll.intValue].framing[_frameEvent.intValue].onFrameShow;
                     if (uEvent.GetPersistentEventCount() == 0)
                     {
                         UnityEventTools.AddPersistentListener(uEvent, _gate.CinematicCallback);
@@ -178,9 +178,25 @@ namespace Solis.Circuit.Gates
 
             serializedObject.ApplyModifiedProperties();
 
-            if (GUILayout.Button("Verify all frames "))
+            if (GUILayout.Button("Verify if exist another frame with this CinematicCallback"))
             {
-                Debug.Log("Verifying all frames");
+                Debug.Log("Starting verification...");
+                foreach (var r in _cinematicController.rolls)
+                {
+                    for (var i = 0; i < r.framing.Count; i++)
+                    {
+                        var f = r.framing[i];
+                        if (f == _cinematicController.rolls[_cinematicRoll.intValue].framing[_frameEvent.intValue]) continue;
+                        for (var j = 0; j < f.onFrameShow.GetPersistentEventCount(); j++)
+                        {
+                            if (f.onFrameShow.GetPersistentTarget(j) != _gate || f.onFrameShow.GetPersistentMethodName(j) != "CinematicCallback") continue;
+                        
+                            UnityEventTools.RemovePersistentListener(f.onFrameShow, _gate.CinematicCallback);
+                            Debug.Log($"CinematicCallback removed from frame {i} in roll {r.name}", _cinematicController);
+                        }
+                    }
+                }
+                Debug.Log("Verification finished.");
             }
         }
     }
