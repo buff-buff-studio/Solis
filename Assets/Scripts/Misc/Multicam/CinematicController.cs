@@ -277,9 +277,6 @@ namespace Solis.Misc.Multicam
         {
             if (Application.isPlaying) return;
 
-            Debug.Log(animation.clip.events[0].functionName + " - " + animation.clip.events[0].time);
-            Debug.Log(animation.clip.events[1]);
-
             currentRoll = Mathf.Clamp(currentRoll, 0, rolls.Count - 1);
             rolls?.ForEach(roll =>
             {
