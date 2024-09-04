@@ -171,7 +171,7 @@ namespace Solis.Misc.Multicam
                 new AnimationCurve(),
                 new AnimationCurve()
             };
-            var events = new AnimationEvent[CurrentRoll.framing.Count];
+            var events = new List<AnimationEvent>();
 
             var s = 0f;
             for (var i = 0; i < CurrentRoll.framing.Count; i++)
@@ -215,12 +215,15 @@ namespace Solis.Misc.Multicam
                         lookAtPos[2].AddKey(keyframe);
                 }
 
-                events[i] = new AnimationEvent
+                if(frame.onFrameShow.GetPersistentEventCount() > 0)
                 {
-                    functionName = "OnFrameChange",
-                    time = sStart,
-                    intParameter = i
-                };
+                    events.Add(new AnimationEvent
+                    {
+                        functionName = "OnFrameChange",
+                        time = sStart,
+                        intParameter = i
+                    });
+                }
                 s += frame.duration + frame.transitionDuration;
             }
 
@@ -233,7 +236,7 @@ namespace Solis.Misc.Multicam
             clip.SetCurve("LookAt", typeof(Transform), "localPosition.y", lookAtPos[1]);
             clip.SetCurve("LookAt", typeof(Transform), "localPosition.z", lookAtPos[2]);
 
-            AnimationUtility.SetAnimationEvents(clip, events);
+            AnimationUtility.SetAnimationEvents(clip, events.ToArray());
 
             clip.legacy = true;
             return clip;
