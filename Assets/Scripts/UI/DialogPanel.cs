@@ -67,8 +67,12 @@ namespace _Scripts.UI
         {
             if(Input.GetKeyDown(KeyCode.P))
                 TypeWriteText(currentDialog[0]);
-            
-            
+        }
+
+        public void PlayDialog(List<DialogData> dialogData)
+        {
+            currentDialog = dialogData;
+            TypeWriteText(currentDialog[0]);
         }
 
         public void OnClickDialog()

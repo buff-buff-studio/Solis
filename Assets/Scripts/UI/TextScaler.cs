@@ -23,7 +23,7 @@ namespace DefaultNamespace
             WriteText();
         }
 
-        public void SetText(string dialog, Action onComplete = null)
+        public void SetText(string dialog)
         {
             text.text = dialog;
             progress = 0;
