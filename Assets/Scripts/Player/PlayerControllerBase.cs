@@ -408,8 +408,7 @@ namespace Solis.Player
                 _isRespawning = false;
                 _respawnTimer = RespawnCooldown;
 
-                if(CharacterType == CharacterType.Human)
-                    renderer.material.SetInt(Respawning, 0);
+                renderer.material.SetInt(Respawning, 0);
             }
             else
             {
@@ -607,8 +606,7 @@ namespace Solis.Player
                     velocity = Vector3.zero;
                     landParticles.Play();
                     _isRespawning = true;
-                    if(CharacterType == CharacterType.Human)
-                        renderer.material.SetInt(Respawning, 1);
+                    renderer.material.SetInt(Respawning, 1);
                     _respawnTimer = RespawnCooldown;
                     AudioSystem.PlayVfxStatic("Death");
                     break;
