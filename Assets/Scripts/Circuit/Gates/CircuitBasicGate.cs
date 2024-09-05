@@ -13,18 +13,18 @@ namespace Solis.Circuit.Gates
         /// <summary>
         /// The mode of the gate.
         /// </summary>
-        public enum Mode
+        public enum Mode : int
         {
-            And,
-            Or,
-            Not,
-            Nand,
-            Nor,
-            Xor,
-            NumberEqual,
-            NumberNotEqual,
-            NumberLess,
-            NumberGreater
+            And = 0,
+            Or = 1,
+            Not = 2,
+            Nand = 3,
+            Nor = 4,
+            Xor = 5,
+            NumberEqual = 10,
+            NumberNotEqual = 11,
+            NumberLess = 12,
+            NumberGreater = 13
         }
         #endregion
 
@@ -37,13 +37,18 @@ namespace Solis.Circuit.Gates
         [Header("SETTINGS")]
         public bool invisibleOnPlay = false;
         public Mode mode = Mode.And;
+
+        [Header("SETTINGS - Number Mode")]
         public int number;
+        [Range(0, 1)]
+        public float minPower = 0;
         #endregion
 
         #region Unity Callbacks
         protected override void OnEnable()
         {
             base.OnEnable();
+            if(mode < (Mode)10) minPower = 0;
             _UpdateLabel();
             if(invisibleOnPlay)
             {
@@ -54,6 +59,7 @@ namespace Solis.Circuit.Gates
         
         private void OnValidate()
         {
+            if(mode < (Mode)10) minPower = 0;
             _UpdateLabel();
         }
         #endregion
@@ -65,35 +71,26 @@ namespace Solis.Circuit.Gates
             var result = 0;
             for(var i = 0; i < count; i++)
             {
-                if(input.ReadOutput(i).power > 0)
+                if(input.ReadOutput(i).power > minPower)
                     result++;
             }
-            
-            switch (mode)
+
+            if(mode >= (Mode)10) _UpdateLabel(result.ToString());
+
+            return mode switch
             {
-                case Mode.And:
-                    return new CircuitData(result == count ? 1 : 0);
-                case Mode.Or:
-                    return new CircuitData(result > 0 ? 1 : 0);
-                case Mode.Not:
-                    return new CircuitData(result == 0 ? 1 : 0);
-                case Mode.Nand:
-                    return new CircuitData(result == count ? 0 : 1);
-                case Mode.Nor:
-                    return new CircuitData(result > 0 ? 0 : 1);
-                case Mode.Xor:
-                    return new CircuitData(result == 1 ? 1 : 0);
-                case Mode.NumberEqual:
-                    return new CircuitData(result == number ? 1 : 0);
-                case Mode.NumberNotEqual:
-                    return new CircuitData(result != number ? 1 : 0);
-                case Mode.NumberLess:
-                    return new CircuitData(result < number ? 1 : 0);
-                case Mode.NumberGreater:
-                    return new CircuitData(result > number ? 1 : 0);
-                default:
-                    return new CircuitData(0);
-            }
+                Mode.And => new CircuitData(result == count ? 1 : 0),
+                Mode.Or => new CircuitData(result > 0 ? 1 : 0),
+                Mode.Not => new CircuitData(result == 0 ? 1 : 0),
+                Mode.Nand => new CircuitData(result == count ? 0 : 1),
+                Mode.Nor => new CircuitData(result > 0 ? 0 : 1),
+                Mode.Xor => new CircuitData(result == 1 ? 1 : 0),
+                Mode.NumberEqual => new CircuitData(result == number ? 1 : 0),
+                Mode.NumberNotEqual => new CircuitData(result != number ? 1 : 0),
+                Mode.NumberLess => new CircuitData(result < number ? 1 : 0),
+                Mode.NumberGreater => new CircuitData(result > number ? 1 : 0),
+                _ => new CircuitData(0)
+            };
         }
         
         protected override void OnRefresh()
@@ -109,7 +106,7 @@ namespace Solis.Circuit.Gates
         #endregion
 
         #region Private Methods
-        private void _UpdateLabel()
+        private void _UpdateLabel(string numberX = "X")
         {
             label.text = mode switch
             {
@@ -119,10 +116,10 @@ namespace Solis.Circuit.Gates
                 Mode.Nand => "NAND",
                 Mode.Nor => "NOR",
                 Mode.Xor => "XOR",
-                Mode.NumberEqual => $"X = {number}",
-                Mode.NumberNotEqual => $"X != {number}",
-                Mode.NumberGreater => $"X > {number}",
-                Mode.NumberLess => $"X < {number}",
+                Mode.NumberEqual => $"{numberX} = {number}",
+                Mode.NumberNotEqual => $"{numberX} != {number}",
+                Mode.NumberGreater => $"{numberX} > {number}",
+                Mode.NumberLess => $"{numberX} < {number}",
                 _ => "?"
             };
         }

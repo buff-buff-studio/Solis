@@ -56,6 +56,7 @@ namespace Solis.Circuit.Components
         {
             open.SetActive(now);
             closed.SetActive(!now);
+            if (now) onToggleComponent.Invoke();
         }
         #endregion
     }

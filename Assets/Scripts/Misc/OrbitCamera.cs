@@ -1,12 +1,11 @@
 ﻿using UnityEngine;
-
 namespace Solis.Misc
 {
     /// <summary>
     /// A simple orbit camera.
     /// Orbit around a target object with the mouse.
     /// </summary>
-    [RequireComponent(typeof(Camera))]
+    [RequireComponent(typeof(UnityEngine.Camera))]
     public class OrbitCamera : MonoBehaviour
     {
         #region Inspector Fields

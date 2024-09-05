@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Interface;
 using NetBuff;
 using NetBuff.Components;
 using NetBuff.Interface;
@@ -7,7 +8,9 @@ using Solis.Core;
 using Solis.Data;
 using Solis.Data.Emotes;
 using Solis.Packets;
+using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace Solis.Player
@@ -20,8 +23,9 @@ namespace Solis.Player
     {
         #region Inspector Fields
         [Header("REFERENCES")]
+        public GameObject worldCanvas;
         public Image emoteImage;
-        public GameObject emoteObject;
+        public TextMeshProUGUI statusText;
         
         [Header("SETTINGS")]
         public float timeToHide = 2;
@@ -34,15 +38,21 @@ namespace Solis.Player
         private void Update()
         {
             var quat = Quaternion.LookRotation(transform.position - Camera.main!.transform.position);
-            emoteObject.transform.rotation = quat;
+            worldCanvas.transform.rotation = quat;
             
             if (timer > 0)
             {
                 timer -= Time.deltaTime;
                 if (timer <= 0)
-                    emoteObject.SetActive(false);
+                    emoteImage.gameObject.SetActive(false);
             }
         }
+
+        private void Start()
+        {
+            statusText.gameObject.SetActive(false);
+        }
+
         #endregion
 
         #region Network Callbacks
@@ -74,7 +84,7 @@ namespace Solis.Player
                         }
                         
                         if(timer <= 0)
-                            emoteObject.SetActive(true);
+                            emoteImage.gameObject.SetActive(true);
                         
                         timer = timeToHide;
                     }
@@ -105,6 +115,20 @@ namespace Solis.Player
                     Id = Id,
                     CharacterType = data.PlayerCharacterType
                 });
+            }
+        }
+
+        public void SetStatusText(string text)
+        {
+            switch (string.IsNullOrEmpty(text))
+            {
+                case false:
+                    statusText.text = text;
+                    statusText.gameObject.SetActive(true);
+                    break;
+                default:
+                    statusText.gameObject.SetActive(false);
+                    break;
             }
         }
         #endregion
