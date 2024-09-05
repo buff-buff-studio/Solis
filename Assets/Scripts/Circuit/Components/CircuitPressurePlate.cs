@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using NetBuff.Misc;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
@@ -34,6 +36,9 @@ namespace Solis.Circuit.Components
         public Vector3 knobLocalPositionOff = new(0, 0.05f, 0);
         [ColorUsage(true, true)]
         public Color timerColor, instantColor;
+        [SerializeField]
+        private LayerMask layerMask;
+        
         #endregion
 
         #region Private Fields
@@ -42,6 +47,7 @@ namespace Solis.Circuit.Components
         #endregion
 
         #region Unity Callbacks
+
         protected override void OnEnable()
         {
             base.OnEnable();
@@ -105,7 +111,7 @@ namespace Solis.Circuit.Components
 
             var t = transform;
             var off = t.TransformDirection(offset);
-            var size = Physics.OverlapSphereNonAlloc(t.position + off, radius, _Results);
+            var size = Physics.OverlapSphereNonAlloc(t.position + off, radius, _Results,layerMask);
             if (size > 0)
             {
                 isOn.Value = true;

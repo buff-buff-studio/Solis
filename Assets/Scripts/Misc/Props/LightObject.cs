@@ -193,6 +193,7 @@ namespace Solis.Misc.Props
                     playerHolding = null;
                     isOn.Value = false;
                     controller.itemsHeld = 0;
+                    CheckIfThereIsPlace();
                     ServerBroadcastPacket(new LightObjectGrabPacket
                     {
                         Id = this.Id,
@@ -217,6 +218,20 @@ namespace Solis.Misc.Props
             }
 
             return false;
+        }
+        private static readonly Collider[] _objects = new Collider[10];
+        private void CheckIfThereIsPlace()
+        {
+            var count = Physics.OverlapBoxNonAlloc(transform.position, new Vector3(0.3f, 0.3f, 0.3f), _objects,
+                Quaternion.identity);
+            foreach (var o in _objects)
+            {
+                if (o.transform.CompareTag("BoxPlace"))
+                {
+                    transform.position = o.transform.position;
+                    return;
+                }
+            }
         }
 
         public GameObject GetGameObject()
