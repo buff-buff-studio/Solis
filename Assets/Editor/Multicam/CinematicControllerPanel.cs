@@ -34,6 +34,10 @@ namespace Editor.Multicam
             _selectCinematicControllerIcon = EditorGUIUtility.IconContent("Prefab Icon").image as Texture2D;
 
             _controller = Object.FindObjectsByType<CinematicController>(FindObjectsSortMode.None)[0];
+            if (_controller == null)
+            {
+                Debug.LogError("Cinematic Controller not found in the scene");
+            }
 
             EditorApplication.hierarchyChanged += _Repaint;
             EditorApplication.playModeStateChanged += _Repaint1;
@@ -70,6 +74,21 @@ namespace Editor.Multicam
         public override VisualElement CreatePanelContent()
         {
             var root = new VisualElement() { name = "Cinematic Tools", tooltip = ""};
+
+            if(_controller == null)
+            {
+                var error = new Label("Cinematic Controller not found in the scene")
+                {
+                    style =
+                    {
+                        unityFontStyleAndWeight = FontStyle.Bold, marginLeft = 1,
+                        marginTop = 5, marginBottom = 5
+                    }
+                };
+                root.Add(error);
+                _controller = Object.FindObjectsByType<CinematicController>(FindObjectsSortMode.None)[0];
+                return root;
+            }
 
             var horizontalAlign = new VisualElement() {style = {flexDirection = FlexDirection.Row}};
             var header = new Label("Roll:")
