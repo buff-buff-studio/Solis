@@ -49,7 +49,7 @@ namespace Solis.Circuit.Components
 
         protected override void OnRefresh()
         {
-            if(isOn.AttachedTo != null && HasAuthority)
+            if(isOn.AttachedTo != null && HasAuthority && input.Connections.Length > 0)
                 isOn.Value = input.ReadOutput().power > 0;
         }
 
