@@ -71,6 +71,7 @@ namespace Solis.Circuit
 
         protected override void OnRefresh()
         {
+            //TODO:: Remover isso se resolver o BUG de dectar o circuito wifi ao iniciar
             if(_connections.Count != connection.Connections.Length) LocateConnections();
             if (!HasAuthority) return;
 
