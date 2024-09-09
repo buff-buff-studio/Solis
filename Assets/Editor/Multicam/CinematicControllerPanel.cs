@@ -2,6 +2,7 @@ using Solis.Misc.Multicam;
 using UnityEditor;
 using UnityEditor.Overlays;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 namespace Editor.Multicam
@@ -33,10 +34,13 @@ namespace Editor.Multicam
             _alignSceneCameraIcon = EditorGUIUtility.IconContent("Camera Icon").image as Texture2D;
             _selectCinematicControllerIcon = EditorGUIUtility.IconContent("Prefab Icon").image as Texture2D;
 
-            _controller = Object.FindObjectsByType<CinematicController>(FindObjectsSortMode.None)[0];
-            if (_controller == null)
+            if (SceneManager.sceneCount != 1 ||
+                SceneManager.GetActiveScene().name is not ("Menu" or "Core" or "Lobby"))
             {
-                Debug.LogError("Cinematic Controller not found in the scene");
+                _controller = Object.FindObjectsByType<CinematicController>(FindObjectsSortMode.None)[0];
+
+                if (_controller == null)
+                    Debug.LogError("Cinematic Controller not found in the scene");
             }
 
             EditorApplication.hierarchyChanged += _Repaint;
@@ -77,7 +81,7 @@ namespace Editor.Multicam
 
             if(_controller == null)
             {
-                var error = new Label("Cinematic Controller not found in the scene")
+                var error = new Label("Cinematic Controller don't\nwork in this scene.")
                 {
                     style =
                     {
@@ -86,10 +90,20 @@ namespace Editor.Multicam
                     }
                 };
                 root.Add(error);
-                _controller = Object.FindObjectsByType<CinematicController>(FindObjectsSortMode.None)[0];
+                if (SceneManager.sceneCount != 1 ||
+                    SceneManager.GetActiveScene().name is not ("Menu" or "Core" or "Lobby"))
+                {
+                    _controller = Object.FindObjectsByType<CinematicController>(FindObjectsSortMode.None)[0];
+                }
+
                 return root;
             }
 
+            return Application.isPlaying ? GameScene(root) : EditorScene(root);
+        }
+
+        private VisualElement EditorScene(VisualElement root)
+        {
             var horizontalAlign = new VisualElement() {style = {flexDirection = FlexDirection.Row}};
             var header = new Label("Roll:")
             {
@@ -209,6 +223,53 @@ namespace Editor.Multicam
             root.Add(horizontalAlign);
 
             //TODO: Tipo de Transição, Duração do Frame, Duração da Transição
+
+            return root;
+        }
+
+        private VisualElement GameScene(VisualElement root)
+        {
+            var header = new Label("Cinematic Controller")
+            {
+                style =
+                {
+                    unityFontStyleAndWeight = FontStyle.Bold, marginLeft = 1,
+                    marginTop = 5, marginBottom = 5
+                }
+            };
+            root.Add(header);
+
+            //Change Camera Roll
+            var dropdown = new DropdownField("", _controller.GetRollsName, _controller.currentRoll){style = { width = 170}};
+            dropdown.RegisterValueChangedCallback(evt =>
+            {
+                _controller.currentRoll = _controller.GetRollsName.IndexOf(evt.newValue);
+                _Repaint();
+            });
+            root.Add(dropdown);
+
+            if (CinematicController.IsPlaying == false)
+            {
+                var button = new Button(_controller.Play)
+                {
+                    text = "Play", tooltip = "Play the current roll", style = { marginLeft = 1, marginTop = 3 }
+                };
+                root.Add(button);
+            }
+            else
+            {
+                var button = new Button(_controller.Reset)
+                {
+                    text = "Replay", tooltip = "Replay the current roll", style = { marginLeft = 1, marginTop = 3 }
+                };
+                root.Add(button);
+
+                button = new Button(_controller.Stop)
+                {
+                    text = "Stop", tooltip = "Stop the current roll", style = { marginLeft = 1, marginTop = 3 }
+                };
+                root.Add(button);
+            }
 
             return root;
         }

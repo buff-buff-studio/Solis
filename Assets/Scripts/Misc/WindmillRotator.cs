@@ -36,15 +36,29 @@ namespace Solis.Misc
         {
             _currentSpeed = Mathf.Clamp(_currentSpeed + SpeedMultiplier, 0, speed);
             transform.Rotate(rotationAxis, _currentSpeed * Time.deltaTime);
-            if(audioSource)
+            UpdateAudio();
+        }
+
+        /// <summary>
+        /// Updates the audio source based on the current speed of the windmill.
+        /// </summary>
+        private void UpdateAudio()
+        {
+            // Check if the audio source is assigned
+            if (audioSource)
             {
-                if(_currentSpeed > 60)
+                // If the current speed is greater than 60, play the audio source if it is not already playing,
+                // and adjust the pitch based on the current speed.
+                if (_currentSpeed > 60)
                 {
-                    if(!audioSource.isPlaying) audioSource.Play();
+                    if (!audioSource.isPlaying) audioSource.Play();
                     audioSource.pitch = _currentSpeed / 130;
                 }
-                else if(audioSource.isPlaying)
+                // If the current speed is 60 or less and the audio source is playing, stop the audio source.
+                else if (audioSource.isPlaying)
+                {
                     audioSource.Stop();
+                }
             }
         }
 
@@ -52,7 +66,6 @@ namespace Solis.Misc
         {
             _isRotating = true;
             _currentSpeed = forceSpeed ? speed : _currentSpeed;
-            audioSource?.Play();
         }
 
         public void Pause(bool forceSpeed = false)
