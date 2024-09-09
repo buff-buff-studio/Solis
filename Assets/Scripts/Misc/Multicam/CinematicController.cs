@@ -114,8 +114,9 @@ namespace Solis.Misc.Multicam
             IsPlaying = false;
         }
 
-        protected internal void Reset()
+        public void Reset()
         {
+            Stop();
             Play(currentRoll);
         }
 
