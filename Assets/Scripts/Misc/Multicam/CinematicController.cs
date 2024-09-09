@@ -320,6 +320,8 @@ namespace Solis.Misc.Multicam
         }
         public override void OnInspectorGUI()
         {
+            serializedObject.Update();
+
             if (_cController.rolls.Exists(x => x.clip == null))
             {
                 EditorGUILayout.HelpBox("You have rolls without baked animations.\nPlease bake all animations before playing.", MessageType.Error);
@@ -356,8 +358,6 @@ namespace Solis.Misc.Multicam
                     _cController.NeedToBake = false;
                 }
             }
-
-            serializedObject.Update();
 
             EditorGUILayout.PropertyField(virtualCamera);
             EditorGUILayout.PropertyField(animation);

@@ -54,13 +54,13 @@ namespace Solis.Circuit.Gates
                 if(input.ReadOutput(i).power > 0)
                     result++;
             }
-
             if (result > 0)
             {
                 if (!_cinematicPlayed && playOnPower)
                 {
                     _cinematicPlayed = true;
                     CinematicController.Instance.Play(cinematicRoll);
+                    Debug.Log("Playing cinematic roll " + cinematicRoll);
                 }
                 return new CircuitData(_cinematicCallback.Value ? result : 0);
             }
@@ -75,7 +75,29 @@ namespace Solis.Circuit.Gates
 
         protected override void OnRefresh()
         {
+            if (output.Connections.Length > 0) return;
 
+            var count = input.Connections.Length;
+            var result = 0;
+            for(var i = 0; i < count; i++)
+            {
+                if(input.ReadOutput(i).power > 0)
+                    result++;
+            }
+            if (result > 0)
+            {
+                if (!_cinematicPlayed && playOnPower)
+                {
+                    _cinematicPlayed = true;
+                    CinematicController.Instance.Play(cinematicRoll);
+                    Debug.Log("Playing cinematic roll " + cinematicRoll);
+                }
+            }
+            else
+            {
+                if(_cinematicPlayed) _cinematicPlayed = false;
+                if (HasAuthority) _cinematicCallback.Value = false;
+            }
         }
 
         public override IEnumerable<CircuitPlug> GetPlugs()
