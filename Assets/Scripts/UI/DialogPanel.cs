@@ -22,10 +22,10 @@ public enum Emotion
 }
 public enum CharacterTypeEmote
 {
-    Human = 1,
-    Robot = 2,
-    Frog = 3,
-    None = 4
+    Human = 0,
+    Robot = 1,
+    Frog = 2,
+    None = 3
 }
 [Serializable]
 public struct EmotionsAndImages
@@ -107,6 +107,7 @@ namespace _Scripts.UI
         public bool OnClickDialog(PlayerInteractPacket playerInteractPacket, int i)
         {
             if(hasSkipped) return false;
+            if(textWriterSingle.isWriting.Value) return false;
             var player = GetNetworkObject(playerInteractPacket.Id);
             
             var controller = player.GetComponent<PlayerControllerBase>();
@@ -125,8 +126,13 @@ namespace _Scripts.UI
             else
             {
                 Debug.Log("B");
+                Debug.Log(_characterThatIsTalking.ToString());
+                Debug.Log(controller.CharacterType.ToString());
                 if ((int)_characterThatIsTalking != (int)controller.CharacterType)
-                    return false;
+                {
+                    Debug.Log("NO!");
+                    return true;
+                }
             }
             
             if(currentDialog == null) return false;
@@ -135,8 +141,8 @@ namespace _Scripts.UI
                 index.Value = -1;
             else
                 index.Value++;
-            
-            pauseManager.Pause();
+
+            charactersReady.Value = 0;
             return true;
         }
 
@@ -146,6 +152,7 @@ namespace _Scripts.UI
             else
             {
                 hasSkipped = false;
+                pauseManager.Pause();
                 _characterThatIsTalking = currentDialog.Value.currentDialog[index.Value].characterType.characterType;
                 TypeWriteText(currentDialog.Value.currentDialog[index.Value]);
             }

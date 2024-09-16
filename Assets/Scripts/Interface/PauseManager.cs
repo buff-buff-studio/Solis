@@ -66,6 +66,7 @@ public class PauseManager : WindowManager
 
     public void Pause()
     {
+        Debug.Log("Pause");
         isPaused = true;
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
@@ -74,6 +75,7 @@ public class PauseManager : WindowManager
 
     public void Resume()
     {
+        Debug.Log("Resume");
         isPaused = false;
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;

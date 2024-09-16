@@ -5,7 +5,7 @@
     /// </summary>
     public enum CharacterType
     {
-        Human,
-        Robot
+        Human = 0,
+        Robot = 1
     }
 }

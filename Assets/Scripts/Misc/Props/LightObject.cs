@@ -175,7 +175,6 @@ namespace Solis.Misc.Props
         {
             var player = GetNetworkObject(arg1.Id);
             var dist = Vector3.Distance(player.transform.position, transform.position);
-            Debug.Log(dist);
             if (dist > radius)
                 return false;
 
