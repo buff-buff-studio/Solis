@@ -63,6 +63,22 @@ public class PauseManager : WindowManager
         ChangeWindow(0);
         OnPause?.Invoke(true);
     }
+
+    public void Pause()
+    {
+        isPaused = true;
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+        OnPause?.Invoke(true);
+    }
+
+    public void Resume()
+    {
+        isPaused = false;
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+        OnPause?.Invoke(false);
+    }
     
     public void BugReport()
     {

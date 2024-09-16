@@ -13,9 +13,10 @@ namespace DefaultNamespace
         public float progress = 0;
         [SerializeField]private float typeDuration = 2;
         [HideInInspector]public BoolNetworkValue isWriting;
-        private void Awake()
+
+        private void OnEnable()
         {
-            text = GetComponent<TextMeshProUGUI>();
+            WithValues(isWriting);
         }
 
         public void Update()
@@ -30,37 +31,6 @@ namespace DefaultNamespace
             progress = 0;
             isWriting.Value = true;
         }
-        
-        /*public void WriteAll()
-        {
-            progress = 1;
-            var charVertices = new Vector3[4];
-            text.text = _currentDialog;
-            for (var i = 0; i < text.textInfo.characterCount; i++)
-            {
-                var c = text.textInfo.characterInfo[i];
-                
-                if(!c.isVisible)
-                    continue;
-                
-                var charInfo = text.textInfo.characterInfo[i];
-                var meshInfo = text.textInfo.meshInfo[charInfo.materialReferenceIndex];
-                var vertexIndex = charInfo.vertexIndex;
-                var vertices = meshInfo.vertices;
-                
-                for (var j = 0; j < 4; j++)
-                    charVertices[j] = vertices[vertexIndex + j];
-
-                var center = (charVertices[1] + charVertices[3]) / 2;
-                var charProgress = Mathf.Clamp01(1 * text.textInfo.characterCount - i);
-                for (var j = 0; j < 4; j++)
-                {
-                    vertices[vertexIndex + j] = center + (charVertices[j] - center) * charProgress;
-                }
-            }
-           
-            isWriting = false;
-        }*/
 
         private void SetProgress()
         {

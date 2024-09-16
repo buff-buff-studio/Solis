@@ -8,7 +8,9 @@ using Solis.Data;
 using Solis.Packets;
 using Solis.Player;
 using UI;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 [Serializable]
@@ -20,10 +22,10 @@ public enum Emotion
 }
 public enum CharacterTypeEmote
 {
-    Human,
-    Robot,
-    Frog,
-    None
+    Human = 1,
+    Robot = 2,
+    Frog = 3,
+    None = 4
 }
 [Serializable]
 public struct EmotionsAndImages
@@ -56,25 +58,31 @@ namespace _Scripts.UI
         [SerializeField]private GameObject orderTextGameObject;
         [SerializeField] private Image characterImage;
         [SerializeField] private List<CharacterTypeAndImages> characterTypesAndEmotions;
-       
-        public List<DialogData> currentDialog;
-        private int _index = 0;
-        public BoolNetworkValue IsPlaying => textWriterSingle.isWriting;
-        private CharacterTypeFilter _characterThatIsTalking;
+
+        public NetworkBehaviourNetworkValue<DialogPlayer> currentDialog = new(); 
+        public IntNetworkValue index;
+        public IntNetworkValue charactersReady;
+        private CharacterTypeEmote _characterThatIsTalking;
 
         public List<EmojisStructure> emojisStructure = new List<EmojisStructure>();
+   
+        [SerializeField]private PauseManager pauseManager;
+        private bool hasSkipped;
         
         #region MonoBehaviour
 
         protected void OnEnable()
         {
-            WithValues(IsPlaying);
+            WithValues(charactersReady, index, currentDialog);
             
             PacketListener.GetPacketListener<PlayerInteractPacket>().AddServerListener(OnClickDialog);
+            index.OnValueChanged += UpdateDialog;
+                
         }
         protected void OnDisable()
         {
             PacketListener.GetPacketListener<PlayerInteractPacket>().RemoveServerListener(OnClickDialog);
+            index.OnValueChanged -= UpdateDialog;
         }
         private void Awake()
         {
@@ -86,63 +94,66 @@ namespace _Scripts.UI
             
             _instance = this;
         }
-
-        private void Update()
-        {
-            if(Input.GetKeyDown(KeyCode.P))
-                TypeWriteText(currentDialog[0]);
-        }
+        
         #endregion
         
 
-        public void PlayDialog(List<DialogData> dialogData)
+        public void PlayDialog(DialogPlayer dialogData)
         {
-            currentDialog = dialogData;
-            TypeWriteText(currentDialog[0]);
+            currentDialog.Value = dialogData;
+            index.Value = 0;
         }
 
         public bool OnClickDialog(PlayerInteractPacket playerInteractPacket, int i)
         {
+            if(hasSkipped) return false;
             var player = GetNetworkObject(playerInteractPacket.Id);
             
             var controller = player.GetComponent<PlayerControllerBase>();
             if (controller == null)
                 return false;
-
-            if (_characterThatIsTalking == CharacterTypeFilter.Both)
+      
+            
+            if (_characterThatIsTalking == CharacterTypeEmote.None || _characterThatIsTalking == CharacterTypeEmote.Frog)
             {
                 // logic for the two players select   
+                Debug.Log("A"); 
+                charactersReady.Value++;
+                hasSkipped = true;
+                if (charactersReady.Value != 2) return true;
             }
             else
             {
-                if (!_characterThatIsTalking.Filter(controller.CharacterType))
+                Debug.Log("B");
+                if ((int)_characterThatIsTalking != (int)controller.CharacterType)
                     return false;
             }
             
-            
-            if (textWriterSingle == null) return false;
-
-            if (textWriterSingle.isWriting.Value)
-            {
-                // textWriterSingle.WriteAll();
-            } 
+            if(currentDialog == null) return false;
+            Debug.Log("C");
+            if (index.Value + 1 > currentDialog.Value.currentDialog.Count - 1) 
+                index.Value = -1;
             else
-            {
-                if (_index >= currentDialog.Count-1)
-                    ClosePanel();
-                else
-                {
-                    _index++;
-                    TypeWriteText(currentDialog[_index]);
-                }
-            }
-
+                index.Value++;
+            
+            pauseManager.Pause();
             return true;
         }
 
+        public void UpdateDialog(int oldValue, int newValue)
+        {
+            if (newValue == -1) ClosePanel();
+            else
+            {
+                hasSkipped = false;
+                _characterThatIsTalking = currentDialog.Value.currentDialog[index.Value].characterType.characterType;
+                TypeWriteText(currentDialog.Value.currentDialog[index.Value]);
+            }
+        }
+        
         private void ClosePanel()
         {
-            _index = 0;
+            pauseManager.Resume();
             orderTextGameObject.SetActive(false);
         }
 

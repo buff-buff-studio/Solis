@@ -99,56 +99,102 @@ namespace UI
     }
 }
 
-
 #if UNITY_EDITOR
 
 [CustomPropertyDrawer(typeof(DialogData), true)]
 public class DialogDataDrawer : PropertyDrawer
 {
+    private bool _foldout;
+
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     {
         EditorGUI.BeginProperty(position, label, property);
-        
+
+        // Desenha o campo de referência ao ScriptableObject
         position.height = EditorGUIUtility.singleLineHeight;
         EditorGUI.PropertyField(position, property, label);
-        
-        position.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
 
         if (property.objectReferenceValue != null)
         {
-            SerializedObject serializedObject = new SerializedObject(property.objectReferenceValue);
-            
-            float spacing = EditorGUIUtility.standardVerticalSpacing;
-            
-            SerializedProperty iterator = serializedObject.GetIterator();
-            iterator.NextVisible(true); // Salta o campo "m_Script"
-            while (iterator.NextVisible(false))
+            // Adiciona um espaço para o toggle logo abaixo da propriedade do ScriptableObject
+            position.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+
+            // Desenha o toggle para expandir/recolher
+            _foldout = EditorGUI.Foldout(position, _foldout, "Details", true);
+
+            if (_foldout)
             {
-                position.height = EditorGUI.GetPropertyHeight(iterator, true);
-                EditorGUI.PropertyField(position, iterator, true);
-                position.y += position.height + spacing;
+                position.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+
+                SerializedObject serializedObject = new SerializedObject(property.objectReferenceValue);
+                serializedObject.Update();
+
+                // Desenha o campo de texto 'textValue'
+                SerializedProperty textValueProperty = serializedObject.FindProperty("textValue");
+                position.height = EditorGUI.GetPropertyHeight(textValueProperty);
+                EditorGUI.PropertyField(position, textValueProperty, new GUIContent("Text Value"));
+                position.y += position.height + EditorGUIUtility.standardVerticalSpacing;
+
+                // Desenha o array de Enums 'Emojis'
+                SerializedProperty emojisProperty = serializedObject.FindProperty("emojis");
+                DrawEmojisArray(position, emojisProperty);
+
+                serializedObject.ApplyModifiedProperties();
             }
-            serializedObject.ApplyModifiedProperties();
         }
 
         EditorGUI.EndProperty();
     }
 
+    private void DrawEmojisArray(Rect position, SerializedProperty property)
+    {
+        if (property.isArray)
+        {
+            // Calcula a largura do campo de rótulo e campo de edição
+            float labelWidth = 40f; // Reduz o tamanho do rótulo
+            float fieldWidth = position.width - labelWidth;
+
+            Rect labelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
+            Rect fieldRect = new Rect(position.x + labelWidth, position.y, fieldWidth, EditorGUIUtility.singleLineHeight);
+
+            // Desenha o tamanho do array
+            EditorGUI.LabelField(labelRect, "Size");
+            EditorGUI.PropertyField(fieldRect, property.FindPropertyRelative("Array.size"), GUIContent.none);
+
+            position.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+
+            // Desenha cada elemento do array
+            for (int i = 0; i < property.arraySize; i++)
+            {
+                SerializedProperty emojiElement = property.GetArrayElementAtIndex(i);
+                position.height = EditorGUIUtility.singleLineHeight;
+                EditorGUI.PropertyField(position, emojiElement, new GUIContent($"Emoji {i}"));
+                position.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+            }
+        }
+    }
+
     public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
     {
-        float height = EditorGUIUtility.singleLineHeight; 
+        float height = EditorGUIUtility.singleLineHeight;
 
         if (property.objectReferenceValue != null)
         {
-            SerializedObject serializedObject = new SerializedObject(property.objectReferenceValue);
-            SerializedProperty iterator = serializedObject.GetIterator();
-            iterator.NextVisible(true);
+            // Adiciona espaço para o toggle
+            height += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
 
-            float spacing = EditorGUIUtility.standardVerticalSpacing;
-
-            while (iterator.NextVisible(false))
+            if (_foldout)
             {
-                height += EditorGUI.GetPropertyHeight(iterator, true) + spacing;
+                SerializedObject serializedObject = new SerializedObject(property.objectReferenceValue);
+                SerializedProperty textValueProperty = serializedObject.FindProperty("textValue");
+                SerializedProperty emojisProperty = serializedObject.FindProperty("emojis");
+
+                height += EditorGUI.GetPropertyHeight(textValueProperty) + EditorGUIUtility.standardVerticalSpacing;
+
+                if (emojisProperty.isArray)
+                {
+                    height += EditorGUIUtility.singleLineHeight * (emojisProperty.arraySize + 1) + EditorGUIUtility.standardVerticalSpacing * (emojisProperty.arraySize + 1);
+                }
             }
         }
 

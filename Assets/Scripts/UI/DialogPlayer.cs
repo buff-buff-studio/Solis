@@ -12,9 +12,15 @@ namespace UI
     public class DialogPlayer : NetworkBehaviour
     {
         public List<DialogData> currentDialog;
-        private static bool InputDialog => Input.GetKeyDown("Interact");
-        private static BoolNetworkValue IsDialogPlaying => DialogPanel.Instance.IsPlaying;
-        private float _radius = 2;
+        private static bool InputDialog => Input.GetButtonDown("Interact");
+        private static BoolNetworkValue IsDialogPlaying => DialogPanel.Instance.textWriterSingle.isWriting;
+        [SerializeField]private float _radius = 2;
+
+        private void OnDrawGizmos()
+        {
+            Gizmos.DrawWireSphere(transform.position, _radius);
+        }
+
         protected void OnEnable()
         {
             PacketListener.GetPacketListener<PlayerInteractPacket>().AddServerListener(OnClickDialog);
@@ -54,7 +60,7 @@ namespace UI
 
         public void PlayDialog()
         {
-            DialogPanel.Instance.PlayDialog(currentDialog);
+            DialogPanel.Instance.PlayDialog(this);
         }
     }
 }
