@@ -109,7 +109,10 @@ public class DialogDataDrawer : PropertyDrawer
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     {
         EditorGUI.BeginProperty(position, label, property);
-
+        SerializedObject serializedObject = new SerializedObject(property.objectReferenceValue);
+        serializedObject.Update();
+      // Desenha o campo 'characterType'
+      
         // Desenha o campo de referência ao ScriptableObject
         position.height = EditorGUIUtility.singleLineHeight;
         EditorGUI.PropertyField(position, property, label);
@@ -124,10 +127,8 @@ public class DialogDataDrawer : PropertyDrawer
 
             if (_foldout)
             {
+           
                 position.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
-
-                SerializedObject serializedObject = new SerializedObject(property.objectReferenceValue);
-                serializedObject.Update();
 
                 // Desenha o campo de texto 'textValue'
                 SerializedProperty textValueProperty = serializedObject.FindProperty("textValue");
@@ -139,7 +140,14 @@ public class DialogDataDrawer : PropertyDrawer
                 SerializedProperty emojisProperty = serializedObject.FindProperty("emojis");
                 DrawEmojisArray(position, emojisProperty);
 
+                SerializedProperty characterTypeProperty = serializedObject.FindProperty("characterType");
+        
+                if (characterTypeProperty != null)
+                {
+                    EditorGUILayout.PropertyField(characterTypeProperty, new GUIContent("Character Type"));
+                }
                 serializedObject.ApplyModifiedProperties();
+                
             }
         }
 
@@ -201,5 +209,4 @@ public class DialogDataDrawer : PropertyDrawer
         return height;
     }
 }
-
 #endif
