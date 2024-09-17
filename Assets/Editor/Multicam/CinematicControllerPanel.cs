@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using Solis.Misc.Multicam;
 using UnityEditor;
 using UnityEditor.Overlays;
@@ -7,7 +8,6 @@ using UnityEngine.UIElements;
 
 namespace Editor.Multicam
 {
-#if UNITY_EDITOR
     [Overlay(typeof(SceneView), "Cinematic Controller", true)]
     [Icon("Assets/Editor/Multicam/Icons/CinematicControllerPanelIcon.png")]
     public class CinematicControllerPanel : Overlay
@@ -34,8 +34,8 @@ namespace Editor.Multicam
             _alignSceneCameraIcon = EditorGUIUtility.IconContent("Camera Icon").image as Texture2D;
             _selectCinematicControllerIcon = EditorGUIUtility.IconContent("Prefab Icon").image as Texture2D;
 
-            if (SceneManager.sceneCount != 1 ||
-                SceneManager.GetActiveScene().name is not ("Menu" or "Core" or "Lobby"))
+            if (SceneManager.sceneCount == 1 && SceneManager.GetActiveScene().name is not ("Menu" or "Core" or "Lobby")
+                || SceneManager.sceneCount > 1 && SceneManager.GetSceneAt(1).name is not ("Menu" or "Core" or "Lobby"))
             {
                 _controller = Object.FindObjectsByType<CinematicController>(FindObjectsSortMode.None)[0];
 
@@ -90,8 +90,8 @@ namespace Editor.Multicam
                     }
                 };
                 root.Add(error);
-                if (SceneManager.sceneCount != 1 ||
-                    SceneManager.GetActiveScene().name is not ("Menu" or "Core" or "Lobby"))
+                if (SceneManager.sceneCount == 1 && SceneManager.GetActiveScene().name is not ("Menu" or "Core" or "Lobby")
+                    || SceneManager.sceneCount > 1 && SceneManager.GetSceneAt(1).name is not ("Menu" or "Core" or "Lobby"))
                 {
                     _controller = Object.FindObjectsByType<CinematicController>(FindObjectsSortMode.None)[0];
                 }
@@ -280,5 +280,5 @@ namespace Editor.Multicam
                 return;
         }
     }
-#endif
 }
+#endif

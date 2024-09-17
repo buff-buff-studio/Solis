@@ -1,15 +1,12 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using AYellowpaper.SerializedCollections;
 using Cinemachine;
-using NetBuff.Components;
-using Unity.VisualScripting;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.Serialization;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Solis.Misc.Multicam
 {
@@ -123,6 +120,31 @@ namespace Solis.Misc.Multicam
         public void OnFrameChange(int frame)
         {
             CurrentRoll.currentFrame = frame;
+        }
+
+        private void TryFindTarget()
+        {
+            if(_follow == null)
+            {
+                _follow = transform.Find("Follow");
+                if(_follow == null)
+                {
+                    _follow = new GameObject("Follow").transform;
+                    _follow.SetParent(this.transform);
+                }
+            }
+            if(_lookAt == null)
+            {
+                _lookAt = transform.Find("LookAt");
+                if(_lookAt == null)
+                {
+                    _lookAt = new GameObject("LookAt").transform;
+                    _lookAt.SetParent(this.transform);
+                }
+            }
+
+            _follow.position = CurrentRoll.GetFollow();
+            _lookAt.position = CurrentRoll.GetLookAt();
         }
 
 #if UNITY_EDITOR
@@ -250,31 +272,6 @@ namespace Solis.Misc.Multicam
             TryFindTarget();
             virtualCamera.m_Follow = _follow;
             virtualCamera.m_LookAt = _lookAt;
-        }
-
-        private void TryFindTarget()
-        {
-            if(_follow == null)
-            {
-                _follow = transform.Find("Follow");
-                if(_follow == null)
-                {
-                    _follow = new GameObject("Follow").transform;
-                    _follow.SetParent(this.transform);
-                }
-            }
-            if(_lookAt == null)
-            {
-                _lookAt = transform.Find("LookAt");
-                if(_lookAt == null)
-                {
-                    _lookAt = new GameObject("LookAt").transform;
-                    _lookAt.SetParent(this.transform);
-                }
-            }
-
-            _follow.position = CurrentRoll.GetFollow();
-            _lookAt.position = CurrentRoll.GetLookAt();
         }
 
         private void OnValidate()
