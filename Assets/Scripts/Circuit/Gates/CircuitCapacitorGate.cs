@@ -44,12 +44,12 @@ namespace Solis.Circuit.Gates
             if (!HasAuthority) return;
             if (output.Connections.Length <= 0) return;
 
-            if(canChange && data.ReadOutput().power > .5f)
+            if(canChange && data.ReadInputPower() > .5f)
             {
                 deliverPower.Value = !deliverPower.Value;
                 canChange = false;
             }
-            else if(data.ReadOutput().power <= .1f)
+            else if(data.ReadInputPower() <= .1f)
             {
                 canChange = true;
             }
