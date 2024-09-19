@@ -111,17 +111,13 @@ namespace _Scripts.UI
             var controller = player.GetComponent<PlayerControllerBase>();
             if (controller == null)
                 return false;
-      
             
-            if (_characterThatIsTalking == CharacterTypeEmote.None || _characterThatIsTalking == CharacterTypeEmote.Frog)
-            {
-                // logic for the two players select   
-                Debug.Log("A"); 
-                charactersReady.Value++;
-                hasSkipped = true;
-                if (charactersReady.Value != 2) return true;
-            }
-            else
+            
+            charactersReady.Value++;
+            hasSkipped = true;
+            if (charactersReady.Value != 2) return true;
+            
+            /*else
             {
                 Debug.Log("B");
                 Debug.Log(_characterThatIsTalking.ToString());
@@ -131,7 +127,7 @@ namespace _Scripts.UI
                     Debug.Log("NO!");
                     return true;
                 }
-            }
+            }*/
             
             if(currentDialog == null) return false;
             Debug.Log("C");
