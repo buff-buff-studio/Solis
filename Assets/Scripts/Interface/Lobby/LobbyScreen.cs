@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using NetBuff;
 using NetBuff.Components;
 using NetBuff.Misc;
@@ -64,6 +65,22 @@ namespace Solis.Interface.Lobby
         {
             Instance = null;
         }
+
+        private void Update()
+        {
+            if (!Cursor.visible)
+            {
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+            }
+
+            if (HasAuthority)
+            {
+                if(Input.GetKeyDown(KeyCode.Return))
+                    StartGame();
+            }
+        }
+
         #endregion
         
         #region Network Callbacks

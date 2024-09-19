@@ -1,5 +1,6 @@
 ﻿ using System;
-using Solis.Circuit.Interfaces;
+ using System.Linq;
+ using Solis.Circuit.Interfaces;
 using UnityEngine;
 
 #if UNITY_EDITOR
@@ -151,6 +152,16 @@ namespace Solis.Circuit
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        public float ReadInputPower()
+        {
+            var result = Connections
+                .Select((connection, i) => GetOtherPlug(i))
+                .Where(other => !ReferenceEquals(other, null))
+                .Sum(other => other.Owner.ReadOutput(other).power);
+
+            return result;
         }
 
         public CircuitPlug GetOtherPlug(int connection = 0)

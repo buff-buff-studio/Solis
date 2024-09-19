@@ -95,7 +95,7 @@ namespace Solis.Core
             if(!string.IsNullOrEmpty(scene) && scene != "Null" && scene != "Lobby")
             {
                 isGameStarted = true;
-                save.data.currentLevel = FindActiveLevel(scene);
+                save.data.currentLevel = FindActiveLevel();
             }
 #endif
             LoadingLobby(isGameStarted);
@@ -320,8 +320,9 @@ namespace Solis.Core
         }
 
 #if UNITY_EDITOR
-        public int FindActiveLevel(string scene)
+        public int FindActiveLevel()
         {
+            var scene = SceneManager.GetSceneAt(1).name;
             if(registry.levels.Any(x => x.scene.sceneName == scene))
             {
                 var registryLevels = registry.levels.ToList();
