@@ -66,7 +66,7 @@ public class PauseManager : WindowManager
         isPaused = false;
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
-        OnPause?.Invoke(false);
+       OnPause?.Invoke(false);
     }
     
     public void PauseGame()

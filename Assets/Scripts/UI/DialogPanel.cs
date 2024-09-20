@@ -6,6 +6,7 @@ using NetBuff.Components;
 using NetBuff.Misc;
 using Solis.Packets;
 using Solis.Player;
+using TMPro;
 using UI;
 using UnityEngine;
 using UnityEngine.UI;
@@ -58,20 +59,22 @@ namespace _Scripts.UI
 
         public NetworkBehaviourNetworkValue<DialogPlayer> currentDialog = new(); 
         public IntNetworkValue index;
-        public IntNetworkValue charactersReady;
         private CharacterTypeEmote _characterThatIsTalking;
 
         public List<EmojisStructure> emojisStructure = new List<EmojisStructure>();
    
         [SerializeField]private PauseManager pauseManager;
-        private bool hasSkipped;
-        [SerializeField]
-        private GameObject nextImage;
+        public IntNetworkValue charactersReady;
+        [SerializeField]private List<int> hasSkipped = new List<int>();
+        [SerializeField] private GameObject nextImage;
+        [SerializeField] private TextMeshProUGUI playersText;
+        
+        
         #region MonoBehaviour
 
         protected void OnEnable()
         {
-            WithValues(charactersReady, index, currentDialog);
+            WithValues(charactersReady,index, currentDialog);
             
             PacketListener.GetPacketListener<PlayerInteractPacket>().AddServerListener(OnClickDialog);
             index.OnValueChanged += UpdateDialog;
@@ -104,18 +107,21 @@ namespace _Scripts.UI
 
         public bool OnClickDialog(PlayerInteractPacket playerInteractPacket, int i)
         {
-            if(hasSkipped) return false;
-            if(textWriterSingle.isWriting.Value) return false;
+            if(hasSkipped.Contains(i)) return false;
+            if(textWriterSingle.isWriting) return false;
             var player = GetNetworkObject(playerInteractPacket.Id);
             
             var controller = player.GetComponent<PlayerControllerBase>();
             if (controller == null)
                 return false;
-            
-            
-            charactersReady.Value++;
-            hasSkipped = true;
-            if (charactersReady.Value != 2) return true;
+           
+            if (index.Value != -1)
+            {
+                hasSkipped.Add(i);
+                charactersReady.Value++;
+                playersText.text = charactersReady.Value + "/2";
+                if (hasSkipped.Count != 2) return true;
+            }
             
             /*else
             {
@@ -136,6 +142,7 @@ namespace _Scripts.UI
             else
                 index.Value++;
 
+            hasSkipped.Clear();
             charactersReady.Value = 0;
             return true;
         }
@@ -145,7 +152,7 @@ namespace _Scripts.UI
             if (newValue == -1) ClosePanel();
             else
             {
-                hasSkipped = false;
+                playersText.text = charactersReady.Value + "/2";
                 pauseManager.Pause();
                 _characterThatIsTalking = currentDialog.Value.currentDialog[index.Value].characterType.characterType;
                 TypeWriteText(currentDialog.Value.currentDialog[index.Value], () => nextImage.SetActive(true));
@@ -154,6 +161,13 @@ namespace _Scripts.UI
         
         private void ClosePanel()
         {
+            playersText.text = "0/2";
+            if (IsServer)
+            {
+                charactersReady.Value = 0;
+                hasSkipped.Clear();
+            }
+         
             pauseManager.Resume();
             orderTextGameObject.SetActive(false);
             nextImage.SetActive(false);

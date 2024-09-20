@@ -111,7 +111,7 @@ namespace Solis.Player
         
         private bool _isCinematicRunning = true;
         private bool _isRespawning = false;
-        private BoolNetworkValue _isPaused = new(false, NetworkValue.ModifierType.OwnerOnly);
+        public BoolNetworkValue _isPaused = new(false, NetworkValue.ModifierType.Server);
         private float _respawnTimer;
         private float _interactTimer;
         private float _multiplier;

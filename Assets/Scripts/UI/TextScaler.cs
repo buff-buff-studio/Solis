@@ -12,12 +12,8 @@ namespace DefaultNamespace
         [Range(0f, 1f)]
         public float progress = 0;
         [SerializeField]private float typeDuration = 2;
-        [HideInInspector]public BoolNetworkValue isWriting;
+        public bool isWriting;
         private Action onFinishWriting;
-        private void OnEnable()
-        {
-            WithValues(isWriting);
-        }
 
         public void Update()
         {
@@ -29,27 +25,27 @@ namespace DefaultNamespace
         {
             text.text = dialog;
             progress = 0;
-            isWriting.Value = true;
+            isWriting = true;
             onFinishWriting = callback;
         }
 
         private void SetProgress()
         {
-            if (!isWriting.Value) return;
+            if (!isWriting) return;
             
             progress += Time.deltaTime / typeDuration;
 
             if (!(progress >= 1)) return;
-            
-            isWriting.Value = false;
+            progress = 1;
             onFinishWriting?.Invoke();
+            isWriting = false;
         }
 
         private void WriteText()
-        {
+        { 
             //scale characters by progress
             if (text == null) return;
-            if(!isWriting.Value) return;
+            if(!isWriting) return;
             
             text.ForceMeshUpdate();
 
