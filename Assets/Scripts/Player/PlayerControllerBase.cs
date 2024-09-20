@@ -60,7 +60,7 @@ namespace Solis.Player
         public Transform body;
         public Transform lookAt;
         public Transform headOffset;
-        public SkinnedMeshRenderer renderer;
+        public new SkinnedMeshRenderer renderer;
         public LayerMask groundMask;
 
         [Header("FX REFERENCES")]

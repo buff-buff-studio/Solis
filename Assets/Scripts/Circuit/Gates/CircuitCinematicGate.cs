@@ -141,7 +141,7 @@ namespace Solis.Circuit.Gates
             _frameEvent = serializedObject.FindProperty("frameEvent");
             _invisibleOnPlay = serializedObject.FindProperty("invisibleOnPlay");
 
-            _cinematicController = GameObject.FindObjectOfType<CinematicController>();
+            _cinematicController = GameObject.FindFirstObjectByType<CinematicController>();
         }
 
         public override void OnInspectorGUI()

@@ -11,6 +11,7 @@ using UnityEditor;
 namespace Solis.Misc.Multicam
 {
     [RequireComponent(typeof(Animation))]
+    [DisallowMultipleComponent]
     [Icon("Assets/Editor/Multicam/Icons/CinematicControllerIcon.png")]
     public class CinematicController : MonoBehaviour
     {
@@ -20,7 +21,7 @@ namespace Solis.Misc.Multicam
         [SerializeField]
         internal CinemachineVirtualCamera virtualCamera;
         [SerializeField]
-        internal Animation animation;
+        internal new Animation animation;
         [SerializeField]
         private Transform _follow, _lookAt;
 
@@ -59,7 +60,7 @@ namespace Solis.Misc.Multicam
             virtualCamera.m_Follow = _follow;
             virtualCamera.m_LookAt = _lookAt;
 
-            MulticamCamera.Instance.SetCinematic(virtualCamera, playOnAwake);
+            MulticamCamera.Instance!.SetCinematic(virtualCamera, playOnAwake);
         }
 
         private void OnEnable()
@@ -175,9 +176,10 @@ namespace Solis.Misc.Multicam
             {
                 var c = new AnimationClip
                 {
-                    name = SceneManager.GetActiveScene().name + " - " + rolls[currentRoll].name
+                    name = $"{rolls[currentRoll].name} - {SceneManager.GetActiveScene().name}"
                 };
-                AssetDatabase.CreateAsset(c, $"Assets/Animations/Cinematic/{c.name}.anim");
+
+                AssetDatabase.CreateAsset(c, $"Assets/Animations/Cinematic/{SceneManager.GetActiveScene().name}/{c.name}.anim");
                 CurrentRoll.clip = c;
             }
             var clip = CurrentRoll.clip;
@@ -285,6 +287,10 @@ namespace Solis.Misc.Multicam
             });
         }
 #endif
+        private static void OnOnCinematicStarted()
+        {
+            OnCinematicStarted?.Invoke();
+        }
     }
 
 #if UNITY_EDITOR
@@ -320,40 +326,52 @@ namespace Solis.Misc.Multicam
         {
             serializedObject.Update();
 
-            if (_cController.rolls.Exists(x => x.clip == null))
+            if(_cController.rolls.Count > 0)
             {
-                EditorGUILayout.HelpBox("You have rolls without baked animations.\nPlease bake all animations before playing.", MessageType.Error);
-                if (GUILayout.Button("Bake All Animations"))
+                if (_cController.rolls.Exists(x => x.clip == null))
                 {
-                    var cRoll = _cController.currentRoll;
-                    for (var i = 0; i < _cController.rolls.Count; i++)
+                    EditorGUILayout.HelpBox(
+                        "You have rolls without baked animations.\nPlease bake all animations before playing.",
+                        MessageType.Error);
+                    if (GUILayout.Button("Bake All Animations"))
                     {
-                        _cController.currentRoll = i;
-                        _cController.BakeAnimation();
+                        var cRoll = _cController.currentRoll;
+                        for (var i = 0; i < _cController.rolls.Count; i++)
+                        {
+                            _cController.currentRoll = i;
+                            _cController.BakeAnimation();
+                            serializedObject.ApplyModifiedProperties();
+                            serializedObject.Update();
+                        }
+
+                        _cController.currentRoll = cRoll;
+                        _cController.NeedToBake = false;
+                    }
+                }
+                else if (_cController.NeedToBake)
+                {
+                    EditorGUILayout.HelpBox(
+                        "You probably have animations that need to be baked.\nWithout baking, the camera will not move.",
+                        MessageType.Warning);
+                    if (GUILayout.Button("Bake All Animations"))
+                    {
+                        var cRoll = _cController.currentRoll;
+                        for (var i = 0; i < _cController.rolls.Count; i++)
+                        {
+                            _cController.currentRoll = i;
+                            _cController.BakeAnimation();
+                            serializedObject.ApplyModifiedProperties();
+                            serializedObject.Update();
+                        }
+
+                        _cController.currentRoll = cRoll;
+                        _cController.NeedToBake = false;
                     }
 
-                    _cController.currentRoll = cRoll;
-                    _cController.NeedToBake = false;
-                }
-            }
-            else if (_cController.NeedToBake)
-            {
-                EditorGUILayout.HelpBox("You probably have animations that need to be baked.\nWithout baking, the camera will not move.", MessageType.Warning);
-                if (GUILayout.Button("Bake All Animations"))
-                {
-                    var cRoll = _cController.currentRoll;
-                    for (var i = 0; i < _cController.rolls.Count; i++)
+                    if (GUILayout.Button("Dismiss"))
                     {
-                        _cController.currentRoll = i;
-                        _cController.BakeAnimation();
+                        _cController.NeedToBake = false;
                     }
-
-                    _cController.currentRoll = cRoll;
-                    _cController.NeedToBake = false;
-                }
-                if(GUILayout.Button("Dismiss"))
-                {
-                    _cController.NeedToBake = false;
                 }
             }
 
@@ -386,6 +404,8 @@ namespace Solis.Misc.Multicam
 
         private void OnSceneGUI()
         {
+            if(_cController.rolls.Count == 0) return;
+
             EditorGUI.BeginChangeCheck();
             var frame = _cController.CurrentRoll.framing[_cController.CurrentRoll.currentFrame];
             var newFollowPos = Handles.PositionHandle(frame.follow, Quaternion.identity);

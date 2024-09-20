@@ -18,7 +18,7 @@ namespace Solis.Misc.Props
         private void OnTriggerEnter(Collider other)
         {
             if(_playerCount <= 0)
-                _playerCount = FindObjectsOfType<PlayerControllerBase>().Length;
+                _playerCount = FindObjectsByType<PlayerControllerBase>(FindObjectsSortMode.None).Length;
 
             var controller = other.GetComponent<PlayerControllerBase>();
             if (controller == null)

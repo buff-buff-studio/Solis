@@ -322,6 +322,7 @@ namespace Solis.Core
 #if UNITY_EDITOR
         public int FindActiveLevel()
         {
+            if(SceneManager.sceneCount < 2) return save.data.currentLevel;
             var scene = SceneManager.GetSceneAt(1).name;
             if(registry.levels.Any(x => x.scene.sceneName == scene))
             {
