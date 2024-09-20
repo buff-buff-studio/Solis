@@ -50,6 +50,7 @@ namespace Solis.Misc.Multicam
         private void Awake()
         {
             Instance = this;
+            currentRoll = 0;
 
             TryGetComponent(out animation);
             rolls.ForEach(roll =>
@@ -178,6 +179,9 @@ namespace Solis.Misc.Multicam
                 {
                     name = $"{rolls[currentRoll].name} - {SceneManager.GetActiveScene().name}"
                 };
+
+                if(!AssetDatabase.IsValidFolder($"Assets/Animations/Cinematic/{SceneManager.GetActiveScene().name}"))
+                    AssetDatabase.CreateFolder("Assets/Animations/Cinematic", SceneManager.GetActiveScene().name);
 
                 AssetDatabase.CreateAsset(c, $"Assets/Animations/Cinematic/{SceneManager.GetActiveScene().name}/{c.name}.anim");
                 CurrentRoll.clip = c;
