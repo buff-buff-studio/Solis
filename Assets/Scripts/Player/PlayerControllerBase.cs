@@ -120,7 +120,6 @@ namespace Solis.Player
         private Transform _camera;
 
         private static readonly int Respawning = Shader.PropertyToID("_Respawning");
-        private static readonly int RespawningBlinkRate = Shader.PropertyToID("_RespawnBlinkingRate");
 
         #endregion
 
@@ -189,11 +188,8 @@ namespace Solis.Player
 
             _isCinematicRunning = CinematicController.IsPlaying;
             CinematicController.OnCinematicEnded += () => _isCinematicRunning = false;
-            PauseManager.OnPause += isPaused =>
-            {
-                if (!IsOwnedByClient) return;
-                _isPaused.Value = isPaused;
-            };
+
+            PauseManager.OnPause += _OnPause;
             _isPaused.OnValueChanged += (_, newValue) => emoteController.SetStatusText(newValue ? "stats.pause" : "");
 
             _remoteBodyRotation = body.localEulerAngles.y;
@@ -416,6 +412,13 @@ namespace Solis.Player
             }
             
             if(IsGrounded) _jumpTimer -= deltaTime;
+        }
+
+        private void _OnPause(bool isPaused)
+        {
+            if (!HasAuthority || !IsOwnedByClient) return;
+            Debug.Log(gameObject.name + " is paused: " + isPaused);
+            _isPaused.Value = isPaused;
         }
 
         private void _Interact()

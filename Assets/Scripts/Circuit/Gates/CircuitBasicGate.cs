@@ -108,7 +108,7 @@ namespace Solis.Circuit.Gates
         #region Private Methods
         private void _UpdateLabel(string numberX = "X")
         {
-            label.text = mode switch
+            label!.text = mode switch
             {
                 Mode.And => "AND",
                 Mode.Or => "OR",

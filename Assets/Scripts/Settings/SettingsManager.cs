@@ -67,6 +67,12 @@ namespace Solis.Settings
             intItems["resolution"].SetItems(_supportedResolutions.Select(r => $"{r.width}x{r.height}").ToList());
         }
 
+        protected override void Start()
+        {
+            base.Start();
+            ApplySettings();
+        }
+
         private void Update()
         {
             if(Input.GetKeyDown(KeyCode.F))
