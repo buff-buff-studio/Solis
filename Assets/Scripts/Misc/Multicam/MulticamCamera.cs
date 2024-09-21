@@ -87,6 +87,10 @@ namespace Solis.Misc.Multicam
             {
                 CinematicController.Instance.Play(0);
             }
+            else
+            {
+                ChangeCameraState(CameraState.Gameplay);
+            }
         }
 
         #endregion

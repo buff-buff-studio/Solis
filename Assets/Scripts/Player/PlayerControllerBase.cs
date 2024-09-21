@@ -110,8 +110,10 @@ namespace Solis.Player
         private bool _isFalling;
         
         private bool _isCinematicRunning = true;
-        private BoolNetworkValue _isRespawning = new(false, NetworkValue.ModifierType.OwnerOnly);
-        private BoolNetworkValue _isPaused = new(false, NetworkValue.ModifierType.OwnerOnly);
+
+        public BoolNetworkValue _isRespawning = new(false);
+        public BoolNetworkValue _isPaused = new(false);
+
         private float _respawnTimer;
         private float _interactTimer;
         private float _multiplier;
@@ -183,10 +185,11 @@ namespace Solis.Player
 
         public void OnEnable()
         {
-            WithValues(_isPaused, _isRespawning);
 
-            _isPaused.OnValueChanged += OnPausedChanged;
+            WithValues(_isRespawning, _isPaused);
             _isRespawning.OnValueChanged += _OnRespawningChanged;
+            _isPaused.OnValueChanged += OnPausedChanged;
+
             PauseManager.OnPause += _OnPause;
 
             Cursor.lockState = CursorLockMode.Locked;
@@ -205,15 +208,16 @@ namespace Solis.Player
             InvokeRepeating(nameof(_Tick), 0, 1f / tickRate);
         }
 
-        private void OnPausedChanged(bool _, bool newValue)
+        private void OnPausedChanged(bool old, bool @new)
         {
-            Debug.Log("Paused: " + newValue);
-            emoteController.SetStatusText(newValue ? "stats.pause" : "");
+            Debug.Log((CharacterType == CharacterType.Human ? "Nina" : "RAM") + (@new ? " paused " : " resumed") + " the game");
+            emoteController.SetStatusText(@new ? "stats.pause" : "");
         }
 
-        private void _OnRespawningChanged(bool _, bool newValue)
+        private void _OnRespawningChanged(bool old, bool @new)
         {
-            renderer.material.SetInt(Respawning, newValue ? 1 : 0);
+            Debug.Log((CharacterType == CharacterType.Human ? "Nina" : "RAM") + (@new ? " is respawning" : " respawned"));
+            renderer.material.SetInt(Respawning, @new ? 1 : 0);
         }
 
         private void OnDisable()
@@ -452,7 +456,7 @@ namespace Solis.Player
 
         private void _OnPause(bool isPaused)
         {
-            if (!HasAuthority) return;
+            if (!_isPaused.CheckPermission()) return;
             Debug.Log(gameObject.name + " is paused: " + isPaused);
             _isPaused.Value = isPaused;
         }
@@ -628,7 +632,8 @@ namespace Solis.Player
 
         private void _Respawn()
         {
-            if (HasAuthority) _isRespawning.Value = true;
+            if (HasAuthority && IsOwnedByClient)
+                _isRespawning.Value = true;
 
             transform.position = _lastSafePosition + Vector3.up;
             velocity = Vector3.zero;
