@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Cinemachine;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -158,6 +159,8 @@ namespace Solis.Misc.Multicam
             rolls[currentRoll].framing.Add(new CinematicFrame(SceneView.lastActiveSceneView.camera));
             CurrentRoll.currentFrame = CurrentRoll.framing.Count - 1;
 
+            EditorSceneManager.MarkSceneDirty(this.gameObject.scene);
+
             NeedToBake = true;
         }
 
@@ -168,6 +171,9 @@ namespace Solis.Misc.Multicam
             updatedFrame.behaviour.movement = movement;
 
             CurrentRoll.framing[CurrentRoll.currentFrame] = updatedFrame;
+
+            EditorSceneManager.MarkSceneDirty(this.gameObject.scene);
+
             NeedToBake = true;
         }
 
@@ -268,6 +274,8 @@ namespace Solis.Misc.Multicam
             AnimationUtility.SetAnimationEvents(clip, events.ToArray());
 
             clip.legacy = true;
+
+            EditorSceneManager.MarkSceneDirty(this.gameObject.scene);
             return clip;
         }
 
@@ -284,6 +292,7 @@ namespace Solis.Misc.Multicam
         {
             if (Application.isPlaying) return;
 
+            NeedToBake = true;
             currentRoll = Mathf.Clamp(currentRoll, 0, rolls.Count - 1);
             rolls?.ForEach(roll =>
             {
@@ -328,8 +337,6 @@ namespace Solis.Misc.Multicam
         }
         public override void OnInspectorGUI()
         {
-            serializedObject.Update();
-
             if(_cController.rolls.Count > 0)
             {
                 if (_cController.rolls.Exists(x => x.clip == null))
@@ -346,6 +353,7 @@ namespace Solis.Misc.Multicam
                             _cController.BakeAnimation();
                             serializedObject.ApplyModifiedProperties();
                             serializedObject.Update();
+                            EditorUtility.SetDirty(_cController);
                         }
 
                         _cController.currentRoll = cRoll;
@@ -366,6 +374,7 @@ namespace Solis.Misc.Multicam
                             _cController.BakeAnimation();
                             serializedObject.ApplyModifiedProperties();
                             serializedObject.Update();
+                            EditorUtility.SetDirty(_cController);
                         }
 
                         _cController.currentRoll = cRoll;
@@ -378,32 +387,13 @@ namespace Solis.Misc.Multicam
                     }
                 }
             }
-
-            EditorGUILayout.PropertyField(virtualCamera);
-            EditorGUILayout.PropertyField(animation);
-            EditorGUILayout.PropertyField(follow);
-            EditorGUILayout.PropertyField(lookAt);
-
-            EditorGUILayout.PropertyField(playOnAwake);
-
-            EditorGUILayout.PropertyField(currentRoll);
-
-            using (var check = new EditorGUI.ChangeCheckScope())
-            {
-                EditorGUILayout.PropertyField(rolls, true);
-                if (check.changed)
-                {
-                    _cController.NeedToBake = true;
-                }
-            }
-
             if(Application.isPlaying)
             {
                 if (GUILayout.Button("Play")) _cController.Reset();
                 if (GUILayout.Button("Stop")) _cController.Stop();
             }
 
-            serializedObject.ApplyModifiedProperties();
+            base.OnInspectorGUI();
         }
 
         private void OnSceneGUI()

@@ -110,7 +110,7 @@ namespace Solis.Player
         private bool _isFalling;
         
         private bool _isCinematicRunning = true;
-        private bool _isRespawning = false;
+        private BoolNetworkValue _isRespawning = new(false, NetworkValue.ModifierType.OwnerOnly);
         private BoolNetworkValue _isPaused = new(false, NetworkValue.ModifierType.OwnerOnly);
         private float _respawnTimer;
         private float _interactTimer;
@@ -175,7 +175,7 @@ namespace Solis.Player
 
         private bool CanJumpCut =>
             _isJumping && (transform.position.y - _startJumpPos) >= JumpCutMinHeight;
-        private bool IsPlayerLocked => _isCinematicRunning || _isRespawning;
+        private bool IsPlayerLocked => _isCinematicRunning || _isRespawning.Value;
         private Vector3 HeadOffset => headOffset.position;
         #endregion
 
@@ -183,22 +183,37 @@ namespace Solis.Player
 
         public void OnEnable()
         {
+            WithValues(_isPaused, _isRespawning);
+
+            _isPaused.OnValueChanged += OnPausedChanged;
+            _isRespawning.OnValueChanged += _OnRespawningChanged;
+            PauseManager.OnPause += _OnPause;
+
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
 
             _isCinematicRunning = CinematicController.IsPlaying;
             CinematicController.OnCinematicEnded += () => _isCinematicRunning = false;
 
-            PauseManager.OnPause += _OnPause;
-            _isPaused.OnValueChanged += (_, newValue) => emoteController.SetStatusText(newValue ? "stats.pause" : "");
 
             _remoteBodyRotation = body.localEulerAngles.y;
             _remoteBodyPosition = body.localPosition;
             _multiplier = FallMultiplier;
             dustParticles.Stop();
+
             if (controller == null) TryGetComponent(out controller);
             InvokeRepeating(nameof(_Tick), 0, 1f / tickRate);
-            WithValues(_isPaused);
+        }
+
+        private void OnPausedChanged(bool _, bool newValue)
+        {
+            Debug.Log("Paused: " + newValue);
+            emoteController.SetStatusText(newValue ? "stats.pause" : "");
+        }
+
+        private void _OnRespawningChanged(bool _, bool newValue)
+        {
+            renderer.material.SetInt(Respawning, newValue ? 1 : 0);
         }
 
         private void OnDisable()
@@ -255,6 +270,23 @@ namespace Solis.Player
                 body.localEulerAngles = new Vector3(0,
                     Mathf.LerpAngle(body.localEulerAngles.y, _remoteBodyRotation, Time.fixedDeltaTime * 20), 0);
                 body.localPosition = Vector3.Lerp(body.localPosition, _remoteBodyPosition, Time.fixedDeltaTime * 20);
+
+                if (state == State.Magnetized)
+                {
+                    if (magnetAnchor == null)
+                    {
+                        state = State.Normal;
+                        velocity = Vector3.zero;
+                        controller.enabled = true;
+                    }
+                    else
+                    {
+                        var pos = magnetAnchor.position - magnetReferenceLocalPosition;
+                        controller.enabled = false;
+                        var playerPos = transform.position;
+                        transform.position = Vector3.MoveTowards(playerPos, pos, Time.deltaTime * 15);
+                    }
+                }
                 return;
             }
 
@@ -310,7 +342,13 @@ namespace Solis.Player
 
                     if (transform.position.y < -15)
                     {
-                        PlayerDeath(Death.Fall);
+                        Debug.Log($"Player {this.Id} has died by Falling into the Void");
+
+                        SendPacket(new PlayerDeathPacket()
+                        {
+                            Type = Death.Fall,
+                            Id = this.Id
+                        });
                     }
 
                     break;
@@ -386,7 +424,7 @@ namespace Solis.Player
                     _remoteBodyPosition = bodyLerpPacket.BodyPosition;
                     break;
                 case PlayerDeathPacket deathPacket:
-                    if (deathPacket.Id == Id && !_isRespawning)
+                    if (deathPacket.Id == Id && !_isRespawning.Value)
                         PlayerDeath(deathPacket.Type);
                     break;
             }
@@ -401,14 +439,12 @@ namespace Solis.Player
             _interactTimer = _interactTimer > 0 ? _interactTimer - deltaTime : 0;
             if (_respawnTimer <= 0)
             {
-                _isRespawning = false;
+                _isRespawning.Value = false;
                 _respawnTimer = RespawnCooldown;
-
-                renderer.material.SetInt(Respawning, 0);
             }
             else
             {
-                _respawnTimer = _isRespawning ? _respawnTimer - deltaTime : RespawnCooldown;
+                _respawnTimer = _isRespawning.Value ? _respawnTimer - deltaTime : RespawnCooldown;
             }
             
             if(IsGrounded) _jumpTimer -= deltaTime;
@@ -416,7 +452,7 @@ namespace Solis.Player
 
         private void _OnPause(bool isPaused)
         {
-            if (!HasAuthority || !IsOwnedByClient) return;
+            if (!HasAuthority) return;
             Debug.Log(gameObject.name + " is paused: " + isPaused);
             _isPaused.Value = isPaused;
         }
@@ -589,6 +625,19 @@ namespace Solis.Player
             };
             SendPacket(packet);
         }
+
+        private void _Respawn()
+        {
+            if (HasAuthority) _isRespawning.Value = true;
+
+            transform.position = _lastSafePosition + Vector3.up;
+            velocity = Vector3.zero;
+
+            landParticles.Play();
+
+            _respawnTimer = RespawnCooldown;
+        }
+
         #endregion
 
         #region Public Methods
@@ -604,13 +653,7 @@ namespace Solis.Player
                     Debug.Log("Death Smash");
                     break;
                 case Death.Fall:
-                    transform.position = _lastSafePosition + Vector3.up;
-                    //transform.eulerAngles += new Vector3(0, 180, 0);
-                    velocity = Vector3.zero;
-                    landParticles.Play();
-                    _isRespawning = true;
-                    renderer.material.SetInt(Respawning, 1);
-                    _respawnTimer = RespawnCooldown;
+                    _Respawn();
                     AudioSystem.PlayVfxStatic("Death");
                     break;
                 default:

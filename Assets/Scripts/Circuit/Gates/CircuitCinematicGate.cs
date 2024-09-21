@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using NetBuff.Misc;
 using Solis.Misc.Multicam;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 #if UNITY_EDITOR
@@ -205,20 +206,34 @@ namespace Solis.Circuit.Gates
             if (GUILayout.Button("Verify if exist another frame with this CinematicCallback"))
             {
                 Debug.Log("Starting verification...");
+                var ok = false;
                 foreach (var r in _cinematicController.rolls)
                 {
                     for (var i = 0; i < r.framing.Count; i++)
                     {
                         var f = r.framing[i];
-                        if (f == _cinematicController.rolls[_cinematicRoll.intValue].framing[_frameEvent.intValue]) continue;
                         for (var j = 0; j < f.onFrameShow.GetPersistentEventCount(); j++)
                         {
+                            if (f == _cinematicController.rolls[_cinematicRoll.intValue].framing[_frameEvent.intValue])
+                            {
+                                ok = f.onFrameShow.GetPersistentTarget(j) == _gate || f.onFrameShow.GetPersistentMethodName(j) == "CinematicCallback";
+                                continue;
+                            }
+
                             if (f.onFrameShow.GetPersistentTarget(j) != _gate || f.onFrameShow.GetPersistentMethodName(j) != "CinematicCallback") continue;
                         
                             UnityEventTools.RemovePersistentListener(f.onFrameShow, _gate.CinematicCallback);
                             Debug.Log($"CinematicCallback removed from frame {i} in roll {r.name}", _cinematicController);
                         }
                     }
+                }
+                if (!ok)
+                {
+                    Debug.LogWarning("The frame doesn't have the CinematicCallback, adding it...", _cinematicController);
+                    UnityEventTools.AddPersistentListener(_cinematicController.rolls[_cinematicRoll.intValue].framing[_frameEvent.intValue].onFrameShow, _gate.CinematicCallback);
+
+                    EditorUtility.SetDirty(_cinematicController);
+                    EditorSceneManager.MarkSceneDirty(_cinematicController.gameObject.scene);
                 }
                 Debug.Log("Verification finished.");
             }
