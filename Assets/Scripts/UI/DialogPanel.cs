@@ -137,7 +137,7 @@ namespace _Scripts.UI
             
             if(currentDialog == null) return false;
             Debug.Log("C");
-            if (index.Value + 1 > currentDialog.Value.currentDialog.Count - 1) 
+            if (index.Value + 1 > currentDialog.Value.currentDialog.dialogs.Count - 1) 
                 index.Value = -1;
             else
                 index.Value++;
@@ -154,8 +154,8 @@ namespace _Scripts.UI
             {
                 playersText.text = charactersReady.Value + "/2";
                 pauseManager.Pause();
-                _characterThatIsTalking = currentDialog.Value.currentDialog[index.Value].characterType.characterType;
-                TypeWriteText(currentDialog.Value.currentDialog[index.Value], () => nextImage.SetActive(true));
+                _characterThatIsTalking = currentDialog.Value.currentDialog.dialogs[index.Value].characterType.characterType;
+                TypeWriteText(currentDialog.Value.currentDialog.dialogs[index.Value], () => nextImage.SetActive(true));
             }
         }
         
@@ -173,7 +173,7 @@ namespace _Scripts.UI
             nextImage.SetActive(false);
         }
 
-        private void TypeWriteText(DialogData dialogData, Action callback)
+        private void TypeWriteText(DialogStruct dialogData, Action callback)
         {
             characterImage.gameObject.SetActive(false);
             EnterImage(dialogData.characterType);

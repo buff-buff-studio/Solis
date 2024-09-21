@@ -1,19 +1,14 @@
-using System;
-using System.Collections.Generic;
+
 using _Scripts.UI;
 using NetBuff.Components;
-using NetBuff.Misc;
-using Solis.Packets;
-using Solis.Player;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace UI
 {
     public class DialogPlayer : NetworkBehaviour
     {
-        public List<DialogData> currentDialog;
+        public DialogData currentDialog;
         private static bool InputDialog => Input.GetButtonDown("Interact");
         private static bool IsDialogPlaying => DialogPanel.Instance.index.Value != -1;
         public float radius = 2;
@@ -37,6 +32,12 @@ namespace UI
     public class DialogPlayerEditor : Editor
     {
         private DialogPlayer targetClass;
+
+        public override void OnInspectorGUI()
+        {
+            base.OnInspectorGUI();
+        }
+
         private void OnEnable()
         {
             targetClass = target as DialogPlayer;
