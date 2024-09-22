@@ -1,10 +1,13 @@
 #if UNITY_EDITOR
+using System;
+using System.Linq;
 using Solis.Misc.Multicam;
 using UnityEditor;
 using UnityEditor.Overlays;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
+using Object = UnityEngine.Object;
 
 namespace Editor.Multicam
 {
@@ -22,6 +25,8 @@ namespace Editor.Multicam
         private Texture2D _addFrameIcon, _updateFrameIcon, _bakeRollIcon, _bakeAllRollsIcon;
         private Texture2D _alignSceneCameraIcon, _selectCinematicControllerIcon;
 
+        private bool _sceneDoesNotSupportCinematicController = false;
+
         public override void OnCreated()
         {
             base.OnCreated();
@@ -37,10 +42,11 @@ namespace Editor.Multicam
             if (SceneManager.sceneCount == 1 && SceneManager.GetActiveScene().name is not ("Menu" or "Core" or "Lobby")
                 || SceneManager.sceneCount > 1 && SceneManager.GetSceneAt(1).name is not ("Menu" or "Core" or "Lobby"))
             {
-                _controller = Object.FindObjectsByType<CinematicController>(FindObjectsSortMode.None)[0];
+                try { _controller = Object.FindFirstObjectByType<CinematicController>(); }
+                catch (Exception e) { if (!_sceneDoesNotSupportCinematicController)
+                        Debug.LogError("Cinematic Controller not found in the scene: " + e.Message); }
 
-                if (_controller == null)
-                    Debug.LogError("Cinematic Controller not found in the scene");
+                _sceneDoesNotSupportCinematicController = _controller == null;
             }
 
             EditorApplication.hierarchyChanged += _Repaint;
@@ -81,19 +87,38 @@ namespace Editor.Multicam
 
             if(_controller == null)
             {
-                var error = new Label("Cinematic Controller don't\nwork in this scene.")
+                if (SceneManager.sceneCount == 1 &&
+                     SceneManager.GetActiveScene().name is not ("Menu" or "Core" or "Lobby")
+                     || SceneManager.sceneCount > 1 &&
+                     SceneManager.GetSceneAt(1).name is not ("Menu" or "Core" or "Lobby"))
                 {
-                    style =
+                    var error = new Label("Cinematic Controller don't\nexist in this scene.")
                     {
-                        unityFontStyleAndWeight = FontStyle.Bold, marginLeft = 1,
-                        marginTop = 5, marginBottom = 5
-                    }
-                };
-                root.Add(error);
-                if (SceneManager.sceneCount == 1 && SceneManager.GetActiveScene().name is not ("Menu" or "Core" or "Lobby")
-                    || SceneManager.sceneCount > 1 && SceneManager.GetSceneAt(1).name is not ("Menu" or "Core" or "Lobby"))
+                        style =
+                        {
+                            unityFontStyleAndWeight = FontStyle.Bold, marginLeft = 1,
+                            marginTop = 5, marginBottom = 5
+                        }
+                    };
+                    root.Add(error);
+
+                    try { _controller = Object.FindFirstObjectByType<CinematicController>(); }
+                    catch (Exception e) { if (!_sceneDoesNotSupportCinematicController)
+                        Debug.LogError("Cinematic Controller not found in the scene: " + e.Message); }
+
+                    _sceneDoesNotSupportCinematicController = _controller == null;
+                }
+                else
                 {
-                    _controller = Object.FindObjectsByType<CinematicController>(FindObjectsSortMode.None)[0];
+                    var error = new Label("Cinematic Controller don't\nwork in this scene.")
+                    {
+                        style =
+                        {
+                            unityFontStyleAndWeight = FontStyle.Bold, marginLeft = 1,
+                            marginTop = 5, marginBottom = 5
+                        }
+                    };
+                    root.Add(error);
                 }
 
                 return root;
@@ -190,7 +215,7 @@ namespace Editor.Multicam
             root.Add(enumField);
 
             horizontalAlign = new VisualElement() {style = {flexDirection = FlexDirection.Row, justifyContent = Justify.Center}};
-            button = new Button(() => { _controller.AddFrame(); })
+            button = new Button(() => { _controller.AddFrame(); _Repaint();})
             {
                 name = "Add Frame", tooltip = "Add a new frame", style = { width = 38, height = 38, backgroundImage = _addFrameIcon}
             };
@@ -278,6 +303,28 @@ namespace Editor.Multicam
         {
             if (!displayed)
                 return;
+        }
+    }
+
+    public class CreateCinematicControllerMenu : UnityEditor.Editor
+    {
+        [MenuItem("GameObject/Create Empty Cinematic Controller", false, 0)]
+        static void CreateCinematicController()
+        {
+            var prefabPath = "Assets/Prefabs/Cinematic Controller.prefab";
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+            var instance = PrefabUtility.InstantiatePrefab(prefab) as GameObject;
+            Undo.RegisterCreatedObjectUndo(instance, "Create Cinematic Controller");
+            Selection.activeGameObject = instance;
+            SceneView.RepaintAll();
+        }
+
+        [MenuItem("GameObject/Create Empty Cinematic Controller", true)]
+        static bool ValidateCinematicController()
+        {
+            return SceneManager.sceneCount == 1 &&
+                   SceneManager.GetActiveScene().name is not ("Menu" or "Core" or "Lobby") &&
+                   FindFirstObjectByType<CinematicController>() == null;
         }
     }
 }

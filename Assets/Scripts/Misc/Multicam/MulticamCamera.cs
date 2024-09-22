@@ -25,13 +25,14 @@ namespace Solis.Misc.Multicam
 
         [Header("GAMEPLAY")]
         public CinemachineFreeLook gameplayCamera;
-        public CinematicFrame playerTarget;
 
         [Header("CINEMATIC")]
         public CinemachineVirtualCamera cinematicCamera;
 
         [Header("DIALOGUE")]
         public CinemachineVirtualCamera dialogueCamera;
+
+        private CinemachineBrain _cinemachineBrain;
 
         #endregion
 
@@ -40,6 +41,8 @@ namespace Solis.Misc.Multicam
         {
             if (Instance == null) Instance = this;
             else Destroy(this);
+
+            _cinemachineBrain = mainCamera.GetComponent<CinemachineBrain>();
         }
         #endregion
 
@@ -47,37 +50,31 @@ namespace Solis.Misc.Multicam
 
         public void ChangeCameraState(CameraState newState, CinemachineBlendDefinition.Style blend = CinemachineBlendDefinition.Style.Cut, float blendTime = 0)
         {
-            mainCamera.GetComponent<CinemachineBrain>().m_DefaultBlend = new CinemachineBlendDefinition(blend, blendTime);
+            _cinemachineBrain.m_DefaultBlend = new CinemachineBlendDefinition(blend, blendTime);
 
             gameplayCamera.gameObject.SetActive(newState == CameraState.Gameplay);
-            cinematicCamera.gameObject.SetActive(newState == CameraState.Cinematic);
-            //dialogueCamera.gameObject.SetActive(newState == CameraState.Dialogue);
-            state = newState;
-            switch (state)
-            {
-                case CameraState.Gameplay:
-                    //target = playerTarget.lookAt;
-                    break;
-                case CameraState.Cinematic:
-                    break;
-                case CameraState.Dialogue:
-                    Debug.LogError("Dialogue Camera not implemented yet! Sorry :P");
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-        public Transform SetPlayerTarget(Transform follow, Transform lookAt, CameraTransition transition = CameraTransition.Instant, bool changeState = false)
-        {
-            playerTarget.behaviour.transition = transition;
 
+            if(cinematicCamera != null) cinematicCamera.gameObject.SetActive(newState == CameraState.Cinematic);
+            else if(newState == CameraState.Cinematic)
+            {
+                Debug.LogError("Cinematic camera is not set");
+                ChangeCameraState(CameraState.Gameplay);
+                return;
+            }
+
+            //dialogueCamera.gameObject.SetActive(newState == CameraState.Dialogue);
+
+            state = newState;
+        }
+        public Transform SetPlayerTarget(Transform follow, Transform lookAt)
+        {
             gameplayCamera.Follow = follow;
             gameplayCamera.LookAt = lookAt;
 
-            if(changeState)
+            if(!cinematicCamera)
             {
                 ChangeCameraState(CameraState.Gameplay);
-                state = CameraState.Gameplay;
+                Debug.Log("Gameplay camera is on");
             }
             return mainCamera.transform;
         }
@@ -89,6 +86,10 @@ namespace Solis.Misc.Multicam
             if(changeState)
             {
                 CinematicController.Instance.Play(0);
+            }
+            else
+            {
+                ChangeCameraState(CameraState.Gameplay);
             }
         }
 

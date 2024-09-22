@@ -27,6 +27,16 @@ namespace Solis.Settings
         [SerializeField] private SerializedDictionary<string, ArrowItems> intItems;
         [SerializeField] private SerializedDictionary<string, Slider> floatItems;
 
+        public string Username
+        {
+            get => string.IsNullOrEmpty(settingsData.username) ? "<unknown>" : settingsData.username;
+            set
+            {
+                settingsData.username = value;
+                Save();
+            }
+        }
+
 #if UNITY_EDITOR
         public bool tryLocateItems;
         public bool resetItems;        
@@ -204,18 +214,25 @@ namespace Solis.Settings
         {
             if (File.Exists(Path + "/game.config"))
             {
+                Debug.Log("Loading settings...");
                 settingsData.LoadFromJson(File.ReadAllText(Path + "/game.config"));
                 SetItems();
-            }else this.Save();
+            }else
+            {
+                Debug.Log("No settings file found, creating new one...");
+                this.Save();
+            }
         }
 
         public void Save()
         {
             if (!File.Exists(Path + "/game.config"))
             {
+                Debug.Log("Creating new settings file...");
                 File.Create(Path + "/game.config").Dispose();
                 ResetToDefault();
             }
+            Debug.Log("Saving settings...");
             File.WriteAllText(Path + "/game.config", JsonUtility.ToJson(settingsData, true));
             OnSettingsChanged?.Invoke();
             ApplySettings();
@@ -258,6 +275,8 @@ namespace Solis.Settings
 
         public void ResetToDefault()
         {
+            Debug.Log("Resetting settings to default...");
+
             //Video
             settingsData.arrowItems["resolution"] = GetScreenResolution();
             settingsData.arrowItems["graphics"] = 1;
