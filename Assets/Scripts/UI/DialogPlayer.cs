@@ -1,6 +1,8 @@
 
 using _Scripts.UI;
 using NetBuff.Components;
+using NetBuff.Misc;
+using Solis.Packets;
 using UnityEditor;
 using UnityEngine;
 
@@ -12,14 +14,30 @@ namespace UI
         private static bool InputDialog => Input.GetButtonDown("Interact");
         private static bool IsDialogPlaying => DialogPanel.Instance.index.Value != -1;
         public float radius = 2;
-        
-        private void Update()
+        protected void OnEnable()
         {
-            if (InputDialog && !IsDialogPlaying)
-                PlayDialog();
+            PacketListener.GetPacketListener<PlayerInteractPacket>().AddServerListener(OnClickDialog);
+        }
+    
+        protected void OnDisable()
+        {
+            PacketListener.GetPacketListener<PlayerInteractPacket>().RemoveServerListener(OnClickDialog);
+        }
+        
+        private bool OnClickDialog(PlayerInteractPacket arg1, int arg2)
+        {
+            var player = GetNetworkObject(arg1.Id);
+            var dist = Vector3.Distance(player.transform.position, transform.position);
+            if (dist > radius)
+                return false;
+
+            if (IsDialogPlaying) return false;
+            
+            PlayDialog();
+            return true;
         }
 
-        public void PlayDialog()
+        private void PlayDialog()
         {
             DialogPanel.Instance.PlayDialog(this);
         }
