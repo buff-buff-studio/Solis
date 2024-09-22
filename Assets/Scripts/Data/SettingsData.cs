@@ -7,6 +7,8 @@ namespace Solis.Data
     [CreateAssetMenu(fileName = "Settings", menuName = "Solis/Settings", order = 0)]
     public class SettingsData : ScriptableObject
     {
+        public string username = "<unknown>";
+
         [FormerlySerializedAs("boolItems")] 
         public SerializedDictionary<string, bool> toggleItems;
         

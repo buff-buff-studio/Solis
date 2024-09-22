@@ -234,11 +234,10 @@ GameObject:
   - component: {fileID: 7649188991032619850}
   - component: {fileID: 6554882593242580849}
   - component: {fileID: 3794171518801261429}
-  - component: {fileID: 3628028919160046738}
   m_Layer: 0
-  m_Name: Cutscene
+  m_Name: Cinematic Controller
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 2800000, guid: fadb137096240154aad2950c0255129d, type: 3}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -279,79 +278,19 @@ MonoBehaviour:
   playOnAwake: 1
   currentRoll: 0
   rolls:
-  - name: Roll ABCD
-    clip: {fileID: 7400000, guid: 35ebe8f9997d4ff4296bd6daccbe7033, type: 2}
+  - name: Start
+    clip: {fileID: 7400000, guid: 2bc4818053d0cb94fa5c4b8dc0763fb0, type: 2}
     blend: 0
     blendTime: 0
-    currentFrame: 4
+    currentFrame: 0
     framing:
-    - follow: {x: -3.809534, y: 2.4798083, z: -23.28745}
-      lookAt: {x: -11.41, y: 2.4863, z: -8.9191}
+    - follow: {x: 0, y: 0, z: 0}
+      lookAt: {x: 1, y: 1, z: 1}
       behaviour:
         movement: 0
         duration: 2
         transition: 0
         transitionDuration: 0
-      onFrameShow:
-        m_PersistentCalls:
-          m_Calls: []
-    - follow: {x: -3.3597164, y: 9.423086, z: 9.961666}
-      lookAt: {x: -11.41, y: 2.4863, z: -8.9191}
-      behaviour:
-        movement: 0
-        duration: 2
-        transition: 0
-        transitionDuration: 0
-      onFrameShow:
-        m_PersistentCalls:
-          m_Calls: []
-    - follow: {x: 6.1805677, y: 2.5609314, z: -8.04949}
-      lookAt: {x: 9.826921, y: 1.8525821, z: -12.627854}
-      behaviour:
-        movement: 0
-        duration: 2
-        transition: 0
-        transitionDuration: 0
-      onFrameShow:
-        m_PersistentCalls:
-          m_Calls: []
-    - follow: {x: -22.443165, y: 18.935867, z: -21.575476}
-      lookAt: {x: 8.856119, y: 0.24999988, z: -15.176565}
-      behaviour:
-        movement: 0
-        duration: 0
-        transition: 0
-        transitionDuration: 0
-      onFrameShow:
-        m_PersistentCalls:
-          m_Calls: []
-    - follow: {x: 0.049041152, y: 18.936176, z: -36.826904}
-      lookAt: {x: -0.0000015127035, y: 3.538959, z: -31.23}
-      behaviour:
-        movement: 4
-        duration: 0
-        transition: 1
-        transitionDuration: 3
-      onFrameShow:
-        m_PersistentCalls:
-          m_Calls: []
-    - follow: {x: 2.4335127, y: 7.547789, z: -12.670612}
-      lookAt: {x: 5.12, y: 0.25, z: 12.764999}
-      behaviour:
-        movement: 4
-        duration: 0
-        transition: 1
-        transitionDuration: 2
-      onFrameShow:
-        m_PersistentCalls:
-          m_Calls: []
-    - follow: {x: 4.288243, y: 3.4005766, z: 5.6720276}
-      lookAt: {x: 5.12, y: 0.25, z: 12.764999}
-      behaviour:
-        movement: 0
-        duration: 2
-        transition: 1
-        transitionDuration: 1.5
       onFrameShow:
         m_PersistentCalls:
           m_Calls: []
@@ -371,22 +310,3 @@ Animation:
   m_AnimatePhysics: 0
   m_UpdateMode: 0
   m_CullingType: 0
---- !u!114 &3628028919160046738
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6797712903328231602}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c9078c0bdfc4423ebfcf3a05ad72d048, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  id:
-    high: -312361049
-    low: -1986454006
-  ownerId: -1
-  prefabId:
-    high: 0
-    low: 0

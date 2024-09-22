@@ -72,6 +72,7 @@ namespace Solis.Core
                             
                             Debug.Log("Code: " + c);
                             relayCode = c;
+                            GUIUtility.systemCopyBuffer = c;
 
                             var o = FindFirstObjectByType<RelayNetworkManagerGUI>();
                             if (o != null)
