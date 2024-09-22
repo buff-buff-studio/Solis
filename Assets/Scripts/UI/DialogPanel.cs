@@ -41,6 +41,7 @@ public struct CharacterTypeAndImages
 public struct EmojisStructure
 {
     public Emojis emoji;
+    public string emojiNameDisplay;
     public string emojiNameInSpriteEditor;
     public Color textColor;
 }
@@ -57,7 +58,7 @@ namespace _Scripts.UI
         [SerializeField] private Image characterImage;
         [SerializeField] private List<CharacterTypeAndImages> characterTypesAndEmotions;
 
-        public NetworkBehaviourNetworkValue<DialogPlayer> currentDialog = new(); 
+        public NetworkBehaviourNetworkValue<DialogPlayerBase> currentDialog = new(); 
         public IntNetworkValue index;
         private CharacterTypeEmote _characterThatIsTalking;
 
@@ -78,13 +79,18 @@ namespace _Scripts.UI
             
             PacketListener.GetPacketListener<PlayerInteractPacket>().AddServerListener(OnClickDialog);
             index.OnValueChanged += UpdateDialog;
-                
+            charactersReady.OnValueChanged += UpdateText;
+
         }
         protected void OnDisable()
         {
             PacketListener.GetPacketListener<PlayerInteractPacket>().RemoveServerListener(OnClickDialog);
             index.OnValueChanged -= UpdateDialog;
+            charactersReady.OnValueChanged -= UpdateText;
         }
+
+   
+
         private void Awake()
         {
             if (_instance != null)
@@ -99,7 +105,7 @@ namespace _Scripts.UI
         #endregion
         
 
-        public void PlayDialog(DialogPlayer dialogData)
+        public void PlayDialog(DialogPlayerBase dialogData)
         {
             currentDialog.Value = dialogData;
             index.Value = 0;
@@ -109,6 +115,7 @@ namespace _Scripts.UI
         {
             if(hasSkipped.Contains(i)) return false;
             if(textWriterSingle.isWriting) return false;
+            if(!orderTextGameObject.activeSelf) return false; 
             var player = GetNetworkObject(playerInteractPacket.Id);
             
             var controller = player.GetComponent<PlayerControllerBase>();
@@ -137,7 +144,7 @@ namespace _Scripts.UI
             
             if(currentDialog == null) return false;
             Debug.Log("C");
-            if (index.Value + 1 > currentDialog.Value.currentDialog.Count - 1) 
+            if (index.Value + 1 > currentDialog.Value.currentDialog.dialogs.Count - 1) 
                 index.Value = -1;
             else
                 index.Value++;
@@ -146,16 +153,19 @@ namespace _Scripts.UI
             charactersReady.Value = 0;
             return true;
         }
+        private void UpdateText(int oldvalue, int newvalue)
+        {
+            playersText.text = charactersReady.Value + "/2";
+        }
 
         public void UpdateDialog(int oldValue, int newValue)
         {
             if (newValue == -1) ClosePanel();
             else
             {
-                playersText.text = charactersReady.Value + "/2";
                 pauseManager.Pause();
-                _characterThatIsTalking = currentDialog.Value.currentDialog[index.Value].characterType.characterType;
-                TypeWriteText(currentDialog.Value.currentDialog[index.Value], () => nextImage.SetActive(true));
+                _characterThatIsTalking = currentDialog.Value.currentDialog.dialogs[index.Value].characterType.characterType;
+                TypeWriteText(currentDialog.Value.currentDialog.dialogs[index.Value], () => nextImage.SetActive(true));
             }
         }
         
@@ -173,7 +183,7 @@ namespace _Scripts.UI
             nextImage.SetActive(false);
         }
 
-        private void TypeWriteText(DialogData dialogData, Action callback)
+        private void TypeWriteText(DialogStruct dialogData, Action callback)
         {
             characterImage.gameObject.SetActive(false);
             EnterImage(dialogData.characterType);

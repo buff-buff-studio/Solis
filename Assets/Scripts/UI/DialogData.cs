@@ -56,9 +56,8 @@ namespace UI
         public CharacterTypeEmote characterType;
         public Emotion emotion;
     }
-    
-    [CreateAssetMenu(fileName = "Dialog", menuName = "Solis/Game/Dialog")]
-    public class DialogData : ScriptableObject
+    [Serializable]
+    public class DialogStruct
     {
         public CharacterAndEmotion characterType;
         
@@ -67,7 +66,7 @@ namespace UI
         public string textValue;
         public Emojis[] emojis;
         private List<string> _instancedValues;
-
+        
         public string GetFormattedString()
         {
             _instancedValues = new List<string>();
@@ -75,30 +74,23 @@ namespace UI
             for (int i = 0; i < emojis.Length; i++)
             {
                 EmojisStructure emojisStructure = DialogPanel.Instance.emojisStructure.First(c => c.emoji == emojis[i]);
-                var field = emojis[i].ToString();
+                var field = emojisStructure.emojiNameDisplay;
                 string value = $"<sprite name=\"{emojisStructure.emojiNameInSpriteEditor}\"> <color=#{emojisStructure.textColor.ToHexString()}>{field}</color>";
                 _instancedValues.Add(value);
             }
 
             return string.Format(textValue, _instancedValues.ToArray());
         }
-
-        private string GetValue(FieldInfo field)
-        {
-            object obj = null;
-            string value = "N/A";
-                    
-           // if(GameManager.instance) obj = field.GetValue(GameManager.instance.test);
-            if (obj != null)
-            {
-                value = obj.ToString();
-            }
-
-            return value;
-        }
+    }
+    
+    [CreateAssetMenu(fileName = "Dialog", menuName = "Solis/Game/Dialog")]
+    public class DialogData : ScriptableObject
+    {
+        public List<DialogStruct> dialogs;
     }
 }
 
+/*
 #if UNITY_EDITOR
 
 [CustomPropertyDrawer(typeof(DialogData), true)]
@@ -111,32 +103,26 @@ public class DialogDataDrawer : PropertyDrawer
         EditorGUI.BeginProperty(position, label, property);
         SerializedObject serializedObject = new SerializedObject(property.objectReferenceValue);
         serializedObject.Update();
-      // Desenha o campo 'characterType'
-      
-        // Desenha o campo de referência ao ScriptableObject
+
         position.height = EditorGUIUtility.singleLineHeight;
         EditorGUI.PropertyField(position, property, label);
 
         if (property.objectReferenceValue != null)
         {
-            // Adiciona um espaço para o toggle logo abaixo da propriedade do ScriptableObject
             position.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
-
-            // Desenha o toggle para expandir/recolher
+            
             _foldout = EditorGUI.Foldout(position, _foldout, "Details", true);
 
             if (_foldout)
             {
            
                 position.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
-
-                // Desenha o campo de texto 'textValue'
+                
                 SerializedProperty textValueProperty = serializedObject.FindProperty("textValue");
                 position.height = EditorGUI.GetPropertyHeight(textValueProperty);
                 EditorGUI.PropertyField(position, textValueProperty, new GUIContent("Text Value"));
                 position.y += position.height + EditorGUIUtility.standardVerticalSpacing;
-
-                // Desenha o array de Enums 'Emojis'
+                
                 SerializedProperty emojisProperty = serializedObject.FindProperty("emojis");
                 DrawEmojisArray(position, emojisProperty);
 
@@ -158,20 +144,17 @@ public class DialogDataDrawer : PropertyDrawer
     {
         if (property.isArray)
         {
-            // Calcula a largura do campo de rótulo e campo de edição
-            float labelWidth = 40f; // Reduz o tamanho do rótulo
+            float labelWidth = 40f; 
             float fieldWidth = position.width - labelWidth;
 
             Rect labelRect = new Rect(position.x, position.y, labelWidth, EditorGUIUtility.singleLineHeight);
             Rect fieldRect = new Rect(position.x + labelWidth, position.y, fieldWidth, EditorGUIUtility.singleLineHeight);
-
-            // Desenha o tamanho do array
+            
             EditorGUI.LabelField(labelRect, "Size");
             EditorGUI.PropertyField(fieldRect, property.FindPropertyRelative("Array.size"), GUIContent.none);
 
             position.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
-
-            // Desenha cada elemento do array
+            
             for (int i = 0; i < property.arraySize; i++)
             {
                 SerializedProperty emojiElement = property.GetArrayElementAtIndex(i);
@@ -188,7 +171,6 @@ public class DialogDataDrawer : PropertyDrawer
 
         if (property.objectReferenceValue != null)
         {
-            // Adiciona espaço para o toggle
             height += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
 
             if (_foldout)
@@ -209,4 +191,4 @@ public class DialogDataDrawer : PropertyDrawer
         return height;
     }
 }
-#endif
+#endif*/
