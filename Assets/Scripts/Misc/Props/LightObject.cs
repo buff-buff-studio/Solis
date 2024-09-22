@@ -221,7 +221,7 @@ namespace Solis.Misc.Props
         private static readonly Collider[] _objects = new Collider[10];
         private void CheckIfThereIsPlace()
         {
-            var count = Physics.OverlapBoxNonAlloc(transform.position, new Vector3(0.3f, 0.3f, 0.3f), _objects,
+            var count = Physics.OverlapBoxNonAlloc(transform.position, new Vector3(0.35f, 0.35f, 0.35f), _objects,
                 Quaternion.identity);
             foreach (var o in _objects)
             {

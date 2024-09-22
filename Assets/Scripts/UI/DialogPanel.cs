@@ -109,6 +109,7 @@ namespace _Scripts.UI
         {
             if(hasSkipped.Contains(i)) return false;
             if(textWriterSingle.isWriting) return false;
+            if(!orderTextGameObject.activeSelf) return false; 
             var player = GetNetworkObject(playerInteractPacket.Id);
             
             var controller = player.GetComponent<PlayerControllerBase>();
