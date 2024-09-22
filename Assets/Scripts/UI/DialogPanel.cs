@@ -41,6 +41,7 @@ public struct CharacterTypeAndImages
 public struct EmojisStructure
 {
     public Emojis emoji;
+    public string emojiNameDisplay;
     public string emojiNameInSpriteEditor;
     public Color textColor;
 }
@@ -78,13 +79,18 @@ namespace _Scripts.UI
             
             PacketListener.GetPacketListener<PlayerInteractPacket>().AddServerListener(OnClickDialog);
             index.OnValueChanged += UpdateDialog;
-                
+            charactersReady.OnValueChanged += UpdateText;
+
         }
         protected void OnDisable()
         {
             PacketListener.GetPacketListener<PlayerInteractPacket>().RemoveServerListener(OnClickDialog);
             index.OnValueChanged -= UpdateDialog;
+            charactersReady.OnValueChanged -= UpdateText;
         }
+
+   
+
         private void Awake()
         {
             if (_instance != null)
@@ -147,13 +153,16 @@ namespace _Scripts.UI
             charactersReady.Value = 0;
             return true;
         }
+        private void UpdateText(int oldvalue, int newvalue)
+        {
+            playersText.text = charactersReady.Value + "/2";
+        }
 
         public void UpdateDialog(int oldValue, int newValue)
         {
             if (newValue == -1) ClosePanel();
             else
             {
-                playersText.text = charactersReady.Value + "/2";
                 pauseManager.Pause();
                 _characterThatIsTalking = currentDialog.Value.currentDialog.dialogs[index.Value].characterType.characterType;
                 TypeWriteText(currentDialog.Value.currentDialog.dialogs[index.Value], () => nextImage.SetActive(true));

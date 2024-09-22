@@ -74,7 +74,7 @@ namespace UI
             for (int i = 0; i < emojis.Length; i++)
             {
                 EmojisStructure emojisStructure = DialogPanel.Instance.emojisStructure.First(c => c.emoji == emojis[i]);
-                var field = emojis[i].ToString();
+                var field = emojisStructure.emojiNameDisplay;
                 string value = $"<sprite name=\"{emojisStructure.emojiNameInSpriteEditor}\"> <color=#{emojisStructure.textColor.ToHexString()}>{field}</color>";
                 _instancedValues.Add(value);
             }
