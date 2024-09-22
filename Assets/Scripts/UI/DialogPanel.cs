@@ -57,7 +57,7 @@ namespace _Scripts.UI
         [SerializeField] private Image characterImage;
         [SerializeField] private List<CharacterTypeAndImages> characterTypesAndEmotions;
 
-        public NetworkBehaviourNetworkValue<DialogPlayer> currentDialog = new(); 
+        public NetworkBehaviourNetworkValue<DialogPlayerBase> currentDialog = new(); 
         public IntNetworkValue index;
         private CharacterTypeEmote _characterThatIsTalking;
 
@@ -99,7 +99,7 @@ namespace _Scripts.UI
         #endregion
         
 
-        public void PlayDialog(DialogPlayer dialogData)
+        public void PlayDialog(DialogPlayerBase dialogData)
         {
             currentDialog.Value = dialogData;
             index.Value = 0;
