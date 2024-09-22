@@ -217,7 +217,11 @@ namespace Solis.Settings
                 Debug.Log("Loading settings...");
                 settingsData.LoadFromJson(File.ReadAllText(Path + "/game.config"));
                 SetItems();
-            }else this.Save();
+            }else
+            {
+                Debug.Log("No settings file found, creating new one...");
+                this.Save();
+            }
         }
 
         public void Save()
