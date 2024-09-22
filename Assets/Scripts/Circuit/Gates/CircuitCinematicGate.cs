@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using NetBuff.Misc;
 using Solis.Misc.Multicam;
-using UnityEditor.SceneManagement;
 using UnityEngine;
 
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.Events;
+using UnityEditor.SceneManagement;
 #endif
 
 namespace Solis.Circuit.Gates

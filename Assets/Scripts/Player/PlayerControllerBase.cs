@@ -1,11 +1,13 @@
 using System;
 using System.Threading.Tasks;
 using Cinemachine;
+using NetBuff;
 using NetBuff.Components;
 using NetBuff.Interface;
 using NetBuff.Misc;
 using Solis.Audio;
 using Solis.Circuit.Components;
+using Solis.Core;
 using Solis.Data;
 using Solis.Misc;
 using Solis.Misc.Multicam;
@@ -71,9 +73,12 @@ namespace Solis.Player
         [Header("STATE")]
         public State state;
         public Vector3 velocity;
+        public BoolNetworkValue isRespawning = new(false);
+        public BoolNetworkValue isPaused = new(false);
         
         [Header("NETWORK")]
         public int tickRate = 50;
+        public StringNetworkValue username = new("Default");
 
         [Header("MAGNETIZED")]
         public Vector3 magnetReferenceLocalPosition = new Vector3(0, 2, 0);
@@ -110,9 +115,6 @@ namespace Solis.Player
         private bool _isFalling;
         
         private bool _isCinematicRunning = true;
-
-        public BoolNetworkValue _isRespawning = new(false);
-        public BoolNetworkValue _isPaused = new(false);
 
         private float _respawnTimer;
         private float _interactTimer;
@@ -173,11 +175,11 @@ namespace Solis.Player
         private Vector2 MoveInput => new(InputX, InputZ);
         private bool InputJump => Input.GetButtonDown("Jump");
         private bool InputJumpUp => Input.GetButtonUp("Jump");
-        private bool CanJump => !_isJumping && (IsGrounded || _coyoteTimer > 0) && _jumpTimer <= 0 && !_isPaused.Value;
+        private bool CanJump => !_isJumping && (IsGrounded || _coyoteTimer > 0) && _jumpTimer <= 0 && !isPaused.Value;
 
         private bool CanJumpCut =>
             _isJumping && (transform.position.y - _startJumpPos) >= JumpCutMinHeight;
-        private bool IsPlayerLocked => _isCinematicRunning || _isRespawning.Value;
+        private bool IsPlayerLocked => _isCinematicRunning || isRespawning.Value;
         private Vector3 HeadOffset => headOffset.position;
         #endregion
 
@@ -185,10 +187,9 @@ namespace Solis.Player
 
         public void OnEnable()
         {
-
-            WithValues(_isRespawning, _isPaused);
-            _isRespawning.OnValueChanged += _OnRespawningChanged;
-            _isPaused.OnValueChanged += OnPausedChanged;
+            WithValues(isRespawning, isPaused, username);
+            isRespawning.OnValueChanged += _OnRespawningChanged;
+            isPaused.OnValueChanged += OnPausedChanged;
 
             PauseManager.OnPause += _OnPause;
 
@@ -402,6 +403,7 @@ namespace Solis.Player
                 return;
 
             _camera = MulticamCamera.Instance.SetPlayerTarget(transform, lookAt);
+            username.Value = NetworkManager.Instance.Name;
         }
         
         public override void OnServerReceivePacket(IOwnedPacket packet, int clientId)
@@ -428,7 +430,7 @@ namespace Solis.Player
                     _remoteBodyPosition = bodyLerpPacket.BodyPosition;
                     break;
                 case PlayerDeathPacket deathPacket:
-                    if (deathPacket.Id == Id && !_isRespawning.Value)
+                    if (deathPacket.Id == Id && !isRespawning.Value)
                         PlayerDeath(deathPacket.Type);
                     break;
             }
@@ -443,12 +445,12 @@ namespace Solis.Player
             _interactTimer = _interactTimer > 0 ? _interactTimer - deltaTime : 0;
             if (_respawnTimer <= 0)
             {
-                _isRespawning.Value = false;
+                isRespawning.Value = false;
                 _respawnTimer = RespawnCooldown;
             }
             else
             {
-                _respawnTimer = _isRespawning.Value ? _respawnTimer - deltaTime : RespawnCooldown;
+                _respawnTimer = isRespawning.Value ? _respawnTimer - deltaTime : RespawnCooldown;
             }
             
             if(IsGrounded) _jumpTimer -= deltaTime;
@@ -456,9 +458,9 @@ namespace Solis.Player
 
         private void _OnPause(bool isPaused)
         {
-            if (!_isPaused.CheckPermission()) return;
+            if (!this.isPaused.CheckPermission()) return;
             Debug.Log(gameObject.name + " is paused: " + isPaused);
-            _isPaused.Value = isPaused;
+            this.isPaused.Value = isPaused;
         }
 
         private void _Interact()
@@ -483,7 +485,7 @@ namespace Solis.Player
 
         private void _Move()
         {
-            var moveInput = !_isPaused.Value ? MoveInput.normalized : Vector2.zero;
+            var moveInput = !isPaused.Value ? MoveInput.normalized : Vector2.zero;
             var maxSpeedTarget = _inJumpState ? MaxSpeed * AccelInJumpMultiplier : MaxSpeed;
             var target = moveInput * maxSpeedTarget;
             var accelOrDecel = (Mathf.Abs(moveInput.magnitude) > 0.01f);
@@ -633,7 +635,7 @@ namespace Solis.Player
         private void _Respawn()
         {
             if (HasAuthority && IsOwnedByClient)
-                _isRespawning.Value = true;
+                isRespawning.Value = true;
 
             transform.position = _lastSafePosition + Vector3.up;
             velocity = Vector3.zero;

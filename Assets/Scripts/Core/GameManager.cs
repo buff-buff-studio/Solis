@@ -383,6 +383,7 @@ namespace Solis.Core
                     : (IsOnLobby ? playerRobotLobbyPrefab : playerRobotGamePrefab);
                 
                 Spawn(prefab, spawnPos, Quaternion.identity, Vector3.one, true, clientId);
+
                 #endregion
             }
         }

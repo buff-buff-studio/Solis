@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using Cinemachine;
-using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 #if UNITY_EDITOR
 using UnityEditor;
+using UnityEditor.SceneManagement;
 #endif
 
 namespace Solis.Misc.Multicam
