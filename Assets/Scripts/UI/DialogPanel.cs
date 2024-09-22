@@ -53,6 +53,9 @@ namespace _Scripts.UI
     {
         private static DialogPanel _instance;
         public static DialogPanel Instance => _instance ? _instance : FindFirstObjectByType<DialogPanel>();
+
+        public static bool IsDialogPlaying;
+
         public TextScaler textWriterSingle;
         [SerializeField]private GameObject orderTextGameObject;
         [SerializeField] private Image characterImage;
@@ -63,8 +66,7 @@ namespace _Scripts.UI
         private CharacterTypeEmote _characterThatIsTalking;
 
         public List<EmojisStructure> emojisStructure = new List<EmojisStructure>();
-   
-        [SerializeField]private PauseManager pauseManager;
+
         public IntNetworkValue charactersReady;
         [SerializeField]private List<int> hasSkipped = new List<int>();
         [SerializeField] private GameObject nextImage;
@@ -127,7 +129,11 @@ namespace _Scripts.UI
                 hasSkipped.Add(i);
                 charactersReady.Value++;
                 playersText.text = charactersReady.Value + "/2";
+#if UNITY_EDITOR
+                if (hasSkipped.Count == 0) return true;
+#else
                 if (hasSkipped.Count != 2) return true;
+#endif
             }
             
             /*else
@@ -163,7 +169,7 @@ namespace _Scripts.UI
             if (newValue == -1) ClosePanel();
             else
             {
-                pauseManager.Pause();
+                IsDialogPlaying = true;
                 _characterThatIsTalking = currentDialog.Value.currentDialog.dialogs[index.Value].characterType.characterType;
                 TypeWriteText(currentDialog.Value.currentDialog.dialogs[index.Value], () => nextImage.SetActive(true));
             }
@@ -178,7 +184,7 @@ namespace _Scripts.UI
                 hasSkipped.Clear();
             }
          
-            pauseManager.Resume();
+            IsDialogPlaying = false;
             orderTextGameObject.SetActive(false);
             nextImage.SetActive(false);
         }

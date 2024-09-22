@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using _Scripts.UI;
 using Cinemachine;
 using NetBuff;
 using NetBuff.Components;
@@ -179,7 +180,7 @@ namespace Solis.Player
 
         private bool CanJumpCut =>
             _isJumping && (transform.position.y - _startJumpPos) >= JumpCutMinHeight;
-        private bool IsPlayerLocked => _isCinematicRunning || isRespawning.Value;
+        private bool IsPlayerLocked => _isCinematicRunning || isRespawning.Value || DialogPanel.IsDialogPlaying;
         private Vector3 HeadOffset => headOffset.position;
         #endregion
 
@@ -232,7 +233,13 @@ namespace Solis.Player
 
             _Timer();
 
-            if(IsPlayerLocked) return;
+            if(IsPlayerLocked)
+            {
+                //TODO::Remover ao trocar interação 'E' para 'Enter'
+                if(DialogPanel.IsDialogPlaying)
+                    _Interact();
+                return;
+            }
 
             switch (state)
             {
