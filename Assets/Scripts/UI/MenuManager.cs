@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Solis.Audio;
+using Solis.Misc.Integrations;
 using TMPro;
 using UnityEngine;
 
@@ -20,6 +21,12 @@ namespace Solis.UI
             camTarget.position = camMainMenu.position;
 
             onChangeWindow += ChangeCameraTarget;
+        }
+
+        protected override void Start()
+        {
+            base.Start();
+            DiscordController.Instance!.SetMenuActivity();
         }
 
         private void ChangeCameraTarget(int index)

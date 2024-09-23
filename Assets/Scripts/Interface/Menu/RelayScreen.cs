@@ -1,5 +1,6 @@
 using System;
 using Solis.Core;
+using Solis.Misc.Integrations;
 using Solis.Settings;
 using TMPro;
 using Unity.Services.Authentication;
@@ -51,14 +52,22 @@ namespace Interface
                 inputFieldUsername.text = settingsManager.Username;
             else
             {
+                if (DiscordController.IsConnected &&
+                    !string.IsNullOrEmpty(DiscordController.Username))
+                {
+                    inputFieldUsername.text = DiscordController.Username;
+                }
+                else
+                {
 #if PLATFORM_STANDALONE_WIN
-                inputFieldUsername.text = System.Environment.UserName;
+                    inputFieldUsername.text = System.Environment.UserName;
 #else
-            inputFieldUsername.text = SystemInfo.deviceName;
+                    inputFieldUsername.text = SystemInfo.deviceName;
 #endif
-                if (string.IsNullOrEmpty(inputFieldUsername.text) ||
-                    string.IsNullOrWhiteSpace(inputFieldUsername.text) || inputFieldUsername.text == "<unknown>")
-                    inputFieldUsername.text = $"Player {UnityEngine.Random.Range(0, 1000)}";
+                    if (string.IsNullOrEmpty(inputFieldUsername.text) ||
+                        string.IsNullOrWhiteSpace(inputFieldUsername.text) || inputFieldUsername.text == "<unknown>")
+                        inputFieldUsername.text = $"Player {UnityEngine.Random.Range(0, 1000)}";
+                }
 
                 if (inputFieldUsername.text.Length < 4)
                     for (var i = 0; i < 4 - inputFieldUsername.text.Length; i++)

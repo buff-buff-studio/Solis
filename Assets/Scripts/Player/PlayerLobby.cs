@@ -1,10 +1,13 @@
-﻿using NetBuff.Components;
+﻿using System;
+using NetBuff.Components;
 using NetBuff.Interface;
 using NetBuff.Misc;
 using Solis.Core;
 using UnityEngine;
 using Solis.Data;
+using Solis.Misc.Integrations;
 using Solis.Packets;
+using Random = UnityEngine.Random;
 
 namespace Solis.Player
 {
@@ -67,6 +70,14 @@ namespace Solis.Player
         #endregion
         
         #region Network Callbacks
+
+        public override void OnSpawned(bool isRetroactive)
+        {
+            base.OnSpawned(isRetroactive);
+            DiscordController.LobbyStartTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            DiscordController.Instance!.SetGameActivity(characterType);
+        }
+
         public override void OnServerReceivePacket(IOwnedPacket packet, int clientId)
         {
             if (packet is LobbyPlayerActionPacket actionPacket)
@@ -78,6 +89,8 @@ namespace Solis.Player
                             characterType == CharacterType.Human
                                 ? CharacterType.Robot
                                 : CharacterType.Human);
+
+                        DiscordController.Instance!.SetGameActivity(characterType);
                         break;
                 }
             }
