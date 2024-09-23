@@ -14,7 +14,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a90966476ac91a747aa645b65d28f351, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 0.15
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a90966476ac91a747aa645b65d28f351, type: 3}
       propertyPath: m_LocalPosition.z
@@ -71,6 +71,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: a90966476ac91a747aa645b65d28f351, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2854506346593808109}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: a90966476ac91a747aa645b65d28f351, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8628290342550792868}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: a90966476ac91a747aa645b65d28f351, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8212326669937893778}
   m_SourcePrefab: {fileID: 100100000, guid: a90966476ac91a747aa645b65d28f351, type: 3}
 --- !u!1 &222853025949960309 stripped
 GameObject:
@@ -182,3 +188,37 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 3.1268592, y: 1.2664399, z: 0.6067685}
   m_Center: {x: -0.35097814, y: -2.0428646, z: -2.085182}
+--- !u!95 &8628290342550792868
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 222853025949960309}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: e2715bf9be202084dba1d4505da55b6e, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 1
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &8212326669937893778
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 222853025949960309}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4fde7cfff3009794abdd2a288bfd6172, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
