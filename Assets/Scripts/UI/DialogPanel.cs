@@ -20,9 +20,9 @@ public enum Emotion
 }
 public enum CharacterTypeEmote
 {
-    Human = 0,
-    Robot = 1,
-    Frog = 2,
+    Nina = 0,
+    RAM = 1,
+    Diluvio = 2,
     None = 3
 }
 [Serializable]
@@ -59,6 +59,7 @@ namespace _Scripts.UI
         public TextScaler textWriterSingle;
         [SerializeField]private GameObject orderTextGameObject;
         [SerializeField] private Image characterImage;
+        [SerializeField] private TMP_Text characterName;
         [SerializeField] private List<CharacterTypeAndImages> characterTypesAndEmotions;
 
         public NetworkBehaviourNetworkValue<DialogPlayerBase> currentDialog = new(); 
@@ -192,6 +193,7 @@ namespace _Scripts.UI
             var choosed = characterTypesAndEmotions.FirstOrDefault(c => c.characterType == characterType.characterType);
             var sprite = choosed.emotesAndImages.FirstOrDefault(c => c.emotion == characterType.emotion).image;
             characterImage.sprite = sprite;
+            characterName.text = characterType.characterType.ToString();
         }
     }
 }
