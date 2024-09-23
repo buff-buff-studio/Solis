@@ -235,9 +235,9 @@ namespace Solis.Player
 
             if(IsPlayerLocked)
             {
-                //TODO::Remover ao trocar interação 'E' para 'Enter'
                 if(DialogPanel.IsDialogPlaying)
-                    _Interact();
+                    if(Input.GetKeyDown(KeyCode.Return))
+                        SendPacket(new PlayerInputPackage { Key = KeyCode.Return, Id = Id, CharacterType = this.CharacterType}, true);
                 return;
             }
 
