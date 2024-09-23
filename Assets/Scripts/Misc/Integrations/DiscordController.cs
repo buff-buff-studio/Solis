@@ -1,10 +1,7 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using Discord;
-using Solis.Core;
 using Solis.Data;
+using UnityEngine;
 
 namespace Solis.Misc.Integrations
 {
@@ -15,12 +12,12 @@ namespace Solis.Misc.Integrations
     {
         private static readonly long CLIENT_ID = 1287743540322897920;
 
-        public static DiscordController Instance { get; private set; }
+        public static DiscordController Instance;
         public static long LobbyStartTimestamp;
-        public static CharacterType CharacterType;
-        public static string RelayCode;
+        public static bool IsConnected;
+        public static string Username;
 
-        private Discord.Discord _discord;
+        public Discord.Discord Discord;
 
         private void Awake()
         {
@@ -28,46 +25,17 @@ namespace Solis.Misc.Integrations
             {
                 Destroy(gameObject);
                 return;
-            }
+            }else Instance = this;
 
-            Instance = this;
             DontDestroyOnLoad(gameObject);
         }
 
         private void Start()
         {
-            //_discord = new Discord.Discord(CLIENT_ID, (ulong) CreateFlags.NoRequireDiscord);
-            SetMenuActivity();
-        }
+            Debug.Log("Starting Discord Rich Presence");
 
-        private void Update()
-        {
-            //_discord.RunCallbacks();
-        }
-
-        private void OnApplicationQuit()
-        {
-            //_discord.Dispose();
-        }
-
-        public void UpdateActivity(Activity activity)
-        {
-            var activityManager = _discord.GetActivityManager();
-            activityManager.UpdateActivity(activity, result =>
-            {
-                if (result != Result.Ok)
-                {
-                    Debug.LogError("Failed to update Discord activity: " + result);
-                }else
-                {
-                    Debug.Log("Discord activity updated successfully.");
-                }
-            });
-        }
-
-        public void SetMenuActivity()
-        {
-            return;
+            Discord = new Discord.Discord(CLIENT_ID, (UInt64)CreateFlags.NoRequireDiscord);
+            var activityManager = Discord.GetActivityManager();
             var activity = new Activity
             {
                 Details = "Playing Solis",
@@ -79,45 +47,98 @@ namespace Solis.Misc.Integrations
                 }
             };
 
-            UpdateActivity(activity);
+            activityManager.UpdateActivity(activity, result =>
+            {
+                if (result == Result.Ok)
+                {
+                    Debug.Log("Discord Rich Presence updated successfully");
+                    IsConnected = true;
+                    Discord.GetUserManager().OnCurrentUserUpdate += () =>
+                    {
+                        var user = Discord.GetUserManager().GetCurrentUser();
+                        Username = user.Username;
+                    };
+                }
+                else
+                {
+                    Debug.LogError("Failed to update Discord Rich Presence");
+                    IsConnected = false;
+                    this.enabled = false;
+                }
+            });
         }
 
-        public void SetLobbyActivity(int playersCount)
+        private void Update()
         {
-            return;
+            if(!IsConnected) return;
+            Discord.RunCallbacks();
+        }
+
+        private void OnApplicationQuit()
+        {
+            if(!IsConnected) return;
+            Discord.Dispose();
+        }
+
+        public void SetGameActivity(CharacterType characterType, bool inLobby = true)
+        {
+            if(!IsConnected) return;
+
+            var activityManager = Discord.GetActivityManager();
             var activity = new Activity
             {
                 ApplicationId = CLIENT_ID,
                 Name = "Solis",
                 Details = "Playing Solis",
-                State = "In Lobby",
+                State = inLobby ? "In Lobby" : "In Game",
                 Assets =
                 {
                     LargeImage = "solis_logo",
                     LargeText = "*uebeti*",
-                    SmallImage = CharacterType == CharacterType.Human ? "nina_icon" : "ram_icon",
-                    SmallText = CharacterType == CharacterType.Human ? "Nina" : "RAM"
+                    SmallImage = characterType == CharacterType.Human ? "nina_icon" : "ram_icon",
+                    SmallText = characterType == CharacterType.Human ? "Nina" : "RAM"
                 },
                 Timestamps =
                 {
                     Start = LobbyStartTimestamp
-                },
-                Party =
-                {
-                    Size =
-                    {
-                        CurrentSize = playersCount,
-                        MaxSize = 2
-                    },
-                    Id = "SolisNetworkManager.Instance.LocalClientIds[0].ToString()"
-                },
-                Secrets =
-                {
-                    Join = RelayCode
                 }
             };
 
-            UpdateActivity(activity);
+
+            activityManager.UpdateActivity(activity, result =>
+            {
+                if (result == Result.Ok)
+                    Debug.Log("Discord Rich Presence updated successfully");
+                else
+                    Debug.LogError("Failed to update Discord Rich Presence");
+            });
+        }
+
+        public void SetMenuActivity()
+        {
+            if(!IsConnected) return;
+
+            var activityManager = Discord.GetActivityManager();
+            var activity = new Activity
+            {
+                ApplicationId = CLIENT_ID,
+                Name = "Solis",
+                Details = "Playing Solis",
+                State = "In Menu",
+                Assets =
+                {
+                    LargeImage = "solis_logo",
+                    LargeText = "Solis"
+                }
+            };
+
+            activityManager.UpdateActivity(activity, result =>
+            {
+                if (result == Result.Ok)
+                    Debug.Log("Discord Rich Presence updated successfully");
+                else
+                    Debug.LogError("Failed to update Discord Rich Presence");
+            });
         }
     }
 }
