@@ -79,14 +79,14 @@ namespace _Scripts.UI
         {
             WithValues(charactersReady,index, currentDialog);
             
-            PacketListener.GetPacketListener<PlayerInteractPacket>().AddServerListener(OnClickDialog);
+            PacketListener.GetPacketListener<PlayerInputPackage>().AddServerListener(OnClickDialog);
             index.OnValueChanged += UpdateDialog;
             charactersReady.OnValueChanged += UpdateText;
 
         }
         protected void OnDisable()
         {
-            PacketListener.GetPacketListener<PlayerInteractPacket>().RemoveServerListener(OnClickDialog);
+            PacketListener.GetPacketListener<PlayerInputPackage>().RemoveServerListener(OnClickDialog);
             index.OnValueChanged -= UpdateDialog;
             charactersReady.OnValueChanged -= UpdateText;
         }
@@ -113,12 +113,13 @@ namespace _Scripts.UI
             index.Value = 0;
         }
 
-        public bool OnClickDialog(PlayerInteractPacket playerInteractPacket, int i)
+        public bool OnClickDialog(PlayerInputPackage playerInputPackage, int i)
         {
+            if(playerInputPackage.Key != KeyCode.Return) return false;
             if(hasSkipped.Contains(i)) return false;
             if(textWriterSingle.isWriting) return false;
             if(!orderTextGameObject.activeSelf) return false; 
-            var player = GetNetworkObject(playerInteractPacket.Id);
+            var player = GetNetworkObject(playerInputPackage.Id);
             
             var controller = player.GetComponent<PlayerControllerBase>();
             if (controller == null)
@@ -135,18 +136,6 @@ namespace _Scripts.UI
                 if (hasSkipped.Count != 2) return true;
 #endif
             }
-            
-            /*else
-            {
-                Debug.Log("B");
-                Debug.Log(_characterThatIsTalking.ToString());
-                Debug.Log(controller.CharacterType.ToString());
-                if ((int)_characterThatIsTalking != (int)controller.CharacterType)
-                {
-                    Debug.Log("NO!");
-                    return true;
-                }
-            }*/
             
             if(currentDialog == null) return false;
             Debug.Log("C");

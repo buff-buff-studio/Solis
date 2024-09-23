@@ -9,7 +9,7 @@ namespace Solis.Packets
     /// <summary>
     /// Used to notify clients that a player has performed an input.
     /// </summary>
-    public class PlayerInputPackage : IOwnedPacket
+    public class PlayerInputPackage : IPacket
     {
         public KeyCode Key { get; set; }
         public NetworkId Id { get; set; }
