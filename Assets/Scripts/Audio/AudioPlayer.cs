@@ -41,6 +41,11 @@ namespace Solis.Audio
         public AudioSystem AudioSystem { get; private set; }
         
         /// <summary>
+        /// Callback when the audio player ends. Not called if the audio player is looping
+        /// </summary>
+        public Action OnEnd { get; set; }
+        
+        /// <summary>
         /// Current volume of the audio player
         /// </summary>
         public float Volume { get; private set; }
@@ -227,8 +232,8 @@ namespace Solis.Audio
             Time += deltaTime;
             var t = Mathf.Clamp01(Time / Duration);
             
-            From.AudioSource.volume = From.Volume * (1 - t);
-            To.AudioSource.volume = To.Volume * t;
+            From.AudioSource.volume = (1 - t);
+            To.AudioSource.volume = t;
 
             if (Time < Duration)
                 return false;

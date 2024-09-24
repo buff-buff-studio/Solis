@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &6766466590431064564
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6793043067834714269}
+  - component: {fileID: 4412385318335924691}
+  m_Layer: 0
+  m_Name: Audio System
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6793043067834714269
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6766466590431064564}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.5085045, y: -1.2927535, z: 1.0971107}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4412385318335924691
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6766466590431064564}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7f54dfe2a1440b383afbc23c0e0e15d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  audioPalettes:
+  - {fileID: 11400000, guid: 83fd524415b7df04a9cab0907207b784, type: 2}
+  - {fileID: 11400000, guid: c4e408f0c9cf6a746bfdf2e8d9216eaa, type: 2}
+  - {fileID: 11400000, guid: 9eda72dc823bced46b7ba2f66eb9decd, type: 2}
+  vfxMixer: {fileID: -7306773176805621161, guid: d5b34f01b0f1a1f4f925566a767dde18, type: 2}
+  musicMixer: {fileID: -188614716448155631, guid: d5b34f01b0f1a1f4f925566a767dde18, type: 2}
+  masterMixer: {fileID: 24300002, guid: d5b34f01b0f1a1f4f925566a767dde18, type: 2}
+  characterMixer: {fileID: 1361025504333159861, guid: d5b34f01b0f1a1f4f925566a767dde18, type: 2}
+  audioSourcePoolSize: 10
+  settingData: {fileID: 11400000, guid: 377e864256ff2ef4cbbf550619a3cf11, type: 2}
+  freeAudioSources: []
+  audioPlayers: []
+  musicTransitions: []

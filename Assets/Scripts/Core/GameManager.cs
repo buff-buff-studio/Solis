@@ -4,6 +4,7 @@ using NetBuff;
 using NetBuff.Components;
 using NetBuff.Misc;
 using NetBuff.Relays;
+using Solis.Audio.Players;
 using Solis.Player;
 using Solis.Data;
 using Solis.Data.Saves;
@@ -45,6 +46,9 @@ namespace Solis.Core
 
         [Header("SETTINGS")]
         public string[] persistentScenes = { "Core" };
+        
+        public SolisMusicPlayer lobbyMusic;
+        public SolisMusicPlayer gameMusic;
         #endregion
 
         #region Private Fields
@@ -438,10 +442,14 @@ namespace Solis.Core
 
         public override void OnSceneLoaded(int sceneId)
         {
+            Debug.Log("Scene loaded: " + sceneId);
             copyCode.gameObject.SetActive(IsOnLobby);
             leaveGame.gameObject.SetActive(!IsOnLobby);
             restartLevel.gameObject.SetActive(!IsOnLobby && IsServer);
             LoadingLobby(IsOnLobby || isGameStarted);
+            
+            lobbyMusic.gameObject.SetActive(IsOnLobby);
+            gameMusic.gameObject.SetActive(!IsOnLobby);
         }
         
         public void ButtonLeaveGame()

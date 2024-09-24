@@ -518,7 +518,7 @@ namespace Solis.Player
                 _multiplier = JumpGravityMultiplier;
                 _jumpTimer = TimeToJump;
                 jumpParticles.Play();
-                AudioSystem.Instance.PlayCharacter("Jump");
+                AudioSystem.Instance.PlayVfx("Jump").At(transform.position);
             }
 
             if(InputJumpUp && !_isJumpingEnd)

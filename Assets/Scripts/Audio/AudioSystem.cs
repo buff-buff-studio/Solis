@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Solis.Data;
 using Solis.Settings;
-using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Audio;
-using UnityEngine.SceneManagement;
 
 namespace Solis.Audio
 {
@@ -31,12 +29,9 @@ namespace Solis.Audio
         public AudioMixerGroup masterMixer;
         public AudioMixerGroup characterMixer;
         
-        
-        
         [Header("SETTINGS")]
         public int audioSourcePoolSize = 10;
         public SettingsData settingData;
-        
         #endregion
 
         #region Private Fields
@@ -70,12 +65,6 @@ namespace Solis.Audio
             OnSettingsChanged();
             for (var i = 0; i < audioSourcePoolSize; i++)
                 _CreateAudioSource(i);
-
-            
-            PlayMusic("BaseMusic");
-            PlayVfx("BackGround", true);
-            
-            
         }
 
         private void OnEnable()
@@ -111,6 +100,7 @@ namespace Solis.Audio
                 if (!player.HasEnded) 
                     continue;
                 
+                player.OnEnd?.Invoke();
                 Kill(player);
             }
 
@@ -124,17 +114,20 @@ namespace Solis.Audio
         
         private void OnSettingsChanged()
         {
-            Debug.Log("Volume Settings Changed");
-            var musicVolume = Mathf.Clamp(settingData.sliderItems["musicVolume"] / 100, 0.0001f, 1f);
-            musicMixer.audioMixer.SetFloat("musicVolume", Mathf.Log10(musicVolume) * 20);
             
+        }
+
+        private void FixedUpdate()
+        {
+            var musicVolume = Mathf.Clamp(settingData.sliderItems.GetValueOrDefault("musicVolume", 0) / 100, 0.0001f, 1f);
+            musicMixer.audioMixer.SetFloat("musicVolume", Mathf.Log10(musicVolume) * 20);
             var fxVolume = Mathf.Clamp(settingData.sliderItems["sfxVolume"] / 100, 0.0001f, 1f);
             vfxMixer.audioMixer.SetFloat("sfxVolume", Mathf.Log10(fxVolume) * 20);
             
-            var masterVolume = Mathf.Clamp(settingData.sliderItems["masterVolume"] / 100, 0.0001f, 1f);
+            var masterVolume = Mathf.Clamp(settingData.sliderItems.GetValueOrDefault("masterVolume", 0) / 100, 0.0001f, 1f);
             masterMixer.audioMixer.SetFloat("masterVolume", Mathf.Log10(masterVolume) * 20);
             
-            var characterVolume = Mathf.Clamp(settingData.sliderItems["characterVolume"] / 100, 0.0001f, 1f);
+            var characterVolume = Mathf.Clamp(settingData.sliderItems.GetValueOrDefault("characterVolume", 0) / 100, 0.0001f, 1f);
             characterMixer.audioMixer.SetFloat("characterVolume", Mathf.Log10(characterVolume) * 20);
         }
 
@@ -157,7 +150,6 @@ namespace Solis.Audio
                 return player;
             
             musicTransitions.Add(new AudioMusicTransition(currentMusic, player, transition));
-            player.AudioSource.spatialBlend = 1;
             return player;
         }
         
@@ -172,20 +164,7 @@ namespace Solis.Audio
             var player = CreateVfx(audioName);
             return player?.Play(loop);
         }
-        
-        /// <summary>
-        /// Starts playing a sound effect. The loop parameter is used to determine if the sound will loop or not.
-        /// </summary>
-        /// <param name="audioName"></param>
-        /// <param name="loop"></param>
-        /// <returns></returns>
-        public AudioPlayer PlayCharacter(string audioName, bool loop = false)
-        {
-            var player = CreateVfx(audioName);
-            return player?.Play(loop);
-        }
 
-        
         /// <summary>
         /// Creates a sound effect player, without playing it.
         /// </summary>
@@ -259,6 +238,13 @@ namespace Solis.Audio
             var audioSource = freeAudioSources[0];
             freeAudioSources.RemoveAt(0);
             audioSource.gameObject.SetActive(true);
+            
+            //Reset values
+            audioSource.spatialBlend = 0;
+            audioSource.volume = 1;
+            audioSource.pitch = 1;
+            audioSource.loop = false;
+            
             return audioSource;
         }
         
@@ -313,9 +299,10 @@ namespace Solis.Audio
         /// </summary>
         /// <param name="audioName"></param>
         /// <param name="transition"></param>
-        public static void PlayMusicStatic(string audioName, float transition = 0)
+        /// <returns></returns>
+        public static AudioPlayer PlayMusicStatic(string audioName, float transition = 0)
         {
-            Instance.PlayMusic(audioName, transition);
+            return Instance.PlayMusic(audioName, transition);
         }
         
         /// <summary>
@@ -323,9 +310,10 @@ namespace Solis.Audio
         /// </summary>
         /// <param name="audioName"></param>
         /// <param name="loop"></param>
-        public static void PlayVfxStatic(string audioName, bool loop = false)
+        /// <returns></returns>
+        public static AudioPlayer PlayVfxStatic(string audioName, bool loop = false)
         {
-            Instance.PlayVfx(audioName, loop);
+            return Instance.PlayVfx(audioName, loop);
         }
         
         /// <summary>
