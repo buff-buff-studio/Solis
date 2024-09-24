@@ -103,7 +103,7 @@ namespace Solis.Misc.Multicam
                     if(!nina)
                     {
                         var player = FindFirstObjectByType<PlayerControllerHuman>();
-                        if (player) nina = player.lookAt;
+                        if (player) nina = player.dialogueLookAt;
                         else
                         {
                             Debug.LogError("Nina is not found to focus on dialogue");
@@ -119,7 +119,7 @@ namespace Solis.Misc.Multicam
                     if(!ram)
                     {
                         var player = FindFirstObjectByType<PlayerControllerRobot>();
-                        if (player) ram = player.transform;
+                        if (player) ram = player.dialogueLookAt;
                         else
                         {
                             Debug.LogError("RAM is not found to focus on dialogue");

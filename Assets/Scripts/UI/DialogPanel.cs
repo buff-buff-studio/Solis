@@ -75,6 +75,8 @@ namespace _Scripts.UI
         [SerializeField]private List<int> hasSkipped = new List<int>();
         [SerializeField] private GameObject nextImage;
         [SerializeField] private TextMeshProUGUI playersText;
+
+        private Animator nextImageAnimator;
         
         
         #region MonoBehaviour
@@ -104,6 +106,7 @@ namespace _Scripts.UI
             }
             
             _instance = this;
+            nextImage.TryGetComponent(out nextImageAnimator);
         }
         
         #endregion
@@ -163,9 +166,14 @@ namespace _Scripts.UI
             if (newValue == -1) ClosePanel();
             else
             {
+                if (nextImage.activeSelf) nextImageAnimator.Play("NextDialogClose");
                 IsDialogPlaying = true;
                 _characterThatIsTalking = currentDialog.Value.currentDialog.dialogs[index.Value].characterType.characterType;
-                TypeWriteText(currentDialog.Value.currentDialog.dialogs[index.Value], () => nextImage.SetActive(true));
+                TypeWriteText(currentDialog.Value.currentDialog.dialogs[index.Value], () =>
+                {
+                    if (nextImage.activeSelf) nextImageAnimator.Play("NextDialogOpen");
+                    else nextImage.SetActive(true);
+                });
             }
         }
         

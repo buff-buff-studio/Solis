@@ -7,13 +7,15 @@ namespace UI
     public class DialogPlayerAutomatic : DialogPlayerBase
     {
         public CharacterTypeFilter characterTypeFilter = CharacterTypeFilter.Both;
-        private void OnTriggerEnter(Collider other)
+        private void OnTriggerEnter(Collider col)
         {
-            if (!other.CompareTag("Player")) return;
-            if (!TryGetComponent(out PlayerControllerBase p)) return;
-
+            if (!col.CompareTag("Player")) return;
+            if (!col.TryGetComponent(out PlayerControllerBase p)) return;
             if(characterTypeFilter.Filter(p.CharacterType))
+            {
+                Debug.Log("Playing Dialog");
                 PlayDialog();
+            }
         }
     }
 }

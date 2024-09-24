@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &500488099866076380
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7910517573197891056}
+  m_Layer: 12
+  m_Name: DialogLookAt
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7910517573197891056
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 500488099866076380}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
+  m_LocalPosition: {x: 0, y: 0.077, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5535532644862191047}
+  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!1 &978216295999498130
 GameObject:
   m_ObjectHideFlags: 0
@@ -4095,6 +4126,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 4136800555700545090, guid: a55a3791e379dfa42a63dd01f73de466, type: 3}
       insertIndex: -1
       addedObject: {fileID: 6721387208844707837}
+    - targetCorrespondingSourceObject: {fileID: 4136800555700545090, guid: a55a3791e379dfa42a63dd01f73de466, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7910517573197891056}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 6778590176504362698, guid: a55a3791e379dfa42a63dd01f73de466, type: 3}
       insertIndex: -1
@@ -4152,6 +4186,7 @@ MonoBehaviour:
   emoteController: {fileID: 8554980401512840443}
   body: {fileID: 4168912144533225267}
   lookAt: {fileID: 6721387208844707837}
+  dialogueLookAt: {fileID: 7910517573197891056}
   headOffset: {fileID: 2022477272680672439}
   renderer: {fileID: 4937946243392875704}
   groundMask:
@@ -4162,7 +4197,16 @@ MonoBehaviour:
   landParticles: {fileID: 1233122826114929891}
   state: 0
   velocity: {x: 0, y: 0, z: 0}
+  isRespawning:
+    value: 0
+    type: 0
+  isPaused:
+    value: 0
+    type: 0
   tickRate: 128
+  username:
+    value: Default
+    type: 0
   magnetReferenceLocalPosition: {x: 0, y: 2, z: 0}
   magnetAnchor: {fileID: 0}
   handPosition: {fileID: 8118953567111281005}
@@ -4170,12 +4214,6 @@ MonoBehaviour:
   debugJump: 0
   debugLastJumpMaxHeight: {x: 0, y: 0, z: 0}
   debugNextMovePos: {x: 0, y: 0, z: 0}
-  _isRespawning:
-    value: 0
-    type: 0
-  _isPaused:
-    value: 0
-    type: 0
 --- !u!114 &8554980401512840443
 MonoBehaviour:
   m_ObjectHideFlags: 0

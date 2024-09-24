@@ -62,6 +62,7 @@ namespace Solis.Player
         [Header("BODY REFERENCES")]
         public Transform body;
         public Transform lookAt;
+        public Transform dialogueLookAt;
         public Transform headOffset;
         public new SkinnedMeshRenderer renderer;
         public LayerMask groundMask;
@@ -176,11 +177,11 @@ namespace Solis.Player
         private Vector2 MoveInput => new(InputX, InputZ);
         private bool InputJump => Input.GetButtonDown("Jump");
         private bool InputJumpUp => Input.GetButtonUp("Jump");
-        private bool CanJump => !_isJumping && (IsGrounded || _coyoteTimer > 0) && _jumpTimer <= 0 && !isPaused.Value;
+        private bool CanJump => !_isJumping && (IsGrounded || _coyoteTimer > 0) && _jumpTimer <= 0 && !isPaused.Value && !DialogPanel.IsDialogPlaying;
 
         private bool CanJumpCut =>
             _isJumping && (transform.position.y - _startJumpPos) >= JumpCutMinHeight;
-        private bool IsPlayerLocked => _isCinematicRunning || isRespawning.Value || DialogPanel.IsDialogPlaying;
+        private bool IsPlayerLocked => _isCinematicRunning || isRespawning.Value;
         private Vector3 HeadOffset => headOffset.position;
         #endregion
 
@@ -233,13 +234,7 @@ namespace Solis.Player
 
             _Timer();
 
-            if(IsPlayerLocked)
-            {
-                if(DialogPanel.IsDialogPlaying)
-                    if(Input.GetKeyDown(KeyCode.Return))
-                        SendPacket(new PlayerInputPackage { Key = KeyCode.Return, Id = Id, CharacterType = this.CharacterType}, true);
-                return;
-            }
+            if(IsPlayerLocked) { return; }
 
             switch (state)
             {
@@ -488,11 +483,14 @@ namespace Solis.Player
                     }, true);
                 });
             }
+            if(DialogPanel.IsDialogPlaying)
+                if(Input.GetKeyDown(KeyCode.Return))
+                    SendPacket(new PlayerInputPackage { Key = KeyCode.Return, Id = Id, CharacterType = this.CharacterType}, true);
         }
 
         private void _Move()
         {
-            var moveInput = !isPaused.Value ? MoveInput.normalized : Vector2.zero;
+            var moveInput = (!isPaused.Value && !DialogPanel.IsDialogPlaying) ? MoveInput.normalized : Vector2.zero;
             var maxSpeedTarget = _inJumpState ? MaxSpeed * AccelInJumpMultiplier : MaxSpeed;
             var target = moveInput * maxSpeedTarget;
             var accelOrDecel = (Mathf.Abs(moveInput.magnitude) > 0.01f);
