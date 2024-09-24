@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Cinemachine;
 using DefaultNamespace;
 using NetBuff.Components;
 using NetBuff.Misc;
+using Solis.Data;
+using Solis.Misc.Multicam;
 using Solis.Packets;
 using Solis.Player;
 using TMPro;
@@ -92,8 +95,6 @@ namespace _Scripts.UI
             charactersReady.OnValueChanged -= UpdateText;
         }
 
-   
-
         private void Awake()
         {
             if (_instance != null)
@@ -112,6 +113,9 @@ namespace _Scripts.UI
         {
             currentDialog.Value = dialogData;
             index.Value = 0;
+
+            MulticamCamera.Instance!.SetDialogueFocus(
+                currentDialog.Value.currentDialog.dialogs[index.Value].characterType.characterType);
         }
 
         public bool OnClickDialog(PlayerInputPackage playerInputPackage, int i)
@@ -177,6 +181,8 @@ namespace _Scripts.UI
             IsDialogPlaying = false;
             orderTextGameObject.SetActive(false);
             nextImage.SetActive(false);
+            MulticamCamera.Instance!.ChangeCameraState(MulticamCamera.CameraState.Gameplay,
+                CinemachineBlendDefinition.Style.EaseInOut, 1);
         }
 
         private void TypeWriteText(DialogStruct dialogData, Action callback)
@@ -194,6 +200,7 @@ namespace _Scripts.UI
             var sprite = choosed.emotesAndImages.FirstOrDefault(c => c.emotion == characterType.emotion).image;
             characterImage.sprite = sprite;
             characterName.text = characterType.characterType.ToString();
+            MulticamCamera.Instance!.SetDialogueFocus(characterType.characterType);
         }
     }
 }
