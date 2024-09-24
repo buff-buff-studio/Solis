@@ -46,6 +46,7 @@ namespace Interface
 
         public void GenerateUsername()
         {
+            settingsManager.Username = "<unknown>";
             if(settingsManager.Username != "<unknown>")
                 inputFieldUsername.text = settingsManager.Username;
             else
