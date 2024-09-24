@@ -43,7 +43,7 @@ namespace Solis.Misc.Integrations
                 Assets =
                 {
                     LargeImage = "solis_logo",
-                    LargeText = "Solis"
+                    LargeText = "*uebeti*"
                 }
             };
 
@@ -70,7 +70,6 @@ namespace Solis.Misc.Integrations
 
         private void Update()
         {
-            if(!IsConnected) return;
             Discord.RunCallbacks();
         }
 
@@ -128,7 +127,7 @@ namespace Solis.Misc.Integrations
                 Assets =
                 {
                     LargeImage = "solis_logo",
-                    LargeText = "Solis"
+                    LargeText = "*uebeti*"
                 }
             };
 
