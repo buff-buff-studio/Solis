@@ -189,7 +189,8 @@ namespace _Scripts.UI
             IsDialogPlaying = false;
             orderTextGameObject.SetActive(false);
             nextImage.SetActive(false);
-            MulticamCamera.Instance!.ChangeCameraState(MulticamCamera.CameraState.Gameplay,
+            if(!CinematicController.IsPlaying)
+                MulticamCamera.Instance!.ChangeCameraState(MulticamCamera.CameraState.Gameplay,
                 CinemachineBlendDefinition.Style.EaseInOut, 1);
         }
 
@@ -209,6 +210,12 @@ namespace _Scripts.UI
             characterImage.sprite = sprite;
             characterName.text = characterType.characterType.ToString();
             MulticamCamera.Instance!.SetDialogueFocus(characterType.characterType);
+        }
+
+        public override void OnSceneLoaded(int sceneId)
+        {
+            base.OnSceneLoaded(sceneId);
+            ClosePanel();
         }
     }
 }

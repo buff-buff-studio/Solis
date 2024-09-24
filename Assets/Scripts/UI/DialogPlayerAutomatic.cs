@@ -17,7 +17,7 @@ namespace UI
                 Debug.Log("Playing Dialog");
                 PlayDialog();
                 if (!canRepeat)
-                    Destroy(this);
+                    gameObject.SetActive(false);
             }
         }
     }

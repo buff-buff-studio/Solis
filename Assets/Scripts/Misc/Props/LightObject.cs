@@ -75,7 +75,7 @@ namespace Solis.Misc.Props
 
         private void OnTriggerEnter(Collider col)
         {
-            if (col.CompareTag("DeathTrigger"))
+            if (col.CompareTag("DeathTrigger") && !playerHolding)
             {
                 _Reset();
             }
@@ -103,6 +103,16 @@ namespace Solis.Misc.Props
                 {
                     NetworkId.TryParse(grabPacket.HandId, out var handId);
                     playerHolding = GetNetworkObject((NetworkId)handId).GetComponent<PlayerControllerBase>();
+                }
+            }
+            else if(packet is PlayerDeathPacket deathPacket)
+            {
+                if (HasAuthority)
+                    return;
+
+                if (playerHolding && playerHolding.Id == deathPacket.Id && isOn.Value)
+                {
+                    _Reset();
                 }
             }
         }
@@ -206,7 +216,6 @@ namespace Solis.Misc.Props
                     
                 playerHolding = controller;
                 isOn.Value = true;
-                rb.isKinematic = false;
                 controller.itemsHeld++;
                 ServerBroadcastPacket(new LightObjectGrabPacket
                 {

@@ -53,6 +53,7 @@ namespace Solis.Misc.Multicam
 
         public void ChangeCameraState(CameraState newState, CinemachineBlendDefinition.Style blend = CinemachineBlendDefinition.Style.Cut, float blendTime = 0)
         {
+            Debug.Log($"Changing camera state to {newState}");
             _cinemachineBrain.m_DefaultBlend = new CinemachineBlendDefinition(blend, blendTime);
 
             gameplayCamera.gameObject.SetActive(newState == CameraState.Gameplay);
@@ -87,10 +88,12 @@ namespace Solis.Misc.Multicam
 
             if(changeState)
             {
+                ChangeCameraState(CameraState.Cinematic);
                 CinematicController.Instance.Play(0);
             }
             else
             {
+                Debug.Log("Cinematic camera is set");
                 ChangeCameraState(CameraState.Gameplay);
             }
         }
