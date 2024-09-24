@@ -7,6 +7,7 @@ namespace UI
     public class DialogPlayerAutomatic : DialogPlayerBase
     {
         public CharacterTypeFilter characterTypeFilter = CharacterTypeFilter.Both;
+        public bool canRepeat = false;
         private void OnTriggerEnter(Collider col)
         {
             if (!col.CompareTag("Player")) return;
@@ -15,6 +16,8 @@ namespace UI
             {
                 Debug.Log("Playing Dialog");
                 PlayDialog();
+                if (!canRepeat)
+                    Destroy(this);
             }
         }
     }
