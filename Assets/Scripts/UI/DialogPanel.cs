@@ -141,7 +141,7 @@ namespace _Scripts.UI
 #if UNITY_EDITOR
                 if (hasSkipped.Count == 0) return true;
 #else
-                if (hasSkipped.Count != 2) return true;
+                if (hasSkipped.Count < 2) return true;
 #endif
             }
             
