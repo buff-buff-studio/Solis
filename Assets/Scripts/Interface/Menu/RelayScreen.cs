@@ -35,8 +35,6 @@ namespace Interface
 
         private async void OnEnable()
         {
-            GenerateUsername();
-
             _joinButtonText = joinButton.GetComponentInChildren<TMP_Text>();
             joinButton.interactable = !string.IsNullOrEmpty(inputRelayCode.text);
             _joinButtonText.color = joinButton.interactable ? _interactableColor : _nonInteractableColor;
@@ -46,7 +44,7 @@ namespace Interface
                 await AuthenticationService.Instance.SignInAnonymouslyAsync();
         }
 
-        private void GenerateUsername()
+        public void GenerateUsername()
         {
             if(settingsManager.Username != "<unknown>")
                 inputFieldUsername.text = settingsManager.Username;
