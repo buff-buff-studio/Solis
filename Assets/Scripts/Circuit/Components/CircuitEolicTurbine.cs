@@ -44,7 +44,7 @@ namespace Solis.Circuit.Components
         #region Abstract Methods Implementation
         public override CircuitData ReadOutput(CircuitPlug plug)
         {
-            return new CircuitData(Power);
+            return new CircuitData(isOn.Value);
         }
 
         protected override void OnRefresh()
@@ -78,9 +78,9 @@ namespace Solis.Circuit.Components
 
         private void _OnValueChanged(bool old, bool @new)
         {
-            Refresh();
             windmillRotator.ChangeState(@new);
             onToggleComponent?.Invoke();
+            Refresh();
         }
         #endregion
     }
