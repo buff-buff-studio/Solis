@@ -206,6 +206,7 @@ namespace Solis.Misc.Props
                     
                 playerHolding = controller;
                 isOn.Value = true;
+                rb.isKinematic = false;
                 controller.itemsHeld++;
                 ServerBroadcastPacket(new LightObjectGrabPacket
                 {
@@ -228,10 +229,13 @@ namespace Solis.Misc.Props
                 if (o.transform.CompareTag("BoxPlace"))
                 {
                     transform.position = o.transform.position;
+                    transform.rotation = Quaternion.identity;
+                    rb.isKinematic = true;
                     return;
                 }
             }
         }
+        
 
         public GameObject GetGameObject()
         {
