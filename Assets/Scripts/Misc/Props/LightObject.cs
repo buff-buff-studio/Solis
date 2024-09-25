@@ -75,7 +75,7 @@ namespace Solis.Misc.Props
 
         private void OnTriggerEnter(Collider col)
         {
-            if (col.CompareTag("DeathTrigger") && !playerHolding)
+            if (col.CompareTag("DeathTrigger"))
             {
                 _Reset();
             }
