@@ -634,7 +634,7 @@ namespace Solis.Player
                 BodyRotation = body.localEulerAngles.y,
                 BodyPosition = new Vector3(pos.x, pos.y, pos.z)
             };
-            SendPacket(packet);
+            ServerBroadcastPacketExceptFor(packet, OwnerId);
         }
 
         private void _Respawn()

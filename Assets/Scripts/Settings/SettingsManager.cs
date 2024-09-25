@@ -196,6 +196,7 @@ namespace Solis.Settings
                 QualitySettings.vSyncCount = settingsData.toggleItems["vsync"] ? 1 : 0;
                 QualitySettings.SetQualityLevel(settingsData.arrowItems["graphics"]);
                 Screen.fullScreen = settingsData.toggleItems["fullscreen"];
+                if (!Screen.fullScreen) return;
                 if (settingsData.arrowItems["resolution"] < 0 || settingsData.arrowItems["resolution"] >= _supportedResolutions.Count)
                 {
                     settingsData.arrowItems["resolution"] = GetScreenResolution();

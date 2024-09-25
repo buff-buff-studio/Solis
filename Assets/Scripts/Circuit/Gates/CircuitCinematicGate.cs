@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using NetBuff.Misc;
 using Solis.Misc.Multicam;
+using Solis.Packets;
 using UnityEngine;
 
 #if UNITY_EDITOR
@@ -61,9 +62,12 @@ namespace Solis.Circuit.Gates
             {
                 if (!_cinematicPlayed && playOnPower)
                 {
-                    _cinematicPlayed = true;
-                    CinematicController.Instance.Play(cinematicRoll);
-                    Debug.Log("Playing cinematic roll " + cinematicRoll);
+                    if(HasAuthority)
+                    {
+                        _cinematicPlayed = true;
+                        SendPacket(new PlayCutscenePacket() { CutsceneIndex = cinematicRoll });
+                        Debug.Log("Playing cinematic roll " + cinematicRoll);
+                    }
                 }
                 return new CircuitData(_cinematicCallback.Value ? result : 0);
             }
