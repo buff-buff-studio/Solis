@@ -1,6 +1,10 @@
 using System;
 using System.Collections.Generic;
 using Cinemachine;
+using NetBuff.Components;
+using NetBuff.Interface;
+using NetBuff.Misc;
+using Solis.Packets;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -14,7 +18,7 @@ namespace Solis.Misc.Multicam
     [RequireComponent(typeof(Animation))]
     [DisallowMultipleComponent]
     [Icon("Assets/Editor/Multicam/Icons/CinematicControllerIcon.png")]
-    public class CinematicController : MonoBehaviour
+    public class CinematicController : NetworkBehaviour
     {
         public static CinematicController Instance { get; private set; }
 
@@ -68,11 +72,13 @@ namespace Solis.Misc.Multicam
         private void OnEnable()
         {
             PauseManager.OnPause += isPaused => { _isPaused = isPaused; };
+            PacketListener.GetPacketListener<PlayCutscenePacket>().AddClientListener(PlayByPacket);
         }
 
         private void OnDisable()
         {
             PauseManager.OnPause -= isPaused => { _isPaused = isPaused; };
+            PacketListener.GetPacketListener<PlayCutscenePacket>().RemoveClientListener(PlayByPacket);
         }
 
         private void Update()
@@ -92,6 +98,14 @@ namespace Solis.Misc.Multicam
 
         public void Play()
         { Play(currentRoll);}
+
+        private bool PlayByPacket(PlayCutscenePacket arg1)
+        {
+            if (arg1.CutsceneIndex < 0 || arg1.CutsceneIndex >= rolls.Count) return false;
+            Debug.Log($"Received Play Cutscene Packet: {arg1.CutsceneIndex}");
+            Play(arg1.CutsceneIndex);
+            return true;
+        }
 
         public void Play(int roll)
         {
