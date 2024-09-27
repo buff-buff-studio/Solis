@@ -165,6 +165,11 @@ namespace Solis.Misc.Props
                 {
                     transform.position = playerHolding.handPosition.position;
                     transform.rotation = playerHolding.handPosition.rotation;
+
+                    if (TryGetComponent(out MagneticProp prop))
+                    {
+                        prop.cantBeMagnetized.Value = true;
+                    }
                 }
             }
             else if(pBody)
@@ -173,6 +178,9 @@ namespace Solis.Misc.Props
                 var newPos = new Vector3(pPos.x, transform.position.y, pPos.z);
                 transform.position = newPos + (pBody.forward*1.25f);
                 playerHolding.itemsHeld = 0;
+                if (TryGetComponent(out MagneticProp prop))
+                    prop.cantBeMagnetized.Value = false;
+                
             }
 
             playerHolding = isOn.Value ? playerHolding : null;
@@ -233,11 +241,11 @@ namespace Solis.Misc.Props
         {
             var count = Physics.OverlapBoxNonAlloc(transform.position, new Vector3(0.35f, 0.35f, 0.35f), _objects,
                 Quaternion.identity);
-            foreach (var o in _objects)
+            for (int i = 0;i < count;i++)
             {
-                if (o.transform.CompareTag("BoxPlace"))
+                if (_objects[i].transform.CompareTag("BoxPlace"))
                 {
-                    transform.position = o.transform.position;
+                    transform.position = _objects[i].transform.position;
                     transform.rotation = Quaternion.identity;
                     rb.isKinematic = true;
                     return;

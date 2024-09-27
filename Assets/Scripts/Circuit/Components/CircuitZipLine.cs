@@ -5,6 +5,7 @@ using NetBuff.Components;
 using NetBuff.Interface;
 using NetBuff.Misc;
 using Solis.Circuit.Interfaces;
+using Solis.Misc.Props;
 using Solis.Packets;
 using UnityEngine;
 
@@ -33,15 +34,16 @@ namespace Solis.Circuit.Components
         public FloatNetworkValue position = new(0);
 
         [Header("SETTINGS")]
-        public int tickRate = 64;
+        public int tickRate = 16;
         public float moveSpeed = 2f;
-        public float clawRadius = 2f;
+        public float clawRadius = 3f;
         public AnimationCurve speedCurve = AnimationCurve.Linear(0, 0, 1, 1);
         #endregion
 
         #region Private Fields
         private bool _wasMoving;
         private bool _lastValue;
+        private List<Collider> _targets;
         #endregion
 
         #region Unity Callbacks
@@ -167,6 +169,7 @@ namespace Solis.Circuit.Components
                 {
                     foreach (var target in _GetTargetsByCollider())
                     {
+                        Debug.Log(target.GetGameObject());
                         var go = target.GetGameObject();
                         var identity = go.GetComponent<NetworkIdentity>();
                         if (identity == null)
@@ -211,7 +214,17 @@ namespace Solis.Circuit.Components
         private IEnumerable<IMagneticObject> _GetTargetsByCollider()
         {
             var count = Physics.OverlapSphereNonAlloc(anchor.position, clawRadius, _Results);
-            return _Results.Take(count).Select(c => c.GetComponent<IMagneticObject>()).Where(c => c != null).ToArray();
+
+            /*var results = _Results.Take(count).Select(c => c.GetComponent<IMagneticObject>()).Where(c => c != null)
+                .ToList();
+            foreach (var r in results)
+            {
+                if (r.GetGameObject().transform.TryGetComponent(out LightObject lightObject))
+                {
+                    if(lightObject.isOn.Value) results.Remove(r);
+                }
+            }*/
+            return _Results.Take(count).Select(c => c.GetComponent<IMagneticObject>()).Where(c => c != null).Where(c=>c.CanBeMagnetized()).ToArray();
         }
         
         private IEnumerable<IMagneticObject> _GetAllMagnetized()
