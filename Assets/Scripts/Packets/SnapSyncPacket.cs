@@ -13,12 +13,6 @@ namespace Solis.Packets
         [InspectorMode(InspectorMode.Object)]
         public NetworkId Id { get; set; }
 
-        public SnapSyncPacket(NetworkId networkId, Vector3 position, Vector3 rotation)
-        {
-            Position = position;
-            Rotation = rotation;
-            Id = networkId;
-        }
 
         public void Serialize(BinaryWriter writer)
         {

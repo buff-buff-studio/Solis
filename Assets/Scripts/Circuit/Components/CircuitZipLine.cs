@@ -214,16 +214,7 @@ namespace Solis.Circuit.Components
         private IEnumerable<IMagneticObject> _GetTargetsByCollider()
         {
             var count = Physics.OverlapSphereNonAlloc(anchor.position, clawRadius, _Results);
-
-            /*var results = _Results.Take(count).Select(c => c.GetComponent<IMagneticObject>()).Where(c => c != null)
-                .ToList();
-            foreach (var r in results)
-            {
-                if (r.GetGameObject().transform.TryGetComponent(out LightObject lightObject))
-                {
-                    if(lightObject.isOn.Value) results.Remove(r);
-                }
-            }*/
+            
             return _Results.Take(count).Select(c => c.GetComponent<IMagneticObject>()).Where(c => c != null).Where(c=>c.CanBeMagnetized()).ToArray();
         }
         
