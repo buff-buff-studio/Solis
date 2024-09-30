@@ -32,5 +32,7 @@ namespace Solis.Circuit.Interfaces
         /// </summary>
         /// <returns></returns>
         public GameObject GetGameObject();
+
+        public bool CanBeMagnetized();
     }
 }

@@ -165,6 +165,11 @@ namespace Solis.Misc.Props
                 {
                     transform.position = playerHolding.handPosition.position;
                     transform.rotation = playerHolding.handPosition.rotation;
+
+                    if (TryGetComponent(out MagneticProp prop))
+                        prop.cantBeMagnetized.Value = true;
+                    
+                    if(_boxPlace!= null) _boxPlace.SetActive(true);
                 }
             }
             else if(pBody)
@@ -173,6 +178,8 @@ namespace Solis.Misc.Props
                 var newPos = new Vector3(pPos.x, transform.position.y, pPos.z);
                 transform.position = newPos + (pBody.forward*1.25f);
                 playerHolding.itemsHeld = 0;
+                if (TryGetComponent(out MagneticProp prop))
+                    prop.cantBeMagnetized.Value = false;
             }
 
             playerHolding = isOn.Value ? playerHolding : null;
@@ -192,6 +199,13 @@ namespace Solis.Misc.Props
             if (controller == null)
                 return false;
 
+            Vector3 directionToTarget = transform.position - controller.transform.position;
+            float dotProduct = Vector3.Dot(controller.transform.forward, directionToTarget.normalized);
+            Debug.Log("DOT " +dotProduct);
+            if (dotProduct < 0) return false;
+          
+
+            
             if (playerTypeFilter.Filter(controller.CharacterType))
             {
                 if (isOn.Value)
@@ -229,22 +243,44 @@ namespace Solis.Misc.Props
             return false;
         }
         private static readonly Collider[] _objects = new Collider[10];
+        private GameObject _boxPlace;
         private void CheckIfThereIsPlace()
         {
             var count = Physics.OverlapBoxNonAlloc(transform.position, new Vector3(0.35f, 0.35f, 0.35f), _objects,
                 Quaternion.identity);
-            foreach (var o in _objects)
+            for (int i = 0;i < count;i++)
             {
-                if (o.transform.CompareTag("BoxPlace"))
+                if (_objects[i].transform.CompareTag("BoxPlace"))
                 {
-                    transform.position = o.transform.position;
-                    transform.rotation = Quaternion.identity;
-                    rb.isKinematic = true;
-                    return;
+                    if(Vector3.Distance(_objects[i].transform.position ,transform.position) <= 1)
+                    {
+                        if (!_objects[i].gameObject.activeInHierarchy) return;
+                        
+                        Snap(_objects[i].gameObject);
+                        SnapSyncPacket p = new SnapSyncPacket();
+                        p.Id = Id;
+                        p.Position = transform.position;
+                        p.Rotation = transform.eulerAngles;
+                        Sync(p);
+                        return;
+                    }
                 }
             }
         }
+        private void Snap(GameObject boxPlace)
+        {
+            transform.position = boxPlace.transform.position;
+            transform.rotation = Quaternion.identity;
+            rb.isKinematic = true;
+            boxPlace.gameObject.SetActive(false);
+            _boxPlace = boxPlace.gameObject;
+        }
         
+        private void Sync(SnapSyncPacket p)
+        {
+             SendPacket(p);
+        }
+
 
         public GameObject GetGameObject()
         {
