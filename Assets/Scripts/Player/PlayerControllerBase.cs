@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using _Scripts.UI;
 using Cinemachine;
@@ -95,6 +96,7 @@ namespace Solis.Player
         public bool debugJump = false;
         public Vector3 debugLastJumpMaxHeight;
         public Vector3 debugNextMovePos;
+        public Vector3 debugNextBoxPos;
 #endif
         #endregion
 
@@ -335,6 +337,26 @@ namespace Solis.Player
                             move = Vector3.zero;
                         }
                     }
+                    if(itemsHeld > 0)
+                    {
+                        var boxNextPos = handPosition.position;
+                        var size = Physics.OverlapBox(
+                            boxNextPos, Vector3.one * .5f, handPosition.rotation,
+                            ~LayerMask.GetMask("Box", (CharacterType == CharacterType.Human ? "Human" : "Robot")));
+
+                        #if UNITY_EDITOR
+                        debugNextBoxPos = boxNextPos;
+                        #endif
+
+                        if (size.Length > 0)
+                        {
+                            walking = false;
+                            velocity.x = velocity.z = 0;
+                            move = Vector3.zero;
+
+                            Debug.Log(string.Join(", ", size.ToList().Select(x => x.name)));
+                        }
+                    }
 
                     controller.Move(new Vector3(move.x, velocity.y, move.z) * Time.fixedDeltaTime);
                     if(IsGrounded && Physics.Raycast(nextPos, Vector3.down, out var hit, 0.1f, groundMask))
@@ -365,6 +387,15 @@ namespace Solis.Player
         public void OnDrawGizmos()
         {
 #if UNITY_EDITOR
+            if(itemsHeld > 0)
+            {
+                Gizmos.color = Physics.OverlapBoxNonAlloc(
+                    debugNextBoxPos, Vector3.one * .75f, new Collider[]{},
+                    Quaternion.identity, ~LayerMask.GetMask("Box", (CharacterType == CharacterType.Human ? "Human" : "Robot"))) > 0 ? Color.red : Color.green;
+
+                Gizmos.DrawWireCube(debugNextBoxPos, Vector3.one);
+            }
+
             if (Physics.Raycast(transform.position, Vector3.down, out var hit, 1.1f, groundMask))
             {
                 Gizmos.color = hit.collider.gameObject.layer == LayerMask.NameToLayer("SafeGround")
