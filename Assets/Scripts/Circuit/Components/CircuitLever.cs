@@ -10,13 +10,9 @@ namespace Solis.Circuit.Components
     /// <summary>
     /// A lever that can be toggled on and off by players.
     /// </summary>
-    public class CircuitLever : CircuitComponent
+    public class CircuitLever : CircuitInteractive
     {
         #region Inspector Fields
-        [Header("SETTINGS")]
-        public float radius = 3f;
-        public CharacterTypeFilter playerTypeFilter = CharacterTypeFilter.Both;
-
         [Header("REFERENCES")]
         public BoolNetworkValue isOn = new(false);
         public CircuitPlug output;
@@ -33,7 +29,6 @@ namespace Solis.Circuit.Components
             WithValues(isOn);
 
             isOn.OnValueChanged += _OnValueChanged;
-            PacketListener.GetPacketListener<PlayerInteractPacket>().AddServerListener(_OnPlayerInteract);
 
             handle.localEulerAngles = new Vector3(isOn.Value ? handleAngle : 0, 0, 0);
         }
@@ -47,7 +42,6 @@ namespace Solis.Circuit.Components
         {
             base.OnDisable();
             isOn.OnValueChanged -= _OnValueChanged;
-            PacketListener.GetPacketListener<PlayerInteractPacket>().RemoveServerListener(_OnPlayerInteract);
         }
         #endregion
 
@@ -102,6 +96,14 @@ namespace Solis.Circuit.Components
             }
 
             return false;
+        }
+
+        protected override bool OnPlayerInteract(PlayerInteractPacket arg1, int arg2)
+        {
+            if (!PlayerChecker(arg1, out var player))
+                return false;
+            isOn.Value = !isOn.Value;
+            return true;
         }
 
         private void _OnValueChanged(bool old, bool @new)

@@ -4,6 +4,7 @@ using UnityEngine;
 using NetBuff.Components;
 using Solis.Data;
 using Solis.Player;
+using TMPro;
 
 namespace Solis.Misc.Multicam
 {
@@ -29,6 +30,8 @@ namespace Solis.Misc.Multicam
 
         [Header("CINEMATIC")]
         public CinemachineVirtualCamera cinematicCamera;
+        public GameObject cinematicCanvas;
+        public TextMeshProUGUI endCinemaText;
 
         [Header("DIALOGUE")]
         public CinemachineVirtualCamera dialogueCamera;
@@ -67,6 +70,7 @@ namespace Solis.Misc.Multicam
                 return;
             }
 
+            cinematicCanvas.SetActive(newState == CameraState.Cinematic);
             state = newState;
         }
         public Transform SetPlayerTarget(Transform follow, Transform lookAt)

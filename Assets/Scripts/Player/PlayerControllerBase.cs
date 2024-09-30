@@ -13,6 +13,7 @@ using Solis.Core;
 using Solis.Data;
 using Solis.Misc;
 using Solis.Misc.Multicam;
+using Solis.Misc.Props;
 using Solis.Packets;
 using UnityEditor;
 using UnityEngine;
@@ -89,7 +90,7 @@ namespace Solis.Player
 
         [Header("HAND")]
         public Transform handPosition;
-        public int itemsHeld = 0;
+        public CarryableObject carriedObject;
 
 #if UNITY_EDITOR
         [Header("DEBUG")]
@@ -123,6 +124,8 @@ namespace Solis.Player
         private float _respawnTimer;
         private float _interactTimer;
         private float _multiplier;
+
+        private bool _isColliding;
 
         private Vector3 _lastSafePosition;
         private Transform _camera;
@@ -328,6 +331,7 @@ namespace Solis.Player
                     debugNextMovePos = nextPos;
                     #endif
 
+                    Physics.SyncTransforms();
                     if (Physics.CheckSphere(transform.position, 0.5f, LayerMask.GetMask("SafeGround")))
                     {
                         if (!Physics.Raycast(nextPos, Vector3.down, 1.1f) && !_isJumping && IsGrounded)
@@ -337,12 +341,14 @@ namespace Solis.Player
                             move = Vector3.zero;
                         }
                     }
-                    if(itemsHeld > 0)
+                    if(carriedObject)
                     {
-                        var boxNextPos = handPosition.position;
-                        var size = Physics.OverlapBox(
-                            boxNextPos, Vector3.one * .5f, handPosition.rotation,
-                            ~LayerMask.GetMask("Box", (CharacterType == CharacterType.Human ? "Human" : "Robot")));
+                        var boxNextPos = _isColliding ?
+                            carriedObject.transform.position + ((new Vector3(move.x, 0, move.z) * (Time.fixedDeltaTime * data.nextMoveMultiplier))/2f) :
+                            carriedObject.transform.position;
+                        var size = Physics.OverlapSphere(
+                            boxNextPos, carriedObject.objectSize.extents.x,
+                            ~LayerMask.GetMask("Box", "CarriedIgnore", (CharacterType == CharacterType.Human ? "Human" : "Robot")), QueryTriggerInteraction.Ignore);
 
                         #if UNITY_EDITOR
                         debugNextBoxPos = boxNextPos;
@@ -353,9 +359,10 @@ namespace Solis.Player
                             walking = false;
                             velocity.x = velocity.z = 0;
                             move = Vector3.zero;
+                            _isColliding = true;
 
-                            Debug.Log(string.Join(", ", size.ToList().Select(x => x.name)));
-                        }
+                            Debug.Log(CharacterType.ToString() + " is carrying a box that is colliding with: " + string.Join(", ", size.ToList().Select(x => x.name)), size[0]);
+                        }else _isColliding = false;
                     }
 
                     controller.Move(new Vector3(move.x, velocity.y, move.z) * Time.fixedDeltaTime);
@@ -387,13 +394,14 @@ namespace Solis.Player
         public void OnDrawGizmos()
         {
 #if UNITY_EDITOR
-            if(itemsHeld > 0)
+            if(carriedObject)
             {
-                Gizmos.color = Physics.OverlapBoxNonAlloc(
-                    debugNextBoxPos, Vector3.one * .75f, new Collider[]{},
-                    Quaternion.identity, ~LayerMask.GetMask("Box", (CharacterType == CharacterType.Human ? "Human" : "Robot"))) > 0 ? Color.red : Color.green;
+                var size = Physics.OverlapSphere(
+                    debugNextBoxPos, carriedObject.objectSize.extents.x,
+                    ~LayerMask.GetMask("Box", "CarriedIgnore", (CharacterType == CharacterType.Human ? "Human" : "Robot")), QueryTriggerInteraction.Ignore);
 
-                Gizmos.DrawWireCube(debugNextBoxPos, Vector3.one);
+                Gizmos.color = size.Length > 0 ? Color.red : Color.green;
+                Gizmos.DrawWireSphere(debugNextBoxPos, carriedObject.objectSize.extents.x);
             }
 
             if (Physics.Raycast(transform.position, Vector3.down, out var hit, 1.1f, groundMask))
@@ -689,7 +697,12 @@ namespace Solis.Player
         {
             Debug.Log("Player ID: " + Id + " died with type: " + death);
             controller.enabled = false;
-            itemsHeld = 0;
+            if(carriedObject)
+            {
+                if(carriedObject.isOn.CheckPermission())
+                    carriedObject.isOn.Value = false;
+                carriedObject = null;
+            }
             switch (death)
             {
                 case Death.Stun:
