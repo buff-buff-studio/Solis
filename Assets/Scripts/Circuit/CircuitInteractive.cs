@@ -15,7 +15,12 @@ namespace Solis.Circuit
         public float radius = 3f;
         public CharacterTypeFilter playerTypeFilter = CharacterTypeFilter.Both;
 
+        private List<Collider> _colliders = new List<Collider>();
         private LayerMask _layerMask;
+
+#if UNITY_EDITOR
+        private Transform _playerTransform;
+#endif
 
         protected override void OnEnable()
         {
@@ -53,6 +58,10 @@ namespace Solis.Circuit
             if (!playerTypeFilter.Filter(player.CharacterType))
                 return false;
 
+#if UNITY_EDITOR
+            _playerTransform = player.body;
+#endif
+
             //Check if have a wall between player and object
             Physics.Linecast(networkObject.transform.position, transform.position, out var hit, _layerMask);
             if (hit.collider != null)
@@ -62,11 +71,11 @@ namespace Solis.Circuit
             }
 
             // Check if player is facing the object
-            var directionToTarget = transform.position - networkObject.transform.position;
-            var dotProduct = Vector3.Dot(networkObject.transform.forward, directionToTarget.normalized);
-            if (dotProduct < 0)
+            var directionToTarget = transform.position - player.body.position;
+            var dot = Vector3.Dot(player.body.forward, directionToTarget.normalized);
+            if (dot < 0)
             {
-                Debug.Log("Player is not facing the object, dot product: " + dotProduct);
+                Debug.Log("Player is not facing the object, dot: " + dot);
                 return false;
             }
 
@@ -87,5 +96,27 @@ namespace Solis.Circuit
         {
             throw new System.NotImplementedException();
         }
+
+#if UNITY_EDITOR
+        private void OnDrawGizmosSelected()
+        {
+            if (_playerTransform == null) return;
+
+            Gizmos.color = Color.blue;
+            Gizmos.DrawRay(_playerTransform.position, _playerTransform.forward * radius);
+        }
+
+        protected virtual void OnValidate()
+        {
+            if(Application.isPlaying) return;
+            _colliders.Clear();
+            _colliders.AddRange(GetComponentsInChildren<Collider>());
+            if (_colliders.Count == 0)
+            {
+                Debug.LogError("No colliders found in children", this);
+            }
+
+        }
+#endif
     }
 }

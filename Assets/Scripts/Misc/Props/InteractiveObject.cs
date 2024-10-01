@@ -14,9 +14,15 @@ namespace Misc.Props
         public float radius = 3f;
         public CharacterTypeFilter playerTypeFilter = CharacterTypeFilter.Both;
 
+        private LayerMask _layerMask;
+
         protected virtual void OnEnable()
         {
             PacketListener.GetPacketListener<PlayerInteractPacket>().AddServerListener(OnPlayerInteract);
+
+            _layerMask = ~(playerTypeFilter != CharacterTypeFilter.Both
+                ? LayerMask.GetMask("Box", playerTypeFilter == CharacterTypeFilter.Human ? "Human" : "Robot")
+                : LayerMask.GetMask("Box", "Human", "Robot"));
         }
 
         protected virtual void OnDisable()
@@ -37,12 +43,6 @@ namespace Misc.Props
             var dist = Vector3.Distance(networkObject.transform.position, transform.position);
             if (dist > radius) return false;
 
-            // Check if player is facing the object
-            var directionToTarget = transform.position - networkObject.transform.position;
-            var dotProduct = Vector3.Dot(networkObject.transform.forward, directionToTarget.normalized);
-            Debug.Log("DOT " +dotProduct);
-            if (dotProduct < 0) return false;
-
             // Check if game object has a player controller
             if(!networkObject.TryGetComponent(out player))
                 return false;
@@ -50,6 +50,26 @@ namespace Misc.Props
             // Check if player is allowed to interact with object
             if (!playerTypeFilter.Filter(player.CharacterType))
                 return false;
+
+            //Check if have a wall between player and object
+            var originalLayer = gameObject.layer;
+            gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
+            Physics.Linecast(networkObject.transform.position, transform.position, out var hit, _layerMask);
+            gameObject.layer = originalLayer;
+            if (hit.collider != null)
+            {
+                Debug.Log($"{hit.transform.name} is between the {player.CharacterType} and {this.name}", hit.collider.gameObject);
+                return false;
+            }
+
+            // Check if player is facing the object
+            var directionToTarget = transform.position - player.body.position;
+            var dot = Vector3.Dot(player.body.forward, directionToTarget.normalized);
+            if (dot < 0)
+            {
+                Debug.Log("Player is not facing the object, dot: " + dot);
+                return false;
+            }
 
             return true;
         }
