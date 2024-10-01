@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using _Scripts.UI;
 using TMPro;
 using UI;
@@ -11,6 +12,14 @@ using UnityEngine;
 
 namespace UI
 {
+    [Serializable]
+    public enum Effects
+    {
+        Shake,
+        Big,
+        Small
+    }
+    [Serializable]
     public enum Emojis
     {
         Lever,
@@ -56,6 +65,19 @@ namespace UI
         public CharacterTypeEmote characterType;
         public Emotion emotion;
     }
+
+    [Serializable]
+    public class EffectsAndWords
+    {
+        public Effects effects;
+        public string word;
+
+        public EffectsAndWords(Effects effect, string word)
+        {
+            effects = effect;
+            this.word = word;
+        }
+    }
     [Serializable]
     public class DialogStruct
     {
@@ -66,9 +88,11 @@ namespace UI
         public string textValue;
         public Emojis[] emojis;
         private List<string> _instancedValues;
+      
         
         public string GetFormattedString()
         {
+            List<EffectsAndWords> effectsAndWords = new List<EffectsAndWords>();
             _instancedValues = new List<string>();
 
             for (int i = 0; i < emojis.Length; i++)
@@ -79,6 +103,33 @@ namespace UI
                 _instancedValues.Add(value);
             }
 
+            foreach (var effect in Enum.GetValues(typeof(Effects)))
+            {
+                Debug.Log(effect.ToString());
+                // Expressão regular para encontrar o conteúdo entre <mytag> e </mytag>
+                string pattern = $@"<{effect}>(.*?)<\/{effect}>";
+
+                // MatchCollection encontra todas as correspondências da regex no texto
+                MatchCollection matches = Regex.Matches(textValue, pattern);
+
+                // Loop para processar cada correspondência
+                foreach (Match match in matches)
+                {
+                    // Captura o conteúdo entre as tags
+                    string contentBetweenTags = match.Groups[1].Value;
+
+                    // Exemplo de como manipular o conteúdo encontrado
+                    Debug.Log($"Conteúdo entre <{effect}>: " + contentBetweenTags);
+
+                    // Aqui, você pode substituir a tag por algo customizado
+                    textValue = textValue.Replace(match.Value, "" + contentBetweenTags + "");
+                    
+                    effectsAndWords.Add(new EffectsAndWords((Effects)effect, contentBetweenTags));
+
+                }
+            }
+            
+            DialogPanel.Instance.textWriterSingle.effectsAndWords = effectsAndWords;
             return string.Format(textValue, _instancedValues.ToArray());
         }
     }
