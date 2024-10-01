@@ -8,6 +8,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Solis.Data;
+using Solis.Misc.Integrations;
 
 namespace Solis.Interface.Lobby
 {
@@ -56,6 +57,7 @@ namespace Solis.Interface.Lobby
             {
                 // Update player count UI
                 textPlayerCount.text = $"{newValue}";
+                DiscordController.PlayerCount = newValue;
             };
 
             RefreshSave();

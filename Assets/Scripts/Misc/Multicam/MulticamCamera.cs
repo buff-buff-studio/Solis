@@ -1,8 +1,11 @@
 using System;
+using System.Collections.Generic;
 using Cinemachine;
 using UnityEngine;
 using NetBuff.Components;
+using NetBuff.Misc;
 using Solis.Data;
+using Solis.Packets;
 using Solis.Player;
 using TMPro;
 
@@ -31,7 +34,8 @@ namespace Solis.Misc.Multicam
         [Header("CINEMATIC")]
         public CinemachineVirtualCamera cinematicCamera;
         public GameObject cinematicCanvas;
-        public TextMeshProUGUI endCinemaText;
+        public TextMeshProUGUI skipCinematicText;
+        private List<int> _hasSkipped = new List<int>();
 
         [Header("DIALOGUE")]
         public CinemachineVirtualCamera dialogueCamera;
@@ -50,7 +54,43 @@ namespace Solis.Misc.Multicam
 
             _cinemachineBrain = mainCamera.GetComponent<CinemachineBrain>();
         }
+
+        private void OnEnable()
+        {
+            PacketListener.GetPacketListener<PlayerInputPackage>().AddServerListener(OnInput);
+        }
+
+        private void OnDisable()
+        {
+            PacketListener.GetPacketListener<PlayerInputPackage>().RemoveServerListener(OnInput);
+        }
+
         #endregion
+
+        private bool OnInput(PlayerInputPackage arg1, int arg2)
+        {
+            if (state == CameraState.Cinematic)
+            {
+                if (arg1.Key != KeyCode.Return) return false;
+                if (_hasSkipped.Contains(arg2)) return false;
+                _hasSkipped.Add(arg2);
+                skipCinematicText.text = $"{_hasSkipped.Count}/2";
+
+#if UNITY_EDITOR
+                if (_hasSkipped.Count >= 1)
+                {
+                    CinematicController.Instance.Stop();
+                    return true;
+                }
+#endif
+                
+                if (_hasSkipped.Count < 2) return false;
+                CinematicController.Instance.Stop();
+                return true;
+            }
+
+            return false;
+        }
 
         #region Public Methods
 
@@ -70,7 +110,13 @@ namespace Solis.Misc.Multicam
                 return;
             }
 
-            cinematicCanvas.SetActive(newState == CameraState.Cinematic);
+            if(newState == CameraState.Cinematic)
+            {
+                _hasSkipped.Clear();
+                skipCinematicText.text = "0/0";
+                cinematicCanvas.SetActive(true);
+            }
+
             state = newState;
         }
         public Transform SetPlayerTarget(Transform follow, Transform lookAt)

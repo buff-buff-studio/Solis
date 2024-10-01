@@ -12,6 +12,7 @@ using Solis.Circuit.Components;
 using Solis.Core;
 using Solis.Data;
 using Solis.Misc;
+using Solis.Misc.Integrations;
 using Solis.Misc.Multicam;
 using Solis.Misc.Props;
 using Solis.Packets;
@@ -445,6 +446,7 @@ namespace Solis.Player
 
             _camera = MulticamCamera.Instance.SetPlayerTarget(transform, lookAt);
             username.Value = NetworkManager.Instance.Name;
+            DiscordController.Instance!.SetGameActivity(CharacterType, false, null);
         }
         
         public override void OnServerReceivePacket(IOwnedPacket packet, int clientId)

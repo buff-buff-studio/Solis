@@ -75,7 +75,7 @@ namespace Solis.Player
         {
             base.OnSpawned(isRetroactive);
             DiscordController.LobbyStartTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-            DiscordController.Instance!.SetGameActivity(characterType);
+            DiscordController.Instance!.SetGameActivity(characterType, true, SolisNetworkManager.usingRelay ? SolisNetworkManager.relayCode : null);
         }
 
         public override void OnServerReceivePacket(IOwnedPacket packet, int clientId)
@@ -90,7 +90,7 @@ namespace Solis.Player
                                 ? CharacterType.Robot
                                 : CharacterType.Human);
 
-                        DiscordController.Instance!.SetGameActivity(characterType);
+                        DiscordController.Instance!.SetGameActivity(characterType, true, SolisNetworkManager.usingRelay ? SolisNetworkManager.relayCode : null);
                         break;
                 }
             }
