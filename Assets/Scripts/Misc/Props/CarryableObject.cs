@@ -186,10 +186,13 @@ namespace Solis.Misc.Props
 
         protected override bool OnPlayerInteract(PlayerInteractPacket arg1, int arg2)
         {
-            if (!PlayerChecker(arg1, out var player)) return false;
+            PlayerControllerBase player;
 
             if (isOn.Value)
             {
+                if(!GetNetworkObject(arg1.Id).TryGetComponent(out player))
+                    return false;
+
                 if (playerHolding != player)
                     return false;
 
@@ -202,8 +205,12 @@ namespace Solis.Misc.Props
                     Id = this.Id,
                     HandId = ""
                 });
+
                 return true;
             }
+
+            if (!PlayerChecker(arg1, out player))
+                return false;
 
             if(player.carriedObject)
                 return false;
