@@ -15,14 +15,16 @@ namespace Misc.Props
         public CharacterTypeFilter playerTypeFilter = CharacterTypeFilter.Both;
 
         private LayerMask _layerMask;
+        private int _originalLayer, _ignoreRaycastLayer = 2;
 
         protected virtual void OnEnable()
         {
             PacketListener.GetPacketListener<PlayerInteractPacket>().AddServerListener(OnPlayerInteract);
 
+            _originalLayer = gameObject.layer;
             _layerMask = ~(playerTypeFilter != CharacterTypeFilter.Both
-                ? LayerMask.GetMask("Box", playerTypeFilter == CharacterTypeFilter.Human ? "Human" : "Robot")
-                : LayerMask.GetMask("Box", "Human", "Robot"));
+                ? LayerMask.GetMask("Ignore Raycast", playerTypeFilter == CharacterTypeFilter.Human ? "Human" : "Robot")
+                : LayerMask.GetMask("Ignore Raycast", "Human", "Robot"));
         }
 
         protected virtual void OnDisable()
@@ -51,17 +53,6 @@ namespace Misc.Props
             if (!playerTypeFilter.Filter(player.CharacterType))
                 return false;
 
-            //Check if have a wall between player and object
-            var originalLayer = gameObject.layer;
-            gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
-            Physics.Linecast(networkObject.transform.position, transform.position, out var hit, _layerMask);
-            gameObject.layer = originalLayer;
-            if (hit.collider != null)
-            {
-                Debug.Log($"{hit.transform.name} is between the {player.CharacterType} and {this.name}", hit.collider.gameObject);
-                return false;
-            }
-
             // Check if player is facing the object
             var directionToTarget = transform.position - player.body.position;
             var dot = Vector3.Dot(player.body.forward, directionToTarget.normalized);
@@ -71,7 +62,26 @@ namespace Misc.Props
                 return false;
             }
 
+            //Check if have a wall between player and object
+            SetGameLayerRecursive(this.gameObject, _ignoreRaycastLayer);
+            Physics.Linecast(networkObject.transform.position, transform.position, out var hit, _layerMask);
+            SetGameLayerRecursive(this.gameObject, _originalLayer);
+            if (hit.collider != null)
+            {
+                Debug.Log($"{hit.transform.name} is between the {player.CharacterType} and {this.name}", hit.collider.gameObject);
+                return false;
+            }
+
             return true;
+        }
+
+        private void SetGameLayerRecursive(GameObject go, int layer)
+        {
+            go.layer = layer;
+            foreach (Transform child in go.transform)
+            {
+                SetGameLayerRecursive(child.gameObject, layer);
+            }
         }
     }
 }

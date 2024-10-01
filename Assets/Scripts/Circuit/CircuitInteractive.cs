@@ -17,6 +17,7 @@ namespace Solis.Circuit
 
         private List<Collider> _colliders = new List<Collider>();
         private LayerMask _layerMask;
+        private int _originalLayer, _ignoreRaycastLayer = 2;
 
 #if UNITY_EDITOR
         private Transform _playerTransform;
@@ -25,10 +26,11 @@ namespace Solis.Circuit
         protected override void OnEnable()
         {
             base.OnEnable();
+            _originalLayer = gameObject.layer;
             PacketListener.GetPacketListener<PlayerInteractPacket>().AddServerListener(OnPlayerInteract);
             _layerMask = ~(playerTypeFilter != CharacterTypeFilter.Both
-                ? LayerMask.GetMask("Interactive", playerTypeFilter == CharacterTypeFilter.Human ? "Human" : "Robot")
-                : LayerMask.GetMask("Interactive", "Human", "Robot"));
+                ? LayerMask.GetMask("Ignore Raycast", playerTypeFilter == CharacterTypeFilter.Human ? "Human" : "Robot")
+                : LayerMask.GetMask("Ignore Raycast", "Human", "Robot"));
         }
 
         protected override void OnDisable()
@@ -62,14 +64,6 @@ namespace Solis.Circuit
             _playerTransform = player.body;
 #endif
 
-            //Check if have a wall between player and object
-            Physics.Linecast(networkObject.transform.position, transform.position, out var hit, _layerMask);
-            if (hit.collider != null)
-            {
-                Debug.Log($"{hit.transform.name} is between the {player.CharacterType} and {this.name}", hit.collider.gameObject);
-                return false;
-            }
-
             // Check if player is facing the object
             var directionToTarget = transform.position - player.body.position;
             var dot = Vector3.Dot(player.body.forward, directionToTarget.normalized);
@@ -79,7 +73,26 @@ namespace Solis.Circuit
                 return false;
             }
 
+            //Check if have a wall between player and object
+            SetGameLayerRecursive(this.gameObject, _ignoreRaycastLayer);
+            Physics.Linecast(networkObject.transform.position, transform.position, out var hit, _layerMask);
+            SetGameLayerRecursive(this.gameObject, _originalLayer);
+            if (hit.collider != null)
+            {
+                Debug.Log($"{hit.transform.name} is between the {player.CharacterType} and {this.name}", hit.collider.gameObject);
+                return false;
+            }
+
             return true;
+        }
+
+        private void SetGameLayerRecursive(GameObject go, int layer)
+        {
+            go.layer = layer;
+            foreach (Transform child in go.transform)
+            {
+                SetGameLayerRecursive(child.gameObject, layer);
+            }
         }
 
         public override CircuitData ReadOutput(CircuitPlug plug)
