@@ -205,6 +205,7 @@ namespace Solis.Player
             Cursor.visible = false;
 
             _isCinematicRunning = CinematicController.IsPlaying;
+            CinematicController.OnCinematicStarted += () => _isCinematicRunning = true;
             CinematicController.OnCinematicEnded += () => _isCinematicRunning = false;
 
 
@@ -240,7 +241,13 @@ namespace Solis.Player
 
             _Timer();
 
-            if(IsPlayerLocked) { return; }
+            if (IsPlayerLocked)
+            {
+                if(DialogPanel.IsDialogPlaying || _isCinematicRunning)
+                    if(Input.GetKeyDown(KeyCode.Return))
+                        SendPacket(new PlayerInputPackage { Key = KeyCode.Return, Id = Id, CharacterType = this.CharacterType}, true);
+                return;
+            }
 
             switch (state)
             {
@@ -446,7 +453,9 @@ namespace Solis.Player
 
             _camera = MulticamCamera.Instance.SetPlayerTarget(transform, lookAt);
             username.Value = NetworkManager.Instance.Name;
-            DiscordController.Instance!.SetGameActivity(CharacterType, false, null);
+
+            if (DiscordController.Instance)
+                DiscordController.Instance!.SetGameActivity(CharacterType, false, null);
         }
         
         public override void OnServerReceivePacket(IOwnedPacket packet, int clientId)

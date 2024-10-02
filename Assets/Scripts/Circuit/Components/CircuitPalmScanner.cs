@@ -11,12 +11,9 @@ namespace Solis.Circuit.Components
     /// <summary>
     /// A scanner that can be interacted to scan the player type.
     /// </summary>
-    public class CircuitPalmScanner : CircuitComponent
+    public class CircuitPalmScanner : CircuitInteractive
     {
         #region Inspector Fields
-        [Header("SETTINGS")]
-        public float radius = 3f;
-        public CharacterTypeFilter playerTypeFilter = CharacterTypeFilter.Both;
         public bool canBeTurnedOff;
         public Color colorOff = Color.white;
         public Color colorOn = Color.green;
@@ -35,7 +32,6 @@ namespace Solis.Circuit.Components
             WithValues(isOn);
             
             isOn.OnValueChanged += _OnValueChanged;
-            PacketListener.GetPacketListener<PlayerInteractPacket>().AddServerListener(_OnPlayerInteract);
             
             palm.color = isOn.Value ? colorOn : colorOff;
         }
@@ -49,7 +45,6 @@ namespace Solis.Circuit.Components
         {
             base.OnDisable();
             isOn.OnValueChanged -= _OnValueChanged;
-            PacketListener.GetPacketListener<PlayerInteractPacket>().RemoveServerListener(_OnPlayerInteract);
         }
         #endregion
 
@@ -59,10 +54,7 @@ namespace Solis.Circuit.Components
             return new CircuitData(isOn.Value);
         }
 
-        protected override void OnRefresh()
-        {
-            
-        }
+        protected override void OnRefresh() { }
 
         public override IEnumerable<CircuitPlug> GetPlugs()
         {
@@ -71,29 +63,16 @@ namespace Solis.Circuit.Components
         #endregion
 
         #region Private Methods
-        private bool _OnPlayerInteract(PlayerInteractPacket arg1, int arg2)
+        protected override bool OnPlayerInteract(PlayerInteractPacket arg1, int arg2)
         {
-            var player = GetNetworkObject(arg1.Id);
-            var dist = Vector3.Distance(player.transform.position, transform.position);
-            
-            if (dist > radius)
+            if (!PlayerChecker(arg1, out var player))
                 return false;
-            
-            var controller = player.GetComponent<PlayerControllerBase>();
-            if (controller == null)
-                return false;
-            
-            if (playerTypeFilter.Filter(controller.CharacterType))
-            {
-                if(canBeTurnedOff)
-                    isOn.Value = !isOn.Value;
-                else
-                    isOn.Value = true;
-                onToggleComponent?.Invoke();
-                return true;
-            }
-            
-            return false;
+
+            if(canBeTurnedOff) isOn.Value = !isOn.Value;
+            else isOn.Value = true;
+            onToggleComponent?.Invoke();
+
+            return true;
         }
         
         private void _OnValueChanged(bool old, bool @new)

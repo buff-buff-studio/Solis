@@ -51,10 +51,7 @@ namespace Solis.Circuit.Components
             return new CircuitData(isOn.Value);
         }
 
-        protected override void OnRefresh()
-        {
-
-        }
+        protected override void OnRefresh() { }
 
         public override IEnumerable<CircuitPlug> GetPlugs()
         {
@@ -77,26 +74,6 @@ namespace Solis.Circuit.Components
         }
 
         #region Private Methods
-        private bool _OnPlayerInteract(PlayerInteractPacket arg1, int arg2)
-        {
-            var player = GetNetworkObject(arg1.Id);
-            var dist = Vector3.Distance(player.transform.position, transform.position);
-
-            if (dist > radius)
-                return false;
-
-            var controller = player.GetComponent<PlayerControllerBase>();
-            if (controller == null)
-                return false;
-
-            if (playerTypeFilter.Filter(controller.CharacterType))
-            {
-                isOn.Value = !isOn.Value;
-                return true;
-            }
-
-            return false;
-        }
 
         protected override bool OnPlayerInteract(PlayerInteractPacket arg1, int arg2)
         {
