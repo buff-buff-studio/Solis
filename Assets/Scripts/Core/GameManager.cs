@@ -423,7 +423,7 @@ namespace Solis.Core
         {
             fadeScreen.gameObject.SetActive(true);
             
-            const float fadeTime = 0.5f;
+            const float fadeTime = 0.25f;
             var time = 0f;
             var from = fadeScreen.alpha;
             var target = @in ? 1f : 0f;

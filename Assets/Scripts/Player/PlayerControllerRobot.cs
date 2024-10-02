@@ -35,6 +35,12 @@ namespace Solis.Player
         {
             return gameObject;
         }
+
+        public bool CanBeMagnetized()
+        {
+            return true;
+        }
+
         #endregion
     }
 }

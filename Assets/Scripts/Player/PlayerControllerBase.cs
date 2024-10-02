@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using _Scripts.UI;
 using Cinemachine;
@@ -11,7 +12,9 @@ using Solis.Circuit.Components;
 using Solis.Core;
 using Solis.Data;
 using Solis.Misc;
+using Solis.Misc.Integrations;
 using Solis.Misc.Multicam;
+using Solis.Misc.Props;
 using Solis.Packets;
 using UnityEditor;
 using UnityEngine;
@@ -88,13 +91,14 @@ namespace Solis.Player
 
         [Header("HAND")]
         public Transform handPosition;
-        public int itemsHeld = 0;
+        public CarryableObject carriedObject;
 
 #if UNITY_EDITOR
         [Header("DEBUG")]
         public bool debugJump = false;
         public Vector3 debugLastJumpMaxHeight;
         public Vector3 debugNextMovePos;
+        public Vector3 debugNextBoxPos;
 #endif
         #endregion
 
@@ -121,6 +125,8 @@ namespace Solis.Player
         private float _respawnTimer;
         private float _interactTimer;
         private float _multiplier;
+
+        private bool _isColliding;
 
         private Vector3 _lastSafePosition;
         private Transform _camera;
@@ -199,6 +205,7 @@ namespace Solis.Player
             Cursor.visible = false;
 
             _isCinematicRunning = CinematicController.IsPlaying;
+            CinematicController.OnCinematicStarted += () => _isCinematicRunning = true;
             CinematicController.OnCinematicEnded += () => _isCinematicRunning = false;
 
 
@@ -234,7 +241,13 @@ namespace Solis.Player
 
             _Timer();
 
-            if(IsPlayerLocked) { return; }
+            if (IsPlayerLocked)
+            {
+                if(DialogPanel.IsDialogPlaying || _isCinematicRunning)
+                    if(Input.GetKeyDown(KeyCode.Return))
+                        SendPacket(new PlayerInputPackage { Key = KeyCode.Return, Id = Id, CharacterType = this.CharacterType}, true);
+                return;
+            }
 
             switch (state)
             {
@@ -326,6 +339,7 @@ namespace Solis.Player
                     debugNextMovePos = nextPos;
                     #endif
 
+                    Physics.SyncTransforms();
                     if (Physics.CheckSphere(transform.position, 0.5f, LayerMask.GetMask("SafeGround")))
                     {
                         if (!Physics.Raycast(nextPos, Vector3.down, 1.1f) && !_isJumping && IsGrounded)
@@ -334,6 +348,29 @@ namespace Solis.Player
                             velocity.x = velocity.z = 0;
                             move = Vector3.zero;
                         }
+                    }
+                    if(carriedObject)
+                    {
+                        var boxNextPos = _isColliding ?
+                            carriedObject.transform.position + ((new Vector3(move.x, 0, move.z) * (Time.fixedDeltaTime * data.nextMoveMultiplier))/2f) :
+                            carriedObject.transform.position;
+                        var size = Physics.OverlapSphere(
+                            boxNextPos, carriedObject.objectSize.extents.x,
+                            ~LayerMask.GetMask("Box", "CarriedIgnore", (CharacterType == CharacterType.Human ? "Human" : "Robot")), QueryTriggerInteraction.Ignore);
+
+                        #if UNITY_EDITOR
+                        debugNextBoxPos = boxNextPos;
+                        #endif
+
+                        if (size.Length > 0)
+                        {
+                            walking = false;
+                            velocity.x = velocity.z = 0;
+                            move = Vector3.zero;
+                            _isColliding = true;
+
+                            Debug.Log(CharacterType.ToString() + " is carrying a box that is colliding with: " + string.Join(", ", size.ToList().Select(x => x.name)), size[0]);
+                        }else _isColliding = false;
                     }
 
                     controller.Move(new Vector3(move.x, velocity.y, move.z) * Time.fixedDeltaTime);
@@ -365,6 +402,16 @@ namespace Solis.Player
         public void OnDrawGizmos()
         {
 #if UNITY_EDITOR
+            if(carriedObject)
+            {
+                var size = Physics.OverlapSphere(
+                    debugNextBoxPos, carriedObject.objectSize.extents.x,
+                    ~LayerMask.GetMask("Box", "CarriedIgnore", (CharacterType == CharacterType.Human ? "Human" : "Robot")), QueryTriggerInteraction.Ignore);
+
+                Gizmos.color = size.Length > 0 ? Color.red : Color.green;
+                Gizmos.DrawWireSphere(debugNextBoxPos, carriedObject.objectSize.extents.x);
+            }
+
             if (Physics.Raycast(transform.position, Vector3.down, out var hit, 1.1f, groundMask))
             {
                 Gizmos.color = hit.collider.gameObject.layer == LayerMask.NameToLayer("SafeGround")
@@ -406,6 +453,9 @@ namespace Solis.Player
 
             _camera = MulticamCamera.Instance.SetPlayerTarget(transform, lookAt);
             username.Value = NetworkManager.Instance.Name;
+
+            if (DiscordController.Instance)
+                DiscordController.Instance!.SetGameActivity(CharacterType, false, null);
         }
         
         public override void OnServerReceivePacket(IOwnedPacket packet, int clientId)
@@ -658,7 +708,12 @@ namespace Solis.Player
         {
             Debug.Log("Player ID: " + Id + " died with type: " + death);
             controller.enabled = false;
-            itemsHeld = 0;
+            if(carriedObject)
+            {
+                if(carriedObject.isOn.CheckPermission())
+                    carriedObject.isOn.Value = false;
+                carriedObject = null;
+            }
             switch (death)
             {
                 case Death.Stun:

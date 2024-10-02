@@ -16,8 +16,7 @@ namespace Solis.Misc.Integrations
         public static long LobbyStartTimestamp;
         public static bool IsConnected;
         public static string Username;
-
-        public string user, id, discriminator, avatar;
+        public static int PlayerCount;
 
         public Discord.Discord Discord;
 
@@ -69,8 +68,6 @@ namespace Solis.Misc.Integrations
                         {
                             var user = Discord.GetUserManager().GetCurrentUser();
                             Debug.Log("Discord Rich Presence connected as: " + user.Username);
-                            this.user = user.Username;
-                            avatar = user.Avatar;
                             Username = user.Username;
                         };
                     }
@@ -103,7 +100,7 @@ namespace Solis.Misc.Integrations
             Discord.Dispose();
         }
 
-        public void SetGameActivity(CharacterType characterType, bool inLobby = true)
+        public void SetGameActivity(CharacterType characterType, bool inLobby, string relayCode)
         {
             if(!IsConnected) return;
 
@@ -124,6 +121,15 @@ namespace Solis.Misc.Integrations
                 Timestamps =
                 {
                     Start = LobbyStartTimestamp
+                },
+                Party =
+                {
+                    Id = relayCode,
+                    Size =
+                    {
+                        CurrentSize = PlayerCount,
+                        MaxSize = 2
+                    }
                 }
             };
 
