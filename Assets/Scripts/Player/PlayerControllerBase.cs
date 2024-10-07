@@ -11,7 +11,6 @@ using Solis.Audio;
 using Solis.Circuit.Components;
 using Solis.Core;
 using Solis.Data;
-using Solis.Misc;
 using Solis.Misc.Integrations;
 using Solis.Misc.Multicam;
 using Solis.Misc.Props;
@@ -178,11 +177,9 @@ namespace Solis.Player
 
         #endregion
 
-        private float InputX => Input.GetAxis("Horizontal");
-        private float InputZ => Input.GetAxis("Vertical");
-        private Vector2 MoveInput => new(InputX, InputZ);
-        private bool InputJump => Input.GetButtonDown("Jump");
-        private bool InputJumpUp => Input.GetButtonUp("Jump");
+        private Vector2 MoveInput => SolisInput.GetVector2("Move");
+        private bool InputJump => SolisInput.GetKeyDown("Jump");
+        private bool InputJumpUp => SolisInput.GetKeyUp("Jump");
         private bool CanJump => !_isJumping && (IsGrounded || _coyoteTimer > 0) && _jumpTimer <= 0 && !isPaused.Value && !DialogPanel.IsDialogPlaying;
 
         private bool CanJumpCut =>
@@ -218,6 +215,11 @@ namespace Solis.Player
             InvokeRepeating(nameof(_Tick), 0, 1f / tickRate);
         }
 
+        private void OnDisable()
+        {
+            CancelInvoke(nameof(_Tick));
+        }
+
         private void OnPausedChanged(bool old, bool @new)
         {
             Debug.Log((CharacterType == CharacterType.Human ? "Nina" : "RAM") + (@new ? " paused " : " resumed") + " the game");
@@ -230,11 +232,6 @@ namespace Solis.Player
             renderer.material.SetInt(Respawning, @new ? 1 : 0);
         }
 
-        private void OnDisable()
-        {
-            CancelInvoke(nameof(_Tick));
-        }
-
         private void Update()
         {
             if (!HasAuthority || !IsOwnedByClient) return;
@@ -244,7 +241,7 @@ namespace Solis.Player
             if (IsPlayerLocked)
             {
                 if(DialogPanel.IsDialogPlaying || _isCinematicRunning)
-                    if(Input.GetKeyDown(KeyCode.Return))
+                    if(SolisInput.GetKeyDown("Skip"))
                         SendPacket(new PlayerInputPackage { Key = KeyCode.Return, Id = Id, CharacterType = this.CharacterType}, true);
                 return;
             }
@@ -274,13 +271,14 @@ namespace Solis.Player
                     break;
             }
 
-
+            /*
             if (Input.GetKeyDown(KeyCode.Alpha1))
                 emoteController.ShowEmote(0);
             else if (Input.GetKeyDown(KeyCode.Alpha2))
                 emoteController.ShowEmote(1);
             else if (Input.GetKeyDown(KeyCode.Alpha3))
                 emoteController.ShowEmote(2);
+            */
         }
 
         private void FixedUpdate()
@@ -517,7 +515,7 @@ namespace Solis.Player
 
         private void _Interact()
         {
-            if (Input.GetButtonDown("Interact") && _interactTimer <= 0 && IsGrounded)
+            if (SolisInput.GetKeyDown("Interact") && _interactTimer <= 0 && IsGrounded)
             {
                 animator.SetTrigger("Punch");
                 _interactTimer = InteractCooldown;
@@ -534,7 +532,7 @@ namespace Solis.Player
                 });
             }
             if(DialogPanel.IsDialogPlaying)
-                if(Input.GetKeyDown(KeyCode.Return))
+                if(SolisInput.GetKeyDown("Skip"))
                     SendPacket(new PlayerInputPackage { Key = KeyCode.Return, Id = Id, CharacterType = this.CharacterType}, true);
         }
 
@@ -714,6 +712,12 @@ namespace Solis.Player
                     carriedObject.isOn.Value = false;
                 carriedObject = null;
             }
+
+            if (HasAuthority && IsOwnedByClient)
+            {
+                SolisInput.Instance.RumblePulse(0.25f, 0.75f, 0.25f);
+            }
+
             switch (death)
             {
                 case Death.Stun:

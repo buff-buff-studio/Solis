@@ -32,26 +32,39 @@ namespace Solis.Player
         private void Update()
         {
             if (!HasAuthority || !IsOwnedByClient) return;
-            
-            //check if mouse is being dragged over the player, to rotate it
-            if (!mouseIsGrabbed)
+
+            if(SolisInput.CurrentInputType == SolisInput.InputType.Keyboard)
             {
-                _timeToReset -= Time.deltaTime;
-                if (Input.GetMouseButton(0))
+                //check if mouse is being dragged over the player, to rotate it
+                if (!mouseIsGrabbed)
                 {
-                    var ray = Camera.allCameras[1].ScreenPointToRay(Input.mousePosition);
-                    if (Physics.Raycast(ray, out var hit))
-                        if (hit.collider.gameObject == gameObject)
-                        {
-                            mouseIsGrabbed = true;
-                            _timeToReset = Random.Range(2, 6);
-                        }
+                    _timeToReset -= Time.deltaTime;
+                    if (SolisInput.GetKeyDown("Click"))
+                    {
+                        var ray = Camera.allCameras[1].ScreenPointToRay(SolisInput.GetVector2("Point"));
+                        if (Physics.Raycast(ray, out var hit))
+                            if (hit.collider.gameObject == gameObject)
+                            {
+                                mouseIsGrabbed = true;
+                                _timeToReset = Random.Range(2, 6);
+                            }
+                    }
+                }
+                else
+                {
+                    if (SolisInput.GetKeyUp("Click")) mouseIsGrabbed = false;
+                    rotationSpeed -= SolisInput.GetVector2("PointDelta").x * 50f;
                 }
             }
             else
             {
-                if(Input.GetMouseButtonUp(0)) mouseIsGrabbed = false;
-                rotationSpeed -= Input.GetAxis("Mouse X") * 50f;
+                var x = SolisInput.GetVector2("PointDelta").x;
+                rotationSpeed -= x * 50f;
+
+                if (Mathf.Abs(x) > 0.1f)
+                    _timeToReset = Random.Range(2, 6);
+                else
+                    _timeToReset -= Time.deltaTime;
             }
 
             if(_timeToReset>0)
@@ -64,7 +77,7 @@ namespace Solis.Player
             if (!HasAuthority)
                 return;
 
-            if (Input.GetKeyDown(KeyCode.C))
+            if (SolisInput.GetKeyDown("ChangeCharacter"))
                 ChangeCharacterType();
         }
         #endregion
@@ -74,8 +87,20 @@ namespace Solis.Player
         public override void OnSpawned(bool isRetroactive)
         {
             base.OnSpawned(isRetroactive);
-            DiscordController.LobbyStartTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-            DiscordController.Instance!.SetGameActivity(characterType, true, SolisNetworkManager.usingRelay ? SolisNetworkManager.relayCode : null);
+
+            if (SolisInput.CurrentInputType == SolisInput.InputType.Gamepad)
+            {
+                SolisInput.Instance.RumblePulse(.1f,.2f,.125f);
+                //#64C9E2 and #575F41
+                SolisInput.GamepadLight(characterType == CharacterType.Robot ? new Color(0.392f, 0.788f, 0.886f) : new Color(0.341f, 0.373f, 0.254f));
+            }
+
+            if(DiscordController.Instance != null)
+            {
+                DiscordController.LobbyStartTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                DiscordController.Instance!.SetGameActivity(characterType, true,
+                    SolisNetworkManager.usingRelay ? SolisNetworkManager.relayCode : null);
+            }
         }
 
         public override void OnServerReceivePacket(IOwnedPacket packet, int clientId)
@@ -90,7 +115,8 @@ namespace Solis.Player
                                 ? CharacterType.Robot
                                 : CharacterType.Human);
 
-                        DiscordController.Instance!.SetGameActivity(characterType, true, SolisNetworkManager.usingRelay ? SolisNetworkManager.relayCode : null);
+                        if(DiscordController.Instance != null)
+                            DiscordController.Instance!.SetGameActivity(characterType, true, SolisNetworkManager.usingRelay ? SolisNetworkManager.relayCode : null);
                         break;
                 }
             }

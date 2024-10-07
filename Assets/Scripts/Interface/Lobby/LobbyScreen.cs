@@ -78,7 +78,7 @@ namespace Solis.Interface.Lobby
 
             if (HasAuthority)
             {
-                if(Input.GetKeyDown(KeyCode.Return))
+                if(SolisInput.GetKeyDown("Submit"))
                     StartGame();
             }
         }
