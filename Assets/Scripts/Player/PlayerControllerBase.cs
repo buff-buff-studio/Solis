@@ -11,6 +11,7 @@ using Solis.Audio;
 using Solis.Circuit.Components;
 using Solis.Core;
 using Solis.Data;
+using Solis.Interface.Input;
 using Solis.Misc.Integrations;
 using Solis.Misc.Multicam;
 using Solis.Misc.Props;
@@ -117,7 +118,7 @@ namespace Solis.Player
         private float _lastJumpHeight;
         private float _lastJumpVelocity;
         
-        private bool _isFalling;
+        private protected bool _isFalling;
         
         private bool _isCinematicRunning = true;
 
@@ -182,7 +183,7 @@ namespace Solis.Player
         private bool InputJumpUp => SolisInput.GetKeyUp("Jump");
         private bool CanJump => !_isJumping && (IsGrounded || _coyoteTimer > 0) && _jumpTimer <= 0 && !isPaused.Value && !DialogPanel.IsDialogPlaying;
 
-        private bool CanJumpCut =>
+        private protected bool CanJumpCut =>
             _isJumping && (transform.position.y - _startJumpPos) >= JumpCutMinHeight;
         private bool IsPlayerLocked => _isCinematicRunning || isRespawning.Value;
         private Vector3 HeadOffset => headOffset.position;

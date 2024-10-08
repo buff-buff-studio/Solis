@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using NetBuff;
 using Solis.Core;
 using Solis.Data;
+using Solis.Interface.Input;
 using Solis.Player;
 using Solis.Settings;
 using Solis.UI;

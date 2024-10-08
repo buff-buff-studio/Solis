@@ -69,4 +69,10 @@ public class NinaCloud : NetworkBehaviour
             
         return !results.Take(count).Any(col => col.TryGetComponent(out IHeavyObject _));
     }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireCube(transform.position + checkOffset, checkSize);
+    }
 }

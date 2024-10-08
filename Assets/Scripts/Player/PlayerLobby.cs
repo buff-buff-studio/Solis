@@ -5,6 +5,7 @@ using NetBuff.Misc;
 using Solis.Core;
 using UnityEngine;
 using Solis.Data;
+using Solis.Interface.Input;
 using Solis.Misc.Integrations;
 using Solis.Packets;
 using Random = UnityEngine.Random;

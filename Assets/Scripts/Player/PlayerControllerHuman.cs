@@ -1,4 +1,5 @@
 ﻿using Solis.Data;
+using Solis.Interface.Input;
 using UnityEngine;
 
 namespace Solis.Player
@@ -9,31 +10,35 @@ namespace Solis.Player
     [Icon("Assets/Art/Sprites/Editor/PlayerControllerHuman_ico.png")]
     public class PlayerControllerHuman : PlayerControllerBase
     {
-        private float _specialCooldown;
-        private float _specialReadyTime;
-        
         public override CharacterType CharacterType => CharacterType.Human;
+
+        [Header("SPECIAL")]
+        private float _specialCooldown;
+        private float _specialTimer;
+        public GameObject cloudPrefab;
+        public Vector3 cloudOffset;
 
         protected override void _Timer()
         {
             base._Timer();
-            if (_specialCooldown > 0)
+            if (_specialTimer > 0)
             {
-                _specialCooldown -= Time.deltaTime;
-                if (_specialCooldown <= 0)
-                {
-                    _specialCooldown = 0;
-                    _specialReadyTime = Time.time;
-                }
+                _specialTimer -= Time.deltaTime;
+                if (_specialTimer <= 0) _specialTimer = 0;
             }
         }
 
         protected override void _Special()
         {
-            if (SolisInput.GetKeyDown("Jump"))
+            if (_specialTimer > 0) return;
+            if (SolisInput.GetKeyDown("Jump") && (CanJumpCut || _isFalling))
             {
-                Debug.Log("a");
+                _specialTimer = _specialCooldown;
+                Spawn(cloudPrefab, transform.position + cloudOffset, body.rotation);
             }
         }
     }
+
+    //I only wanted to be part of something
+
 }
