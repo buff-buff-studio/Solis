@@ -191,7 +191,7 @@ namespace Solis.Player
 
         #region Unity Callbacks
 
-        public void OnEnable()
+        protected virtual void OnEnable()
         {
             WithValues(isRespawning, isPaused, username);
             isRespawning.OnValueChanged += _OnRespawningChanged;
@@ -630,7 +630,7 @@ namespace Solis.Player
                 return;
             }
 
-            if (velocity.y < 0 && !_isFalling)
+            if (!_isFalling && (velocity.y < 0 || (!_isJumping && velocity.y > 1)))
                 _isFalling = true;
 
             if (_isJumping)

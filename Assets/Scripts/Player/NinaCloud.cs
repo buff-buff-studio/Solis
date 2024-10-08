@@ -15,28 +15,39 @@ public class NinaCloud : NetworkBehaviour
     public Vector3 checkOffset = new(0, 0.1f, 0);
     public Vector3 checkSize = new(0.5f, 0.1f, 0.5f);
 
-    private const float MaxLifeTime = 10;
+    private const float MaxLifeTime = 4.75f;
     private FloatNetworkValue _lifeTime = new(0);
+    private float _positionY;
+    private Rigidbody _rigidbody;
 
     private void OnEnable()
     {
         WithValues(_lifeTime);
 
+        InvokeRepeating(nameof(CheckTick), 0, 1f / checkTickRate);
+        _rigidbody = GetComponent<Rigidbody>();
+
+        _positionY = transform.position.y;
         if (_lifeTime.CheckPermission())
             _lifeTime.Value = MaxLifeTime;
     }
 
-    public override void OnSpawned(bool isRetroactive)
+    private void OnDisable()
     {
-        base.OnSpawned(isRetroactive);
-        
-        InvokeRepeating(nameof(CheckTick), 0, 1f / checkTickRate);
+        CancelInvoke(nameof(CheckTick));
     }
 
     private void Update()
     {
         if(!HasAuthority) return;
-        
+
+        //if the cloud have a different Y position, the cloud will return to the original Y position
+        if (!Mathf.Approximately(transform.position.y, _positionY))
+        {
+            var distance = _positionY - transform.position.y;
+            _rigidbody.AddForce(Vector3.up * (distance * 20 * Time.deltaTime), ForceMode.Force);
+        }
+
         _lifeTime.Value -= Time.deltaTime;
         if (_lifeTime.Value <= 0)
         {
