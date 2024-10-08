@@ -119,6 +119,8 @@ namespace Editor.Circuit
                 var path = AssetDatabase.GUIDToAssetPath(prefabFiles[n]);
                 var asset = AssetDatabase.LoadAssetAtPath<GameObject>(path);
                 var preview = AssetPreview.GetAssetPreview(asset);
+                if (preview == null)
+                    preview = AssetPreview.GetMiniThumbnail(asset);
 
                 var item = new VisualElement
                 {

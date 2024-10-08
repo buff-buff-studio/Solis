@@ -72,6 +72,7 @@ namespace Solis.Core
                             
                             Debug.Log("Code: " + c);
                             relayCode = c;
+                            GUIUtility.systemCopyBuffer = c;
 
                             var o = FindFirstObjectByType<RelayNetworkManagerGUI>();
                             if (o != null)
@@ -206,7 +207,8 @@ namespace Solis.Core
 
         protected override void OnClearEnvironment(NetworkTransport.ConnectionEndMode mode, string cause)
         {
-            GameManager.Instance.OnExitGame();
+            if(GameManager.Instance != null)
+                GameManager.Instance.OnExitGame();
             
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;

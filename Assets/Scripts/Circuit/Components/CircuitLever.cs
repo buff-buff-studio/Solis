@@ -10,13 +10,9 @@ namespace Solis.Circuit.Components
     /// <summary>
     /// A lever that can be toggled on and off by players.
     /// </summary>
-    public class CircuitLever : CircuitComponent
+    public class CircuitLever : CircuitInteractive
     {
         #region Inspector Fields
-        [Header("SETTINGS")]
-        public float radius = 3f;
-        public CharacterTypeFilter playerTypeFilter = CharacterTypeFilter.Both;
-
         [Header("REFERENCES")]
         public BoolNetworkValue isOn = new(false);
         public CircuitPlug output;
@@ -33,7 +29,6 @@ namespace Solis.Circuit.Components
             WithValues(isOn);
 
             isOn.OnValueChanged += _OnValueChanged;
-            PacketListener.GetPacketListener<PlayerInteractPacket>().AddServerListener(_OnPlayerInteract);
 
             handle.localEulerAngles = new Vector3(isOn.Value ? handleAngle : 0, 0, 0);
         }
@@ -47,7 +42,6 @@ namespace Solis.Circuit.Components
         {
             base.OnDisable();
             isOn.OnValueChanged -= _OnValueChanged;
-            PacketListener.GetPacketListener<PlayerInteractPacket>().RemoveServerListener(_OnPlayerInteract);
         }
         #endregion
 
@@ -57,10 +51,7 @@ namespace Solis.Circuit.Components
             return new CircuitData(isOn.Value);
         }
 
-        protected override void OnRefresh()
-        {
-
-        }
+        protected override void OnRefresh() { }
 
         public override IEnumerable<CircuitPlug> GetPlugs()
         {
@@ -68,32 +59,34 @@ namespace Solis.Circuit.Components
         }
         #endregion
 
-        #region Private Methods
-        private bool _OnPlayerInteract(PlayerInteractPacket arg1, int arg2)
+        public void ChangeState(bool state)
         {
-            var player = GetNetworkObject(arg1.Id);
-            var dist = Vector3.Distance(player.transform.position, transform.position);
+            if(!IsServer) return;
 
-            if (dist > radius)
+            isOn.Value = state;
+        }
+
+        public void ChangeState()
+        {
+            if(!IsServer) return;
+
+            isOn.Value = !isOn.Value;
+        }
+
+        #region Private Methods
+
+        protected override bool OnPlayerInteract(PlayerInteractPacket arg1, int arg2)
+        {
+            if (!PlayerChecker(arg1, out var player))
                 return false;
-
-            var controller = player.GetComponent<PlayerControllerBase>();
-            if (controller == null)
-                return false;
-
-            if (playerTypeFilter.Filter(controller.CharacterType))
-            {
-                isOn.Value = !isOn.Value;
-                onToggleComponent?.Invoke();
-                return true;
-            }
-
-            return false;
+            isOn.Value = !isOn.Value;
+            return true;
         }
 
         private void _OnValueChanged(bool old, bool @new)
         {
             Refresh();
+            onToggleComponent?.Invoke();
         }
         #endregion
     }

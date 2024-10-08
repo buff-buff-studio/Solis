@@ -1,16 +1,19 @@
 ﻿using NetBuff.Components;
+using NetBuff.Misc;
 using Solis.Circuit.Interfaces;
 using UnityEngine;
 
 namespace Solis.Misc.Props
 {
     [RequireComponent(typeof(NetworkRigidbodyTransform))]
-    public class MagneticProp : MonoBehaviour, IMagneticObject
+    public class MagneticProp : NetworkBehaviour, IMagneticObject
     {
         private Rigidbody _rigidbody;
+        public BoolNetworkValue cantBeMagnetized;
         
         private void OnEnable()
         {
+            WithValues(cantBeMagnetized);
             _rigidbody = GetComponent<Rigidbody>();
         }
         
@@ -34,6 +37,11 @@ namespace Solis.Misc.Props
         public GameObject GetGameObject()
         {
             return gameObject;
+        }
+
+        public bool CanBeMagnetized()
+        {
+            return !cantBeMagnetized.Value;
         }
     }
 }

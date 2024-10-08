@@ -13,9 +13,9 @@ namespace VFX
         private static readonly int _WaterFlowingRegion = Shader.PropertyToID("_waterFlowingRegion");
         private static readonly int _WaterPipeExit = Shader.PropertyToID("_waterPipeExit");
 
-        public WaterDirtyRegion[] dirtyRegions;
-        public WaterFlowingRegion[] flowingRegions;
-        public WaterPipeExit[] pipeExits;
+        public WaterDirtyRegion[] dirtyRegions = Array.Empty<WaterDirtyRegion>();
+        public WaterFlowingRegion[] flowingRegions = Array.Empty<WaterFlowingRegion>();
+        public WaterPipeExit[] pipeExits = Array.Empty<WaterPipeExit>();
 
         private void Update()
         {

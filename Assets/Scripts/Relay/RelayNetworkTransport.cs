@@ -604,9 +604,7 @@ namespace NetBuff.Relays
 						    {
 							    var id = binaryReader.ReadInt32();
 							    var packet = PacketRegistry.CreatePacket(id);
-							    
-							    Debug.Log($"Received packet {packet}:{id}");
-	            
+		
 							    packet.Deserialize(binaryReader);
 							    transport.OnClientPacketReceived?.Invoke(packet);
 						    }
@@ -969,8 +967,6 @@ namespace NetBuff.Relays
 	        _Writer0.Write(id);
 	        packet.Serialize(_Writer0);
 	        var segment = new ArraySegment<byte>(_Buffer0, 0, (int)_Writer0.BaseStream.Position);
-	        
-	        Debug.Log($"Sending packet {packet}:{id} to {target} {segment.Count}");
 	        
 	        if (target == -1)
 	        {

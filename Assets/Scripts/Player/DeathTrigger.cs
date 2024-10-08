@@ -51,12 +51,14 @@ namespace Solis.Player
 
         private void OnTriggerEnter(Collider col)
         {
-            if (!HasAuthority)
-                return;
-            
             if (col.CompareTag("Player") && col.TryGetComponent(out PlayerControllerBase p))
             {
-                SendPacket(new PlayerDeathPacket()
+                if (!p.HasAuthority)
+                    return;
+                
+                Debug.Log($"Player {p.Id} has died by {_type}");
+                
+                p.SendPacket(new PlayerDeathPacket()
                 {
                     Type = _type,
                     Id = p.Id

@@ -11,12 +11,14 @@ namespace Solis.Circuit.Components
         #region Inspector Fields
         [Header("REFERENCES")]
         public CircuitPlug output;
+        [Range(0,1)]
+        public float batteryLevel = 1;
         #endregion
 
         #region Abstract Methods Implementation
         public override CircuitData ReadOutput(CircuitPlug plug)
         {
-            return new CircuitData(1);
+            return new CircuitData(batteryLevel);
         }
 
         protected override void OnRefresh()

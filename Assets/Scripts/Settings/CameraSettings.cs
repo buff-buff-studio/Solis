@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Cinemachine;
 using Solis.Settings;
 using Solis.Data;
+using Solis.Misc.Multicam;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
@@ -33,8 +34,8 @@ public class CameraSettings : MonoBehaviour
         SettingsManager.OnSettingsChanged += ApplyCameraSettings;
         
         PauseManager.OnPause += OnPause;
-        LevelCutscene.OnCinematicStarted += OnLevelCutsceneOnOnCinematicStarted;
-        LevelCutscene.OnCinematicEnded += OnLevelCutsceneOnOnCinematicEnded;
+        CinematicController.OnCinematicStarted += OnLevelCutsceneOnOnCinematicStarted;
+        CinematicController.OnCinematicEnded += OnLevelCutsceneOnOnCinematicEnded;
     }
 
     private void OnDestroy()
@@ -42,8 +43,8 @@ public class CameraSettings : MonoBehaviour
         SettingsManager.OnSettingsChanged -= ApplyCameraSettings;
         
         PauseManager.OnPause -= OnPause;
-        LevelCutscene.OnCinematicStarted -= OnLevelCutsceneOnOnCinematicStarted;
-        LevelCutscene.OnCinematicEnded -= OnLevelCutsceneOnOnCinematicEnded;
+        CinematicController.OnCinematicStarted -= OnLevelCutsceneOnOnCinematicStarted;
+        CinematicController.OnCinematicEnded -= OnLevelCutsceneOnOnCinematicEnded;
     }
 
     private void OnDisable()
@@ -51,8 +52,8 @@ public class CameraSettings : MonoBehaviour
         SettingsManager.OnSettingsChanged -= ApplyCameraSettings;
         
         PauseManager.OnPause -= OnPause;
-        LevelCutscene.OnCinematicStarted -= OnLevelCutsceneOnOnCinematicStarted;
-        LevelCutscene.OnCinematicEnded -= OnLevelCutsceneOnOnCinematicEnded;
+        CinematicController.OnCinematicStarted -= OnLevelCutsceneOnOnCinematicStarted;
+        CinematicController.OnCinematicEnded -= OnLevelCutsceneOnOnCinematicEnded;
     }
     
     private void ApplyCameraSettings()

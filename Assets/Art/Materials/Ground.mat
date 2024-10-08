@@ -45,6 +45,26 @@ Material:
         m_Texture: {fileID: 2800000, guid: e7717c4be72e8474bbcea591940adb63, type: 3}
         m_Scale: {x: 2.34, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _BaseMap_01:
+        m_Texture: {fileID: 2800000, guid: 4e63e9f80e4e06a4097fccd3c5d85816, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BaseMap_02:
+        m_Texture: {fileID: 2800000, guid: e7717c4be72e8474bbcea591940adb63, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BaseMap_03:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BaseMap_04:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BaseMap_4:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _BumpMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -139,7 +159,7 @@ Material:
     - _GlossyReflections: 1
     - _Metallic: 0
     - _Mode: 0
-    - _MultiplyBaseColor: 0
+    - _MultiplyBaseColor: 1
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _ParallaxAmplitude: 1
@@ -150,7 +170,11 @@ Material:
     - _QueueOffset: 0
     - _ReceiveShadows: 1
     - _Roughness: 1
-    - _Scale: 0.1
+    - _Scale: 0.175
+    - _Scale_01: 0.5
+    - _Scale_02: 0.125
+    - _Scale_03: 1
+    - _Scale_04: 1
     - _Smoothness: 0
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
@@ -160,6 +184,10 @@ Material:
     - _UVSec: 0
     - _UseAoMap: 0
     - _UseColorMap: 1
+    - _UseColorMap_01: 1
+    - _UseColorMap_02: 1
+    - _UseColorMap_03: 0
+    - _UseColorMap_04: 0
     - _UseMetallicMap: 0
     - _UseNormalMap: 0
     - _UseParallaxMapping: 0
@@ -167,7 +195,11 @@ Material:
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
-    - _BaseColor: {r: 1, g: 0, b: 0, a: 1}
+    - _BaseColor: {r: 0.9386792, g: 1, b: 0.9554031, a: 1}
+    - _BaseColor_01: {r: 1, g: 1, b: 1, a: 0}
+    - _BaseColor_02: {r: 1, g: 1, b: 1, a: 0}
+    - _BaseColor_03: {r: 1, g: 1, b: 1, a: 0}
+    - _BaseColor_04: {r: 1, g: 1, b: 1, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}

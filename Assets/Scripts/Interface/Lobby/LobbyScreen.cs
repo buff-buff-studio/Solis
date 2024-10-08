@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using NetBuff;
 using NetBuff.Components;
 using NetBuff.Misc;
@@ -7,6 +8,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Solis.Data;
+using Solis.Misc.Integrations;
 
 namespace Solis.Interface.Lobby
 {
@@ -55,6 +57,7 @@ namespace Solis.Interface.Lobby
             {
                 // Update player count UI
                 textPlayerCount.text = $"{newValue}";
+                DiscordController.PlayerCount = newValue;
             };
 
             RefreshSave();
@@ -64,6 +67,22 @@ namespace Solis.Interface.Lobby
         {
             Instance = null;
         }
+
+        private void Update()
+        {
+            if (!Cursor.visible)
+            {
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+            }
+
+            if (HasAuthority)
+            {
+                if(Input.GetKeyDown(KeyCode.Return))
+                    StartGame();
+            }
+        }
+
         #endregion
         
         #region Network Callbacks

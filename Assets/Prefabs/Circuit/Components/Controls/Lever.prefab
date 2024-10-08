@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8013249780003842699}
   - component: {fileID: 6380331800782209873}
-  m_Layer: 0
+  m_Layer: 18
   m_Name: Output
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -58,7 +58,7 @@ GameObject:
   - component: {fileID: 2654786880735333376}
   - component: {fileID: 205085160945796845}
   - component: {fileID: 1689821583937480024}
-  m_Layer: 0
+  m_Layer: 18
   m_Name: Lever
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -95,8 +95,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   id:
-    high: 93582661
-    low: 1677183762
+    high: -1465557469
+    low: -2036924471
   ownerId: -1
   prefabId:
     high: 0
@@ -128,7 +128,7 @@ MonoBehaviour:
           m_StringArgument: Interact
           m_BoolArgument: 0
         m_CallState: 2
-  radius: 3
+  radius: 2
   playerTypeFilter: 3
   isOn:
     value: 0
@@ -148,7 +148,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2fa6028ac29aebb47b1a322b8ba03d51, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _audioName: 
+  audioName: 
 --- !u!1001 &5961449298238545900
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -157,6 +157,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2951647505338481988}
     m_Modifications:
+    - target: {fileID: 3360549586561876736, guid: f3283f672c3e6634d809bda9162eb93f, type: 3}
+      propertyPath: m_Layer
+      value: 18
+      objectReference: {fileID: 0}
     - target: {fileID: 6008176971784894975, guid: f3283f672c3e6634d809bda9162eb93f, type: 3}
       propertyPath: m_LocalScale.x
       value: 1.25
@@ -213,9 +217,17 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8606354676536088283, guid: f3283f672c3e6634d809bda9162eb93f, type: 3}
+      propertyPath: m_Layer
+      value: 18
+      objectReference: {fileID: 0}
     - target: {fileID: 8814232722100117061, guid: f3283f672c3e6634d809bda9162eb93f, type: 3}
       propertyPath: m_Name
       value: Lever
+      objectReference: {fileID: 0}
+    - target: {fileID: 8814232722100117061, guid: f3283f672c3e6634d809bda9162eb93f, type: 3}
+      propertyPath: m_Layer
+      value: 18
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -257,8 +269,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   id:
-    high: -1567651030
-    low: -1130799291
+    high: 1735833605
+    low: 1426349711
   ownerId: -1
   prefabId:
     high: 0

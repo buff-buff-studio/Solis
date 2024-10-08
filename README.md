@@ -1,11 +1,27 @@
-# **TCC** - Codename _SolarBuff_
+# **Solis** <sup>by Buff Buff Studios 🐸<sup> 
 
 <p align="center">
-  <a href="https://buff-buff-studios.itch.io">
-    <img src="https://github.com/buff-buff-studio/SolarPunk-Project/assets/17664054/888d2eda-3ac8-4849-9c1e-e4142eb33861" width="400" alt="Logo">
+  <a href="https://jogospuc.com.br/mostra">
+    <img src="https://github.com/user-attachments/assets/99a6afd7-6230-4b39-9f18-cfa7b5c7e422" width="400" alt="Logo">
   </a>
   <p align="center">
-    <img alt="GitHub repo size" src="https://img.shields.io/github/repo-size/buff-buff-studio/SolarPunk-Project">
-    <img alt="Lines of code" src="http://tokei.ekzhang.com/b1/github/buff-buff-studio/SolarPunk-Project?color=#7CEC1D">
+    <img alt="GitHub repo size" src="https://img.shields.io/github/repo-size/buff-buff-studio/Solis">
+    <img alt="Lines of code" src="http://tokei.ekzhang.com/b1/github/buff-buff-studio/Solis">
   </p>
 </p>
+
+## **[Open Beta](https://github.com/buff-buff-studio/Solis/releases/tag/0.5.2)**
+
+### Teaser
+<a href="https://youtu.be/W_hOIR2WtTk?si=8ecKOaBlP2iMr62R"> <img alt="License" width="400" src="https://jogospuc.com.br/ti/img_thumb/jogo_64_1719842640.jpg"> </a>
+
+## Built With
+Solis and its assets were built using the following software:
+* [Unity](https://unity.com/)
+* [Blender](https://www.blender.org/)
+* [Adobe Photoshop](https://www.adobe.com/products/photoshop.html)
+* [Krita](https://krita.org)
+* [Adobe Audition](https://www.adobe.com/products/audition.html)
+* [Audacity](https://www.audacityteam.org/)
+* [Visual Studio Code](https://code.visualstudio.com/)
+* [JetBrains Rider](https://www.jetbrains.com/rider/)

@@ -11,6 +11,10 @@ namespace Interface
     [DisallowMultipleComponent]
     public class Label : MonoBehaviour
     {
+        #region Public Fields
+        public bool resize = false;
+        #endregion
+
         #region Private Fields
         private TMP_Text _text;
         private string _buffer;
@@ -37,6 +41,15 @@ namespace Interface
         private void _Localize()
         {
             _text.text = LanguagePalette.Localize(_buffer);
+
+            if (resize)
+                _Resize();
+        }
+
+        private void _Resize()
+        {
+            _text.ForceMeshUpdate();
+            _text.rectTransform.sizeDelta = new Vector2(_text.renderedWidth, _text.renderedHeight);
         }
         #endregion
     }

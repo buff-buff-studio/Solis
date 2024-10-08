@@ -10,9 +10,15 @@ namespace Solis.Circuit.Components
     /// <summary>
     /// A button that can be pressed by a player and will stay on for a certain amount of time.
     /// </summary>
-    public class CircuitTemporizedButton : CircuitComponent
+    public class CircuitTemporizedButton : CircuitInteractive
     {
         #region Inspector Fields
+
+        public float timeOn = 4;
+        public Vector3 knobOn = new(0, 0.15f, 0f);
+        public Vector3 knobOff = new(0, 0.25f, 0f);
+
+        [Space]
         [Header("STATE")]
         public BoolNetworkValue isOn = new(false);
 
@@ -20,13 +26,6 @@ namespace Solis.Circuit.Components
         [Header("REFERENCES")]
         public CircuitPlug output;
         public Transform knob;
-
-        [Header("SETTINGS")]
-        public float radius = 3f;
-        public CharacterTypeFilter playerTypeFilter = CharacterTypeFilter.Both;
-        public float timeOn = 4;
-        public Vector3 knobOn = new(0, 0.15f, 0f);
-        public Vector3 knobOff = new(0, 0.25f, 0f);
 
         #endregion
 
@@ -40,15 +39,8 @@ namespace Solis.Circuit.Components
             WithValues(isOn);
             
             base.OnEnable();
-            PacketListener.GetPacketListener<PlayerInteractPacket>().AddServerListener(_OnPlayerInteract);
             
             isOn.OnValueChanged += _OnValueChanged;
-        }
-
-        protected override void OnDisable()
-        {
-            base.OnDisable();
-            PacketListener.GetPacketListener<PlayerInteractPacket>().RemoveServerListener(_OnPlayerInteract);
         }
         
         private void FixedUpdate()
@@ -69,10 +61,7 @@ namespace Solis.Circuit.Components
             return new CircuitData(isOn.Value);
         }
 
-        protected override void OnRefresh()
-        {
-            
-        }
+        protected override void OnRefresh() { }
 
         public override IEnumerable<CircuitPlug> GetPlugs()
         {
@@ -81,27 +70,15 @@ namespace Solis.Circuit.Components
         #endregion
         
         #region Private Methods
-        private bool _OnPlayerInteract(PlayerInteractPacket arg1, int arg2)
+        protected override bool OnPlayerInteract(PlayerInteractPacket arg1, int arg2)
         {
-            var player = GetNetworkObject(arg1.Id);
-            var dist = Vector3.Distance(player.transform.position, transform.position);
-            
-            if (dist > radius)
+            if (!PlayerChecker(arg1, out var player))
                 return false;
-            
-            var controller = player.GetComponent<PlayerControllerBase>();
-            if (controller == null)
-                return false;
-            
-            if (playerTypeFilter.Filter(controller.CharacterType))
-            {
-                isOn.Value = true;
-                _timeOnCounter = timeOn;
-                onToggleComponent?.Invoke();
-                return true;
-            }
-            
-            return false;
+
+            isOn.Value = true;
+            _timeOnCounter = timeOn;
+            onToggleComponent?.Invoke();
+            return true;
         }
         
         private void _OnValueChanged(bool old, bool @new)

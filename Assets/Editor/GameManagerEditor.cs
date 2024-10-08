@@ -42,6 +42,7 @@ namespace Editor
                 
                 if (GUILayout.Button("Reload Level"))
                 {
+                    gameManager.SaveData.currentLevel = gameManager.FindActiveLevel();
                     gameManager.LoadLevel();
                 }
 

@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using NetBuff.Components;
 using NetBuff.Interface;
 using NetBuff.Misc;
 using Solis.Circuit.Interfaces;
+using Solis.Misc.Props;
 using Solis.Packets;
 using UnityEngine;
 
@@ -32,15 +34,16 @@ namespace Solis.Circuit.Components
         public FloatNetworkValue position = new(0);
 
         [Header("SETTINGS")]
-        public int tickRate = 64;
+        public int tickRate = 16;
         public float moveSpeed = 2f;
-        public float clawRadius = 2f;
+        public float clawRadius = 3f;
         public AnimationCurve speedCurve = AnimationCurve.Linear(0, 0, 1, 1);
         #endregion
 
         #region Private Fields
         private bool _wasMoving;
         private bool _lastValue;
+        private List<Collider> _targets;
         #endregion
 
         #region Unity Callbacks
@@ -111,6 +114,20 @@ namespace Solis.Circuit.Components
                 else
                     magnetic.Demagnetize(claw.gameObject, anchor);
             }
+
+            if (packet is PacketClawFxChanged fxChanged)
+            {
+                if (fxChanged.Enabled)
+                {
+                    fxRed.Play();
+                    fxBlue.Play();
+                }
+                else
+                {
+                    fxRed.Stop();
+                    fxBlue.Stop();
+                }
+            }
         }
 
         public override void OnSpawned(bool isRetroactive)
@@ -138,8 +155,12 @@ namespace Solis.Circuit.Components
             if (_lastValue != value)
             {
                 _lastValue = value;
-                fxRed.Play();
-                fxBlue.Play();
+                
+                SendPacket(new PacketClawFxChanged
+                {
+                    Id = Id,
+                    Enabled = true
+                }, true);
             }
 
             if (isMoving != _wasMoving)
@@ -148,6 +169,7 @@ namespace Solis.Circuit.Components
                 {
                     foreach (var target in _GetTargetsByCollider())
                     {
+                        Debug.Log(target.GetGameObject());
                         var go = target.GetGameObject();
                         var identity = go.GetComponent<NetworkIdentity>();
                         if (identity == null)
@@ -158,7 +180,7 @@ namespace Solis.Circuit.Components
                             Id = Id,
                             Object = identity.Id,
                             Magnetized = true
-                        });
+                        }, true);
                     }
                 }
                 else
@@ -175,10 +197,14 @@ namespace Solis.Circuit.Components
                             Id = Id,
                             Object = identity.Id,
                             Magnetized = false
-                        });
+                        }, true);
                     }
-                    fxRed.Stop();
-                    fxBlue.Stop();
+                    
+                    SendPacket(new PacketClawFxChanged
+                    {
+                        Id = Id,
+                        Enabled = false
+                    }, true);
                 }
             }
             
@@ -188,7 +214,8 @@ namespace Solis.Circuit.Components
         private IEnumerable<IMagneticObject> _GetTargetsByCollider()
         {
             var count = Physics.OverlapSphereNonAlloc(anchor.position, clawRadius, _Results);
-            return _Results.Take(count).Select(c => c.GetComponent<IMagneticObject>()).Where(c => c != null).ToArray();
+            
+            return _Results.Take(count).Select(c => c.GetComponent<IMagneticObject>()).Where(c => c != null).Where(c=>c.CanBeMagnetized()).ToArray();
         }
         
         private IEnumerable<IMagneticObject> _GetAllMagnetized()
@@ -196,5 +223,23 @@ namespace Solis.Circuit.Components
             return FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).OfType<IMagneticObject>().Where(c => c.GetCurrentAnchor() == anchor).ToArray();
         }
         #endregion
+    }
+    
+    public class PacketClawFxChanged : IOwnedPacket
+    {
+        public NetworkId Id { get; set; }
+        public bool Enabled { get; set; }
+        
+        public void Serialize(BinaryWriter writer)
+        {
+            Id.Serialize(writer);
+            writer.Write(Enabled);
+        }
+
+        public void Deserialize(BinaryReader reader)
+        {
+            Id = NetworkId.Read(reader);
+            Enabled = reader.ReadBoolean();
+        }
     }
 }

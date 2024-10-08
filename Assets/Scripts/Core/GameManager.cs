@@ -4,6 +4,7 @@ using NetBuff;
 using NetBuff.Components;
 using NetBuff.Misc;
 using NetBuff.Relays;
+using Solis.Audio.Players;
 using Solis.Player;
 using Solis.Data;
 using Solis.Data.Saves;
@@ -45,6 +46,9 @@ namespace Solis.Core
 
         [Header("SETTINGS")]
         public string[] persistentScenes = { "Core" };
+        
+        public SolisMusicPlayer lobbyMusic;
+        public SolisMusicPlayer gameMusic;
         #endregion
 
         #region Private Fields
@@ -93,15 +97,21 @@ namespace Solis.Core
 #if UNITY_EDITOR
             var scene = SolisNetworkManager.sceneToLoad;
             if(!string.IsNullOrEmpty(scene) && scene != "Null" && scene != "Lobby")
+            {
                 isGameStarted = true;
+                save.data.currentLevel = FindActiveLevel();
+            }
 #endif
             LoadingLobby(isGameStarted);
         }
 
         private void Update()
         {
-            if(Input.GetKeyDown(KeyCode.K))
-                ButtonRestartLevel();
+            if (Input.GetKeyDown(KeyCode.K) && SaveData.currentLevel % 2 == 1)
+            {
+                SaveData.currentLevel++;
+                LoadLevel();
+            }
 
             if (!isGameStarted)
                 isGameStarted = !NetworkManager.Instance.LoadedScenes.Contains(registry.sceneLobby.Name);
@@ -312,6 +322,23 @@ namespace Solis.Core
             if (!save.IsSaved)
                 save.New();
         }
+
+#if UNITY_EDITOR
+        public int FindActiveLevel()
+        {
+            if(SceneManager.sceneCount < 2) return save.data.currentLevel;
+            var scene = SceneManager.GetSceneAt(1).name;
+            if(registry.levels.Any(x => x.scene.sceneName == scene))
+            {
+                var registryLevels = registry.levels.ToList();
+                var item = registryLevels.Find(x => x.scene.sceneName == scene);
+                Debug.Log("Level found in registry: " + scene + " at index: " + SaveData.currentLevel);
+                return registryLevels.IndexOf(item);
+            }
+            Debug.LogWarning("Scene not found in registry: " + scene);
+            return save.data.currentLevel;
+        }
+#endif
         #endregion
 
         #region Private Methods
@@ -360,6 +387,7 @@ namespace Solis.Core
                     : (IsOnLobby ? playerRobotLobbyPrefab : playerRobotGamePrefab);
                 
                 Spawn(prefab, spawnPos, Quaternion.identity, Vector3.one, true, clientId);
+
                 #endregion
             }
         }
@@ -395,7 +423,7 @@ namespace Solis.Core
         {
             fadeScreen.gameObject.SetActive(true);
             
-            const float fadeTime = 0.5f;
+            const float fadeTime = 0.25f;
             var time = 0f;
             var from = fadeScreen.alpha;
             var target = @in ? 1f : 0f;
@@ -414,10 +442,14 @@ namespace Solis.Core
 
         public override void OnSceneLoaded(int sceneId)
         {
+            Debug.Log("Scene loaded: " + sceneId);
             copyCode.gameObject.SetActive(IsOnLobby);
             leaveGame.gameObject.SetActive(!IsOnLobby);
             restartLevel.gameObject.SetActive(!IsOnLobby && IsServer);
             LoadingLobby(IsOnLobby || isGameStarted);
+            
+            lobbyMusic.gameObject.SetActive(IsOnLobby);
+            gameMusic.gameObject.SetActive(!IsOnLobby);
         }
         
         public void ButtonLeaveGame()
