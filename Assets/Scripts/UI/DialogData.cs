@@ -17,7 +17,9 @@ namespace UI
     {
         Shake,
         Big,
-        Small
+        Small,
+        Rainbow,
+        Glitch
     }
     [Serializable]
     public enum Emojis
@@ -89,12 +91,13 @@ namespace UI
         public Emojis[] emojis;
         private List<string> _instancedValues;
       
-        
+        List<EffectsAndWords> effectsAndWords = new List<EffectsAndWords>();
         public string GetFormattedString()
         {
-            List<EffectsAndWords> effectsAndWords = new List<EffectsAndWords>();
+            effectsAndWords.Clear();
             _instancedValues = new List<string>();
 
+            // Adicionando os valores dos emojis (como no seu código original)
             for (int i = 0; i < emojis.Length; i++)
             {
                 EmojisStructure emojisStructure = DialogPanel.Instance.emojisStructure.First(c => c.emoji == emojis[i]);
@@ -103,34 +106,51 @@ namespace UI
                 _instancedValues.Add(value);
             }
 
+            // Iniciar o processo de busca por efeitos
+            string processedText = ProcessTags(textValue);
+
+            DialogPanel.Instance.textWriterSingle.effectsAndWords = effectsAndWords;
+
+            return string.Format(processedText, _instancedValues.ToArray());
+        }
+        private string ProcessTags(string textWithTags)
+        {
+            string processedText = textWithTags;
+
+            // Iterar sobre todos os efeitos
             foreach (var effect in Enum.GetValues(typeof(Effects)))
             {
-                Debug.Log(effect.ToString());
-                // Expressão regular para encontrar o conteúdo entre <mytag> e </mytag>
-                string pattern = $@"<{effect}>(.*?)<\/{effect}>";
+                string effectName = effect.ToString();
+        
+                // Obter as correspondências para a tag de efeito atual
+                MatchCollection matches = GetRegexMatch(effectName, processedText);
 
-                // MatchCollection encontra todas as correspondências da regex no texto
-                MatchCollection matches = Regex.Matches(textValue, pattern);
-
-                // Loop para processar cada correspondência
+                // Processar cada correspondência
                 foreach (Match match in matches)
                 {
-                    // Captura o conteúdo entre as tags
                     string contentBetweenTags = match.Groups[1].Value;
 
-                    // Exemplo de como manipular o conteúdo encontrado
-                    Debug.Log($"Conteúdo entre <{effect}>: " + contentBetweenTags);
+                    // Processar recursivamente o conteúdo dentro da tag, caso contenha mais tags aninhadas
+                    string nestedProcessedContent = ProcessTags(contentBetweenTags);
 
-                    // Aqui, você pode substituir a tag por algo customizado
-                    textValue = textValue.Replace(match.Value, "" + contentBetweenTags + "");
-                    
-                    effectsAndWords.Add(new EffectsAndWords((Effects)effect, contentBetweenTags));
+                    // Adicionar o efeito e o conteúdo processado à lista
+                    effectsAndWords.Add(new EffectsAndWords((Effects)effect, nestedProcessedContent));
 
+                    // Substituir a tag completa pelo conteúdo interno processado (sem as tags)
+                    processedText = processedText.Replace(match.Value, nestedProcessedContent);
                 }
             }
-            
-            DialogPanel.Instance.textWriterSingle.effectsAndWords = effectsAndWords;
-            return string.Format(textValue, _instancedValues.ToArray());
+
+            return processedText;
+        }
+        
+       
+        private MatchCollection GetRegexMatch(string effect, string textValue)
+        {
+            string pattern = $@"<{effect}>(.*?)<\/{effect}>";
+
+            MatchCollection matches = Regex.Matches(textValue, pattern);
+            return matches;
         }
     }
     
