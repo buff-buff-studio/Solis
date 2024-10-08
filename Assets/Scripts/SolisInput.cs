@@ -35,6 +35,13 @@ public class SolisInput : MonoBehaviour
     private void OnEnable()
     {
         _input.ActivateInput();
+        CurrentInputType = _input.currentControlScheme switch
+        {
+            "Keyboard" => InputType.Keyboard,
+            "Gamepad" => InputType.Gamepad,
+            _ => InputType.Keyboard
+        };
+        
         _input.onActionTriggered += OnActionTriggered;
         _input.onControlsChanged += OnControlsChanged;
     }
@@ -87,7 +94,11 @@ public class SolisInput : MonoBehaviour
         if (CurrentInputType == InputType.Gamepad)
         {
             var gamepad = (DualShockGamepad)Gamepad.all.ToList().Find(x => x is DualShockGamepad);
-            if (gamepad == null) return;
+            if (gamepad == null)
+            {
+                Debug.Log("No DualShock/DualSense Gamepad found, your gamepad is a: " + Gamepad.current.name + " instead.");
+                return;
+            }
 
             gamepad.SetLightBarColor(col);
         }

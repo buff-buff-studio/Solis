@@ -252,6 +252,7 @@ namespace Solis.Player
                     _Move();
                     _Jump();
                     _Interact();
+                    _Special();
                     break;
                 case State.Magnetized:
                     if (magnetAnchor == null)
@@ -488,7 +489,7 @@ namespace Solis.Player
         #endregion
 
         #region Private Methods
-        private void _Timer()
+        protected virtual void _Timer()
         {
             var deltaTime = Time.deltaTime;
             _coyoteTimer = IsGrounded ? CoyoteTime : _coyoteTimer - deltaTime;
@@ -535,6 +536,8 @@ namespace Solis.Player
                 if(SolisInput.GetKeyDown("Skip"))
                     SendPacket(new PlayerInputPackage { Key = KeyCode.Return, Id = Id, CharacterType = this.CharacterType}, true);
         }
+        
+        protected virtual void _Special() { }
 
         private void _Move()
         {
