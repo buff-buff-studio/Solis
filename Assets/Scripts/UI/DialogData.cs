@@ -96,8 +96,8 @@ namespace UI
         {
             effectsAndWords.Clear();
             _instancedValues = new List<string>();
-
-            // Adicionando os valores dos emojis (como no seu código original)
+            
+            /*
             for (int i = 0; i < emojis.Length; i++)
             {
                 EmojisStructure emojisStructure = DialogPanel.Instance.emojisStructure.First(c => c.emoji == emojis[i]);
@@ -105,38 +105,52 @@ namespace UI
                 string value = $"<sprite name=\"{emojisStructure.emojiNameInSpriteEditor}\"> <color=#{emojisStructure.textColor.ToHexString()}>{field}</color>";
                 _instancedValues.Add(value);
             }
+            */
+            /*string newText = textValue;
+            foreach (var emojiStructure in DialogPanel.Instance.emojisStructure)
+            {
+                string emojiPlaceholder = $"{{{emojiStructure.emoji.ToString()}}}";
+                string value = $"<sprite name=\"{emojiStructure.emojiNameInSpriteEditor}\"> <color=#{emojiStructure.textColor.ToHexString()}>{emojiStructure.emojiNameDisplay}</color>";
+                newText = newText.Replace(emojiPlaceholder, value);
+            }*/
+            
+            string pattern = @"\{(\w+)\}";
+            
+            string newText = Regex.Replace(textValue, pattern, match =>
+            {
+                string emojiName = match.Groups[1].Value;
+                
+                var emojiStructure = DialogPanel.Instance.emojisStructure.FirstOrDefault(c => c.emoji.ToString() == emojiName);
 
-            // Iniciar o processo de busca por efeitos
-            string processedText = ProcessTags(textValue);
-
+                if (emojiStructure != null)
+                    return $"<sprite name=\"{emojiStructure.emojiNameInSpriteEditor}\"> <color=#{emojiStructure.textColor.ToHexString()}>{emojiStructure.emojiNameDisplay}</color>";
+                
+                return match.Value;
+            });
+            
+            string processedText = ProcessTags(newText);
             DialogPanel.Instance.textWriterSingle.effectsAndWords = effectsAndWords;
-
-            return string.Format(processedText, _instancedValues.ToArray());
+            return processedText;
         }
         private string ProcessTags(string textWithTags)
         {
             string processedText = textWithTags;
-
-            // Iterar sobre todos os efeitos
+            
             foreach (var effect in Enum.GetValues(typeof(Effects)))
             {
                 string effectName = effect.ToString();
         
-                // Obter as correspondências para a tag de efeito atual
+             
                 MatchCollection matches = GetRegexMatch(effectName, processedText);
-
-                // Processar cada correspondência
+                
                 foreach (Match match in matches)
                 {
                     string contentBetweenTags = match.Groups[1].Value;
-
-                    // Processar recursivamente o conteúdo dentro da tag, caso contenha mais tags aninhadas
+                    
                     string nestedProcessedContent = ProcessTags(contentBetweenTags);
-
-                    // Adicionar o efeito e o conteúdo processado à lista
+                    
                     effectsAndWords.Add(new EffectsAndWords((Effects)effect, nestedProcessedContent));
-
-                    // Substituir a tag completa pelo conteúdo interno processado (sem as tags)
+                    
                     processedText = processedText.Replace(match.Value, nestedProcessedContent);
                 }
             }

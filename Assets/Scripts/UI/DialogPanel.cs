@@ -41,7 +41,7 @@ public struct CharacterTypeAndImages
     public List<EmotionsAndImages> emotesAndImages;
 }
 [Serializable]
-public struct EmojisStructure
+public class EmojisStructure
 {
     public Emojis emoji;
     public string emojiNameDisplay;
