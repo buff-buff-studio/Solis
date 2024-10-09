@@ -45,7 +45,7 @@ public class NinaCloud : NetworkBehaviour
         if (!Mathf.Approximately(transform.position.y, _positionY))
         {
             var distance = _positionY - transform.position.y;
-            _rigidbody.AddForce(Vector3.up * (distance * 20 * Time.deltaTime), ForceMode.Force);
+            _rigidbody.AddForce(Vector3.up * (distance * 10 * Time.deltaTime), ForceMode.Force);
         }
 
         _lifeTime.Value -= Time.deltaTime;

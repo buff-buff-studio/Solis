@@ -111,14 +111,14 @@ namespace Solis.Player
         private float _coyoteTimer;
         private float _jumpTimer;
         private float _startJumpPos;
-        private bool _isJumping;
+        internal bool IsJumping;
         private bool _isJumpingEnd;
         private bool _inJumpState;
         private bool _isJumpCut;
         private float _lastJumpHeight;
         private float _lastJumpVelocity;
         
-        private protected bool _isFalling;
+        private bool _isFalling;
         
         private bool _isCinematicRunning = true;
 
@@ -181,10 +181,10 @@ namespace Solis.Player
         private Vector2 MoveInput => SolisInput.GetVector2("Move");
         private bool InputJump => SolisInput.GetKeyDown("Jump");
         private bool InputJumpUp => SolisInput.GetKeyUp("Jump");
-        private bool CanJump => !_isJumping && (IsGrounded || _coyoteTimer > 0) && _jumpTimer <= 0 && !isPaused.Value && !DialogPanel.IsDialogPlaying;
+        private bool CanJump => !IsJumping && (IsGrounded || _coyoteTimer > 0) && _jumpTimer <= 0 && !isPaused.Value && !DialogPanel.IsDialogPlaying;
 
         private protected bool CanJumpCut =>
-            _isJumping && (transform.position.y - _startJumpPos) >= JumpCutMinHeight;
+            IsJumping && (transform.position.y - _startJumpPos) >= JumpCutMinHeight;
         private bool IsPlayerLocked => _isCinematicRunning || isRespawning.Value;
         private Vector3 HeadOffset => headOffset.position;
         #endregion
@@ -342,7 +342,7 @@ namespace Solis.Player
                     Physics.SyncTransforms();
                     if (Physics.CheckSphere(transform.position, 0.5f, LayerMask.GetMask("SafeGround")))
                     {
-                        if (!Physics.Raycast(nextPos, Vector3.down, 1.1f) && !_isJumping && IsGrounded)
+                        if (!Physics.Raycast(nextPos, Vector3.down, 1.1f) && !IsJumping && IsGrounded)
                         {
                             walking = false;
                             velocity.x = velocity.z = 0;
@@ -427,7 +427,7 @@ namespace Solis.Player
 
             if (Physics.Raycast(debugNextMovePos, Vector3.down, 1.1f))
             {
-                Gizmos.color = !_isJumping && IsGrounded ? Color.green : Color.yellow;
+                Gizmos.color = !IsJumping && IsGrounded ? Color.green : Color.yellow;
                 Gizmos.DrawRay(debugNextMovePos, hit.point - debugNextMovePos);
             }
             else
@@ -557,7 +557,7 @@ namespace Solis.Player
             if (InputJump && CanJump)
             {
                 animator.SetTrigger("Jumping");
-                _isJumping = true;
+                IsJumping = true;
                 _isJumpingEnd = false;
                 _isJumpCut = false;
                 _inJumpState = true;
@@ -576,18 +576,18 @@ namespace Solis.Player
             
             if (_isJumpCut && CanJumpCut)
             {
-                _isJumping = false;
+                IsJumping = false;
                 velocity.y *= 0.5f;
                 _multiplier = JumpGravityMultiplier;
             }
 
-            if (_isJumping)
+            if (IsJumping)
             {
                 velocity.y += JumpAcceleration * Time.deltaTime;
                 var diff = Mathf.Abs((transform.position.y + (velocity.y*Time.fixedDeltaTime)) - _startJumpPos);
                 if (diff >= JumpMaxHeight)
                 {
-                    _isJumping = false;
+                    IsJumping = false;
                     velocity.y *= MaxHeightDecel;
                     _multiplier = JumpGravityMultiplier;
                     Debug.Log("Max Height Reached");
@@ -630,17 +630,17 @@ namespace Solis.Player
                 return;
             }
 
-            if (!_isFalling && (velocity.y < 0 || (!_isJumping && velocity.y > 1)))
+            if (!_isFalling && (velocity.y < 0 || (!IsJumping && velocity.y > 1)))
                 _isFalling = true;
 
-            if (_isJumping)
+            if (IsJumping)
             {
                 var posY = transform.position.y;
                 var expectedYPos = _lastJumpHeight + (_lastJumpVelocity * Time.fixedDeltaTime);
                 var diff = Mathf.Abs(expectedYPos - posY);
                 if(diff > 0.1f && posY < expectedYPos)
                 {
-                    _isJumping = false;
+                    IsJumping = false;
                     _isJumpCut = false;
                     _isJumpingEnd = true;
                     velocity.y *= HitHeadDecel;
