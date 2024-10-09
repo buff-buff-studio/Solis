@@ -97,7 +97,9 @@ namespace Solis.Circuit.Components
                         {
                             p.velocity.y = 0;
                             p.IsJumping = false;
+                            continue;
                         }
+
                         p.velocity.y += speed;
                         continue;
                     }
