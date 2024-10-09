@@ -8,6 +8,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Solis.Data;
+using Solis.Interface.Input;
 using Solis.Misc.Integrations;
 
 namespace Solis.Interface.Lobby
@@ -46,6 +47,8 @@ namespace Solis.Interface.Lobby
         public SaveListScreen saveListScreen;
         #endregion
 
+        private bool canStartGame = true;
+
         #region Unity Callbacks
         public void OnEnable()
         {
@@ -78,7 +81,7 @@ namespace Solis.Interface.Lobby
 
             if (HasAuthority)
             {
-                if(Input.GetKeyDown(KeyCode.Return))
+                if(SolisInput.GetKeyDown("Submit") && canStartGame)
                     StartGame();
             }
         }
@@ -166,7 +169,7 @@ namespace Solis.Interface.Lobby
             if (!HasAuthority)
                 return;
 
-            var canStartGame = true;
+            canStartGame = true;
 
             var sessions = NetworkManager.Instance.GetAllSessionData<SolisSessionData>();
             // ReSharper disable once PossibleMultipleEnumeration
