@@ -22,39 +22,29 @@ namespace DefaultNamespace
         public float shakeSpeed = 100; // Velocidade do shake
 
         private TMP_MeshInfo[] cachedMeshInfo; // Armazena o estado original do mesh
-
-        private void Update()
+        public float glitchIntensity = 1.0f; // Mais intensidade no deslocamento dos vértices
+        public float glitchSpeed = 20.0f;    // Glitch mais rápido
+        public float glitchFrequency = 0.3f; // Aumento na frequência dos glitches
+        public Gradient rainbow;
+     private void Update()
         {
             SetProgress();
-
             WriteText();
-
-            // Aplicar os efeitos continuamente após o texto ser escrito
-            /*if (!isWriting)
-            {
-                ApplyEffects();
-            }
-            else
-            {
-                WriteText();
-            }*/
         }
 
         public void SetText(string dialog, Action callback)
         {
-            text.text = dialog;
             _currentText = dialog;
+            text.text = ""; // Esconder o texto inicialmente
             progress = 0;
             isWriting = true;
             onFinishWriting = callback;
             _canApplyEffects = false;
 
-            // Cache para manter o estado original do mesh, evitando sobrescrever os efeitos
-            text.ForceMeshUpdate(); // Atualiza o estado inicial do texto
+            text.ForceMeshUpdate();
             if (text.textInfo != null && text.textInfo.characterCount > 0)
             {
-                // Cache para manter o estado original do mesh, evitando sobrescrever os efeitos
-                cachedMeshInfo = text.textInfo.CopyMeshInfoVertexData(); // Caching dos dados do mesh
+                cachedMeshInfo = text.textInfo.CopyMeshInfoVertexData();
             }
             else
             {
@@ -68,16 +58,81 @@ namespace DefaultNamespace
 
             progress += Time.deltaTime / typeDuration;
 
-            if (!(progress >= 1)) return;
-            progress = 1;
-            onFinishWriting?.Invoke();
-            isWriting = false;
-            _canApplyEffects = true;
+            if (progress >= 1)
+            {
+                progress = 1;
+                onFinishWriting?.Invoke();
+                isWriting = false;
+                _canApplyEffects = true;
+            }
         }
+
+        private void WriteText()
+        {
+            if (text == null || text.textInfo == null) return;
+
+            // Variáveis para processar o texto
+            int charactersToShow = Mathf.FloorToInt(progress * _currentText.Length);
+            string displayedText = ""; // Texto a ser exibido
+            int actualCharCount = 0; // Contagem de caracteres reais (ignorando as tags)
+
+            for (int i = 0; i < _currentText.Length && actualCharCount < charactersToShow; i++)
+            {
+                // Ignora tags como <sprite> ou <color> e trata como um único caractere
+                if (_currentText[i] == '<')
+                {
+                    // Pula até o fechamento da tag
+                    int closingTagIndex = _currentText.IndexOf('>', i);
+                    if (closingTagIndex != -1)
+                    {
+                        displayedText += _currentText.Substring(i, closingTagIndex - i + 1);
+                        i = closingTagIndex; // Pula para o final da tag
+                        continue; // Não contamos a tag como um caractere visível
+                    }
+                }
+                else
+                {
+                    // Adiciona caracteres normais ao texto
+                    displayedText += _currentText[i];
+                    actualCharCount++;
+                }
+            }
+
+            // Atualiza o texto exibido
+            text.text = displayedText;
+            text.ForceMeshUpdate(); // Garante que o mesh está atualizado
+
+            // Aplica efeitos de animação, como escalonamento e shake
+            for (var i = 0; i < text.textInfo.characterCount; i++)
+            {
+                var charInfo = text.textInfo.characterInfo[i];
+
+                if (!charInfo.isVisible) continue;
+
+                var meshInfo = text.textInfo.meshInfo[charInfo.materialReferenceIndex];
+                var vertexIndex = charInfo.vertexIndex;
+                var vertices = meshInfo.vertices;
+
+                var center = (vertices[vertexIndex + 1] + vertices[vertexIndex + 3]) / 2;
+                var charProgress = Mathf.Clamp01(progress * _currentText.Length - i);
+
+                // Aplica o progresso à escala das letras
+                for (var j = 0; j < 4; j++)
+                {
+                    vertices[vertexIndex + j] = center + (vertices[vertexIndex + j] - center) * charProgress;
+                }
+
+                ApplyEffectsToCharacter(i);
+            }
+
+            // Atualiza os dados do TMP com as modificações feitas nos vértices
+            text.UpdateVertexData(TMP_VertexDataUpdateFlags.All);
+        }
+
+
 
         private void ApplyEffectsToCharacter(int charIndex)
         {
-         
             TMP_TextInfo textInfo = text.textInfo;
             TMP_CharacterInfo charInfo = textInfo.characterInfo[charIndex];
 
@@ -85,7 +140,7 @@ namespace DefaultNamespace
 
             foreach (var effectAndWord in effectsAndWords)
             {
-                int wordIndex = text.text.IndexOf(effectAndWord.word, StringComparison.Ordinal);
+                int wordIndex = _currentText.IndexOf(effectAndWord.word, StringComparison.Ordinal);
                 if (charInfo.index >= wordIndex && charInfo.index < wordIndex + effectAndWord.word.Length)
                 {
                     Vector3[] vertices = textInfo.meshInfo[charInfo.materialReferenceIndex].vertices;
@@ -114,75 +169,24 @@ namespace DefaultNamespace
                 }
             }
         }
-        public float glitchIntensity = 1.0f; // Mais intensidade no deslocamento dos vértices
-        public float glitchSpeed = 20.0f;    // Glitch mais rápido
-        public float glitchFrequency = 0.3f; // Aumento na frequência dos glitches
-       private void ApplyGlitch(Vector3[] vertices, int vertexIndex, int charIndex)
-{
 
-    // Condicional para aplicar o efeito glitch de forma intermitente
-    if (Random.value < glitchFrequency)
-    {
-        // Aplica a distorção nos quatro vértices que compõem o caractere
-        for (int i = 0; i < 4; i++)
-        {
-            Vector3 originalPosition = vertices[vertexIndex + i]; // Posição original do vértice
-
-            // Cria um deslocamento glitch baseado em valores aleatórios e o tempo
-            Vector3 glitchOffset = new Vector3(
-                Random.Range(-glitchIntensity, glitchIntensity),  // Deslocamento aleatório no eixo X
-                Random.Range(-glitchIntensity, glitchIntensity),  // Deslocamento aleatório no eixo Y
-                0);                                               // Sem alteração no eixo Z
-
-            // Aplica o offset de glitch nos vértices do caractere
-            vertices[vertexIndex + i] = originalPosition + glitchOffset;
-        }
-
-        // Opcional: Modificar as cores dos vértices para dar um efeito visual mais forte de glitch
-        Color32[] colors = text.mesh.colors32;
-        if (colors.Length == vertices.Length)
+        private void ApplyShake(Vector3[] vertices, int vertexIndex, int charIndex)
         {
             for (int i = 0; i < 4; i++)
             {
-                // Aplica uma cor aleatória dentro de uma faixa para simular flashes de glitch
-                colors[vertexIndex + i] = new Color32(
-                    (byte)Random.Range(150, 255), // R
-                    (byte)Random.Range(0, 100),   // G
-                    (byte)Random.Range(150, 255), // B
-                    255);                         // A (opacidade total)
+                Vector3 originalPosition = vertices[vertexIndex + i];
+                Vector3 shakeOffset = new Vector3(
+                    Mathf.Sin(Time.time * shakeSpeed + i + charIndex) * shakeIntensity,
+                    Mathf.Cos(Time.time * shakeSpeed + i + charIndex) * shakeIntensity,
+                    0);
+
+                vertices[vertexIndex + i] = originalPosition + shakeOffset;
             }
 
-            // Atualiza as cores da malha
-            text.mesh.colors32 = colors;
+            text.mesh.vertices = vertices;
+            text.canvasRenderer.SetMesh(text.mesh);
         }
-    }
 
-    // Atualiza os vértices e a malha do texto, independentemente se o glitch foi aplicado ou não
-    text.mesh.vertices = vertices;
-    text.canvasRenderer.SetMesh(text.mesh);
-    text.UpdateVertexData(TMP_VertexDataUpdateFlags.Colors32);
-}
-        public Gradient rainbow;
-        private void ApplyRainbow(Vector3[] vertices, int vertexIndex)
-        {
-            // Certifique-se de que o array de cores seja do tipo correto (Color32)
-            Color32[] colors = text.textInfo.meshInfo[0].colors32;
-
-            if (colors == null || colors.Length == 0)
-            {
-                // Inicializa o array de cores com o tamanho correto, caso esteja vazio
-                colors = new Color32[text.textInfo.meshInfo[0].vertices.Length];
-            }
-
-            // Aplica a cor arco-íris nos 4 vértices do caractere
-            colors[vertexIndex] = rainbow.Evaluate(Mathf.Repeat(Time.time + vertices[vertexIndex].x * 0.001f, 1f));
-            colors[vertexIndex + 1] = rainbow.Evaluate(Mathf.Repeat(Time.time + vertices[vertexIndex + 1].x * 0.001f, 1f));
-            colors[vertexIndex + 2] = rainbow.Evaluate(Mathf.Repeat(Time.time + vertices[vertexIndex + 2].x * 0.001f, 1f));
-            colors[vertexIndex + 3] = rainbow.Evaluate(Mathf.Repeat(Time.time + vertices[vertexIndex + 3].x * 0.001f, 1f));
-
-            // Atualiza o mesh com os novos valores de cores
-            text.UpdateVertexData(TMP_VertexDataUpdateFlags.Colors32);
-        }
         private void ApplyScale(Vector3[] vertices, int vertexIndex, float scale)
         {
             Vector3 center = (vertices[vertexIndex] + vertices[vertexIndex + 2]) / 2;
@@ -192,75 +196,57 @@ namespace DefaultNamespace
             }
         }
 
-        private void ApplyShake(Vector3[] vertices, int vertexIndex, int charIndex)
+        private void ApplyRainbow(Vector3[] vertices, int vertexIndex)
         {
-            for (int i = 0; i < 4; i++)
-            {
-                Vector3 originalPosition = vertices[vertexIndex + i]; // Usando diretamente os vértices atuais
-                Vector3 shakeOffset = new Vector3(
-                    Mathf.Sin(Time.time * shakeSpeed + i + charIndex) * shakeIntensity,
-                    Mathf.Cos(Time.time * shakeSpeed + i + charIndex) * shakeIntensity,
-                    0);
+            Color32[] colors = text.textInfo.meshInfo[0].colors32;
 
-                // Aplica o offset de shake diretamente nos vértices
-                vertices[vertexIndex + i] = originalPosition + shakeOffset;
+            if (colors == null || colors.Length == 0)
+            {
+                colors = new Color32[text.textInfo.meshInfo[0].vertices.Length];
             }
-            
-            text.mesh.vertices = vertices;
-            text.canvasRenderer.SetMesh(text.mesh);
+
+            colors[vertexIndex] = rainbow.Evaluate(Mathf.Repeat(Time.time + vertices[vertexIndex].x * 0.001f, 1f));
+            colors[vertexIndex + 1] = rainbow.Evaluate(Mathf.Repeat(Time.time + vertices[vertexIndex + 1].x * 0.001f, 1f));
+            colors[vertexIndex + 2] = rainbow.Evaluate(Mathf.Repeat(Time.time + vertices[vertexIndex + 2].x * 0.001f, 1f));
+            colors[vertexIndex + 3] = rainbow.Evaluate(Mathf.Repeat(Time.time + vertices[vertexIndex + 3].x * 0.001f, 1f));
+
+            text.UpdateVertexData(TMP_VertexDataUpdateFlags.Colors32);
         }
 
-        private void WriteText()
+        private void ApplyGlitch(Vector3[] vertices, int vertexIndex, int charIndex)
         {
-            if (text == null || text.mesh == null) return;
-            
-            text.ForceMeshUpdate(); // Atualiza o mesh uma única vez para obter o estado dos vértices
-
-            for (var i = 0; i < text.textInfo.characterCount; i++)
+            if (Random.value < glitchFrequency)
             {
-                var charInfo = text.textInfo.characterInfo[i];
-
-                if (!charInfo.isVisible) continue;
-
-                var meshInfo = text.textInfo.meshInfo[charInfo.materialReferenceIndex];
-                var vertexIndex = charInfo.vertexIndex;
-                var vertices = meshInfo.vertices;
-
-                var center = (vertices[vertexIndex + 1] + vertices[vertexIndex + 3]) / 2;
-                var charProgress = Mathf.Clamp01(progress * text.textInfo.characterCount - i);
-
-                // Aplica o progresso à escala das letras
-                for (var j = 0; j < 4; j++)
+                for (int i = 0; i < 4; i++)
                 {
-                    vertices[vertexIndex + j] = center + (vertices[vertexIndex + j] - center) * charProgress;
+                    Vector3 originalPosition = vertices[vertexIndex + i];
+                    Vector3 glitchOffset = new Vector3(
+                        Random.Range(-glitchIntensity, glitchIntensity),
+                        Random.Range(-glitchIntensity, glitchIntensity),
+                        0);
+
+                    vertices[vertexIndex + i] = originalPosition + glitchOffset;
                 }
 
-                // Aplica os efeitos à medida que as letras aparecem
-                ApplyEffectsToCharacter(i);
+                Color32[] colors = text.mesh.colors32;
+                if (colors.Length == vertices.Length)
+                {
+                    for (int i = 0; i < 4; i++)
+                    {
+                        colors[vertexIndex + i] = new Color32(
+                            (byte)Random.Range(150, 255),
+                            (byte)Random.Range(0, 100),
+                            (byte)Random.Range(150, 255),
+                            255);
+                    }
+
+                    text.mesh.colors32 = colors;
+                }
             }
 
-            // Atualiza o mesh com as modificações feitas nos vértices
-            text.UpdateVertexData(TMP_VertexDataUpdateFlags.All);
-        }
-
-        private void ApplyEffects()
-        {
-            if (text == null || text.mesh == null) return;
-
-            text.ForceMeshUpdate(); // Garante que o mesh está atualizado
-
-            for (var i = 0; i < text.textInfo.characterCount; i++)
-            {
-                var charInfo = text.textInfo.characterInfo[i];
-
-                if (!charInfo.isVisible) continue;
-
-                // Aplica os efeitos à medida que as letras aparecem
-                ApplyEffectsToCharacter(i);
-            }
-
-            // Força a atualização do mesh após a aplicação dos efeitos
-            text.UpdateVertexData(TMP_VertexDataUpdateFlags.All);
+            text.mesh.vertices = vertices;
+            text.canvasRenderer.SetMesh(text.mesh);
+            text.UpdateVertexData(TMP_VertexDataUpdateFlags.Colors32);
         }
     }
 }

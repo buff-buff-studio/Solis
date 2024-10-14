@@ -88,84 +88,8 @@ namespace UI
         private TextMeshProUGUI _textField;
         [TextArea]
         public string textValue;
-        public Emojis[] emojis;
-        private List<string> _instancedValues;
-      
-        List<EffectsAndWords> effectsAndWords = new List<EffectsAndWords>();
-        public string GetFormattedString()
-        {
-            effectsAndWords.Clear();
-            _instancedValues = new List<string>();
-            
-            /*
-            for (int i = 0; i < emojis.Length; i++)
-            {
-                EmojisStructure emojisStructure = DialogPanel.Instance.emojisStructure.First(c => c.emoji == emojis[i]);
-                var field = emojisStructure.emojiNameDisplay;
-                string value = $"<sprite name=\"{emojisStructure.emojiNameInSpriteEditor}\"> <color=#{emojisStructure.textColor.ToHexString()}>{field}</color>";
-                _instancedValues.Add(value);
-            }
-            */
-            /*string newText = textValue;
-            foreach (var emojiStructure in DialogPanel.Instance.emojisStructure)
-            {
-                string emojiPlaceholder = $"{{{emojiStructure.emoji.ToString()}}}";
-                string value = $"<sprite name=\"{emojiStructure.emojiNameInSpriteEditor}\"> <color=#{emojiStructure.textColor.ToHexString()}>{emojiStructure.emojiNameDisplay}</color>";
-                newText = newText.Replace(emojiPlaceholder, value);
-            }*/
-            
-            string pattern = @"\{(\w+)\}";
-            
-            string newText = Regex.Replace(textValue, pattern, match =>
-            {
-                string emojiName = match.Groups[1].Value;
-                
-                var emojiStructure = DialogPanel.Instance.emojisStructure.FirstOrDefault(c => c.emoji.ToString() == emojiName);
-
-                if (emojiStructure != null)
-                    return $"<sprite name=\"{emojiStructure.emojiNameInSpriteEditor}\"> <color=#{emojiStructure.textColor.ToHexString()}>{emojiStructure.emojiNameDisplay}</color>";
-                
-                return match.Value;
-            });
-            
-            string processedText = ProcessTags(newText);
-            DialogPanel.Instance.textWriterSingle.effectsAndWords = effectsAndWords;
-            return processedText;
-        }
-        private string ProcessTags(string textWithTags)
-        {
-            string processedText = textWithTags;
-            
-            foreach (var effect in Enum.GetValues(typeof(Effects)))
-            {
-                string effectName = effect.ToString();
-        
-             
-                MatchCollection matches = GetRegexMatch(effectName, processedText);
-                
-                foreach (Match match in matches)
-                {
-                    string contentBetweenTags = match.Groups[1].Value;
-                    
-                    string nestedProcessedContent = ProcessTags(contentBetweenTags);
-                    
-                    effectsAndWords.Add(new EffectsAndWords((Effects)effect, nestedProcessedContent));
-                    
-                    processedText = processedText.Replace(match.Value, nestedProcessedContent);
-                }
-            }
-
-            return processedText;
-        }
-        
-       
-        private MatchCollection GetRegexMatch(string effect, string textValue)
-        {
-            string pattern = $@"<{effect}>(.*?)<\/{effect}>";
-
-            MatchCollection matches = Regex.Matches(textValue, pattern);
-            return matches;
-        }
+      //  public Emojis[] emojis;
+    
     }
     
     [CreateAssetMenu(fileName = "Dialog", menuName = "Solis/Game/Dialog")]

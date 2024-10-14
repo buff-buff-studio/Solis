@@ -446,6 +446,7 @@ namespace Solis.Player
 
             _camera = MulticamCamera.Instance.SetPlayerTarget(transform, lookAt);
             username.Value = NetworkManager.Instance.Name;
+            
             DiscordController.Instance!.SetGameActivity(CharacterType, false, null);
         }
         
