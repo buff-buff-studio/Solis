@@ -117,6 +117,13 @@ namespace Solis.Misc.Props
                 {
                     _Reset();
                 }
+            }else if (packet is SnapSyncPacket snapSyncPacket)
+            {
+                if (HasAuthority)
+                    return;
+
+                transform.position = snapSyncPacket.Position;
+                transform.eulerAngles = snapSyncPacket.Rotation;
             }
         }
         
@@ -174,11 +181,16 @@ namespace Solis.Misc.Props
                 var newPos = new Vector3(pPos.x, transform.position.y, pPos.z);
                 transform.position = newPos + (pBody.forward*1.25f);
                 playerHolding.carriedObject = null;
+            }
+            else
+            {
+                Debug.Log("Demagnetized");
                 if (TryGetComponent(out MagneticProp prop))
                     prop.cantBeMagnetized.Value = false;
             }
 
             playerHolding = isOn.Value ? playerHolding : null;
+            
             networkRigidbodyTransform.enabled = !isOn.Value;
             rb.isKinematic = isOn.Value;
             rb.velocity = Vector3.zero;
@@ -186,10 +198,13 @@ namespace Solis.Misc.Props
 
         protected override bool OnPlayerInteract(PlayerInteractPacket arg1, int arg2)
         {
-            if (!PlayerChecker(arg1, out var player)) return false;
+            PlayerControllerBase player;
 
             if (isOn.Value)
             {
+                if(!GetNetworkObject(arg1.Id).TryGetComponent(out player))
+                    return false;
+
                 if (playerHolding != player)
                     return false;
 
@@ -202,8 +217,12 @@ namespace Solis.Misc.Props
                     Id = this.Id,
                     HandId = ""
                 });
+
                 return true;
             }
+
+            if (!PlayerChecker(arg1, out player))
+                return false;
 
             if(player.carriedObject)
                 return false;

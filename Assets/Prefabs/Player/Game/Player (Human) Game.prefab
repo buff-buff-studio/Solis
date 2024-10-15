@@ -4038,11 +4038,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2195862425273019967, guid: a55a3791e379dfa42a63dd01f73de466, type: 3}
       propertyPath: id.low
-      value: -765807130
+      value: -2003444575
       objectReference: {fileID: 0}
     - target: {fileID: 2195862425273019967, guid: a55a3791e379dfa42a63dd01f73de466, type: 3}
       propertyPath: id.high
-      value: 2076019243
+      value: 472704095
       objectReference: {fileID: 0}
     - target: {fileID: 4136800555700545090, guid: a55a3791e379dfa42a63dd01f73de466, type: 3}
       propertyPath: m_LocalPosition.x
@@ -4210,6 +4210,12 @@ MonoBehaviour:
   debugLastJumpMaxHeight: {x: 0, y: 0, z: 0}
   debugNextMovePos: {x: 0, y: 0, z: 0}
   debugNextBoxPos: {x: 0, y: 0, z: 0}
+  specialCooldown: 5
+  cloudPrefab: {fileID: 3129027427492825295, guid: 4e222d7fd09e58049be2805527cab09b, type: 3}
+  cloudOffset: {x: 0, y: -0.55, z: 0}
+  minDistanceToSpecial: 1
+  specialOnColor: {r: 0, g: 5.3403134, b: 3.8025267, a: 1}
+  specialOffColor: {r: 0.9622643, g: 0, b: 0, a: 1}
 --- !u!114 &8554980401512840443
 MonoBehaviour:
   m_ObjectHideFlags: 0

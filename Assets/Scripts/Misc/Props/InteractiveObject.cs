@@ -12,6 +12,8 @@ namespace Misc.Props
     {
         [Header("SETTINGS")]
         public float radius = 3f;
+        [Range(0,1)] [Tooltip("The dot product threshold for player facing the object")]
+        public float dotThreshold = 0.5f;
         public CharacterTypeFilter playerTypeFilter = CharacterTypeFilter.Both;
 
         private LayerMask _layerMask;
@@ -56,7 +58,7 @@ namespace Misc.Props
             // Check if player is facing the object
             var directionToTarget = transform.position - player.body.position;
             var dot = Vector3.Dot(player.body.forward, directionToTarget.normalized);
-            if (dot < 0)
+            if (dot < dotThreshold)
             {
                 Debug.Log("Player is not facing the object, dot: " + dot);
                 return false;

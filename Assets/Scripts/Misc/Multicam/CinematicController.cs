@@ -84,10 +84,7 @@ namespace Solis.Misc.Multicam
         private void Update()
         {
             if(!IsPlaying) return;
-            if (Input.GetButtonDown("Cutscene") || !animation.isPlaying)
-            {
-                Stop();
-            }
+            if (!animation.isPlaying) Stop();
 
             if (!CurrentRoll.CurrentFrame.invoked)
             {
@@ -117,6 +114,8 @@ namespace Solis.Misc.Multicam
 
             MulticamCamera.Instance.ChangeCameraState(MulticamCamera.CameraState.Cinematic, CurrentRoll.blend, CurrentRoll.blendTime);
             IsPlaying = true;
+
+            OnCinematicStarted?.Invoke();
         }
 
         public void Stop()
@@ -124,8 +123,8 @@ namespace Solis.Misc.Multicam
             MulticamCamera.Instance.ChangeCameraState(MulticamCamera.CameraState.Gameplay, CurrentRoll.blend, CurrentRoll.blendTime);
 
             animation.Stop();
-            OnCinematicEnded?.Invoke();
             IsPlaying = false;
+            OnCinematicEnded?.Invoke();
         }
 
         public void Reset()

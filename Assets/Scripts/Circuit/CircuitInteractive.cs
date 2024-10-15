@@ -13,11 +13,15 @@ namespace Solis.Circuit
     {
         [Header("SETTINGS")]
         public float radius = 3f;
+        public float minDistance = 1.24f;
+        [Range(0,1)] [Tooltip("The dot product threshold for player facing the object")]
+        public float dotThreshold = 0.5f;
         public CharacterTypeFilter playerTypeFilter = CharacterTypeFilter.Both;
 
         private List<Collider> _colliders = new List<Collider>();
         private LayerMask _layerMask;
         private int _originalLayer, _ignoreRaycastLayer = 2;
+        private Vector3 _objectCenter;
 
 #if UNITY_EDITOR
         private Transform _playerTransform;
@@ -26,6 +30,7 @@ namespace Solis.Circuit
         protected override void OnEnable()
         {
             base.OnEnable();
+            _objectCenter = GetComponentInChildren<Collider>().bounds.center;
             _originalLayer = gameObject.layer;
             PacketListener.GetPacketListener<PlayerInteractPacket>().AddServerListener(OnPlayerInteract);
             _layerMask = ~(playerTypeFilter != CharacterTypeFilter.Both
@@ -49,9 +54,10 @@ namespace Solis.Circuit
             player = null;
             // Check if player is within radius
             var networkObject = GetNetworkObject(arg1.Id);
-            var dist = Vector3.Distance(networkObject.transform.position, transform.position);
+            var dist = Vector3.Distance(networkObject.transform.position, _objectCenter);
             if (dist > radius) return false;
 
+            Debug.Log("Player is within radius: " + dist);
             // Check if game object has a player controller
             if(!networkObject.TryGetComponent(out player))
                 return false;
@@ -65,9 +71,9 @@ namespace Solis.Circuit
 #endif
 
             // Check if player is facing the object
-            var directionToTarget = transform.position - player.body.position;
+            var directionToTarget = _objectCenter - player.body.position;
             var dot = Vector3.Dot(player.body.forward, directionToTarget.normalized);
-            if (dot < 0)
+            if (dot < (dist <= minDistance ? dotThreshold/2 : dotThreshold))
             {
                 Debug.Log("Player is not facing the object, dot: " + dot);
                 return false;
@@ -75,7 +81,7 @@ namespace Solis.Circuit
 
             //Check if have a wall between player and object
             SetGameLayerRecursive(this.gameObject, _ignoreRaycastLayer);
-            Physics.Linecast(networkObject.transform.position, transform.position, out var hit, _layerMask);
+            Physics.Linecast(networkObject.transform.position, _objectCenter, out var hit, _layerMask);
             SetGameLayerRecursive(this.gameObject, _originalLayer);
             if (hit.collider != null)
             {

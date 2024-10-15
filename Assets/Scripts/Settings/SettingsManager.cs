@@ -83,12 +83,6 @@ namespace Solis.Settings
             ApplySettings();
         }
 
-        private void Update()
-        {
-            if(Input.GetKeyDown(KeyCode.F))
-                Screen.fullScreen = !Screen.fullScreen;
-        }
-
         private void OnEnable()
         {
             OnSettingsChanged += ApplySettings;

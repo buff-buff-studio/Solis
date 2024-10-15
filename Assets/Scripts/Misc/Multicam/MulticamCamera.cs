@@ -69,6 +69,7 @@ namespace Solis.Misc.Multicam
 
         private bool OnInput(PlayerInputPackage arg1, int arg2)
         {
+            Debug.Log($"MulticamCamera: OnInput {arg1.Key}");
             if (state == CameraState.Cinematic)
             {
                 if (arg1.Key != KeyCode.Return) return false;
@@ -113,9 +114,9 @@ namespace Solis.Misc.Multicam
             if(newState == CameraState.Cinematic)
             {
                 _hasSkipped.Clear();
-                skipCinematicText.text = "0/0";
+                skipCinematicText.text = "0/2";
                 cinematicCanvas.SetActive(true);
-            }
+            }else cinematicCanvas.SetActive(false);
 
             state = newState;
         }
