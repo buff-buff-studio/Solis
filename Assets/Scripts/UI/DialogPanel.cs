@@ -1,16 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Cinemachine;
 using DefaultNamespace;
 using NetBuff.Components;
 using NetBuff.Misc;
 using Solis.Data;
+using Solis.i18n;
 using Solis.Misc.Multicam;
 using Solis.Packets;
 using Solis.Player;
 using TMPro;
 using UI;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -41,7 +44,7 @@ public struct CharacterTypeAndImages
     public List<EmotionsAndImages> emotesAndImages;
 }
 [Serializable]
-public struct EmojisStructure
+public class EmojisStructure
 {
     public Emojis emoji;
     public string emojiNameDisplay;
@@ -199,8 +202,96 @@ namespace _Scripts.UI
         {
             characterImage.gameObject.SetActive(false);
             EnterImage(dialogData.characterType);
-            textWriterSingle.SetText(dialogData.GetFormattedString(), callback);
+            var newText = LanguagePalette.Localize(dialogData.textValue);
+            Debug.Log(newText);
+            textWriterSingle.SetText(GetFormattedString(newText), callback);
             orderTextGameObject.SetActive(true);
+        }
+        public string GetFormattedString(string text)
+        {
+            effectsAndWords.Clear();
+            
+            /*
+            for (int i = 0; i < emojis.Length; i++)
+            {
+                EmojisStructure emojisStructure = DialogPanel.Instance.emojisStructure.First(c => c.emoji == emojis[i]);
+                var field = emojisStructure.emojiNameDisplay;
+                string value = $"<sprite name=\"{emojisStructure.emojiNameInSpriteEditor}\"> <color=#{emojisStructure.textColor.ToHexString()}>{field}</color>";
+                _instancedValues.Add(value);
+            }
+            */
+            
+            /*
+            string pattern = @"\{\{(\w+)\}\}";
+            string newText = Regex.Replace(text, pattern, match =>
+            {
+                string emojiName = match.Groups[1].Value;
+
+                // Procura na estrutura de emojis
+                var emojiStructure = emojisStructure.FirstOrDefault(c => c.emoji.ToString() == emojiName);
+
+                if (emojiStructure != null)
+                {
+                    Debug.Log("Emoji encontrado: " + emojiStructure.emojiNameInSpriteEditor);
+
+                    // Retorna a substituição com o sprite e a cor do texto
+                    return $"<sprite name=\"{emojiStructure.emojiNameInSpriteEditor}\"><color=#{emojiStructure.textColor.ToHexString()}>{emojiStructure.emojiNameDisplay}</color>";
+                }
+
+                // Caso não encontre, mantém o texto original
+                return match.Value;
+            });*/
+            
+            string newText = text;
+            foreach (var emojiStructure in emojisStructure)
+            {
+                string emojiPlaceholder = $"{{{emojiStructure.emoji.ToString()}}}";
+                string value =
+                    $"<sprite name=\"{emojiStructure.emojiNameInSpriteEditor}\"> <color=#{emojiStructure.textColor.ToHexString()}>{emojiStructure.emojiNameDisplay}</color>";
+                newText = newText.Replace(emojiPlaceholder, value);
+            }
+
+            string processedText = ProcessTags(newText);
+            Debug.Log(newText);
+            textWriterSingle.effectsAndWords = effectsAndWords;
+            return processedText;
+        }
+      
+        List<EffectsAndWords> effectsAndWords = new List<EffectsAndWords>();
+        
+        private string ProcessTags(string textWithTags)
+        {
+            string processedText = textWithTags;
+            
+            foreach (var effect in Enum.GetValues(typeof(Effects)))
+            {
+                string effectName = effect.ToString();
+        
+             
+                MatchCollection matches = GetRegexMatch(effectName, processedText);
+                
+                foreach (Match match in matches)
+                {
+                    string contentBetweenTags = match.Groups[1].Value;
+                    
+                    string nestedProcessedContent = ProcessTags(contentBetweenTags);
+                    
+                    effectsAndWords.Add(new EffectsAndWords((Effects)effect, nestedProcessedContent));
+                    
+                    processedText = processedText.Replace(match.Value, nestedProcessedContent);
+                }
+            }
+
+            return processedText;
+        }
+        
+       
+        private MatchCollection GetRegexMatch(string effect, string textValue)
+        {
+            string pattern = $@"<{effect}>(.*?)<\/{effect}>";
+
+            MatchCollection matches = Regex.Matches(textValue, pattern);
+            return matches;
         }
 
         private void EnterImage(CharacterAndEmotion characterType)
