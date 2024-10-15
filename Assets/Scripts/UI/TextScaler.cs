@@ -70,7 +70,7 @@ namespace DefaultNamespace
         private void WriteText()
         {
             if (text == null || text.textInfo == null) return;
-
+            if(_currentText == null) return;
             // Variáveis para processar o texto
             int charactersToShow = Mathf.FloorToInt(progress * _currentText.Length);
             string displayedText = ""; // Texto a ser exibido
