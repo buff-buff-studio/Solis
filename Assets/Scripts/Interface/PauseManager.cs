@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using NetBuff;
 using Solis.Core;
 using Solis.Data;
+using Solis.Interface.Input;
 using Solis.Player;
 using Solis.Settings;
 using Solis.UI;
@@ -107,7 +108,7 @@ public class PauseManager : WindowManager
     private void Update()
     {
         if(gameManager.IsOnLobby || !gameManager.isGameStarted) return;
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (SolisInput.GetKeyDown("Pause"))
         {
             if (isPaused) ResumeGame();
             else PauseGame();

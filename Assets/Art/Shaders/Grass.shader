@@ -2,6 +2,7 @@ Shader "Custom/Grass"
 {
 	Properties
 	{
+		_GrassColorMap("Grass Color Map", 2D) = "white" {}
 		_BaseColor("Base Color", Color) = (1, 1, 1, 1)
 		_TipColor("Tip Color", Color) = (1, 1, 1, 1)
 		
@@ -58,6 +59,8 @@ Shader "Custom/Grass"
 			CBUFFER_START(UnityPerMaterial)
 				float4 _BaseColor;
 				float4 _TipColor;
+				sampler2D _GrassColorMap;
+				float4 _GrassColorMap_ST;
 				
 				float _BladeWidthMin;
 				float _BladeWidthMax;
@@ -377,7 +380,10 @@ Shader "Custom/Grass"
 				color *= shadowColor;
 			//#endif
             	
-                return color * lerp(_BaseColor, _TipColor, i.uv.y);
+            	float2 texUv = TRANSFORM_TEX(float2(i.world_pos.x, i.world_pos.z), _GrassColorMap);
+            	float4 texColor = tex2Dlod(_GrassColorMap, float4(texUv, 0, 0));
+            	
+                return color * texColor * lerp(_BaseColor, _TipColor, i.uv.y);
 			}
 
 			ENDHLSL

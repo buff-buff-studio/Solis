@@ -11,7 +11,7 @@ using Solis.Audio;
 using Solis.Circuit.Components;
 using Solis.Core;
 using Solis.Data;
-using Solis.Misc;
+using Solis.Interface.Input;
 using Solis.Misc.Integrations;
 using Solis.Misc.Multicam;
 using Solis.Misc.Props;
@@ -35,7 +35,8 @@ namespace Solis.Player
         public enum State
         {
             Normal,
-            Magnetized
+            Magnetized,
+            GrapplingHook
         }
 
         /// <summary>
@@ -111,7 +112,7 @@ namespace Solis.Player
         private float _coyoteTimer;
         private float _jumpTimer;
         private float _startJumpPos;
-        private bool _isJumping;
+        internal bool IsJumping;
         private bool _isJumpingEnd;
         private bool _inJumpState;
         private bool _isJumpCut;
@@ -178,26 +179,35 @@ namespace Solis.Player
 
         #endregion
 
-        private float InputX => Input.GetAxis("Horizontal");
-        private float InputZ => Input.GetAxis("Vertical");
-        private Vector2 MoveInput => new(InputX, InputZ);
-        private bool InputJump => Input.GetButtonDown("Jump");
-        private bool InputJumpUp => Input.GetButtonUp("Jump");
-        private bool CanJump => !_isJumping && (IsGrounded || _coyoteTimer > 0) && _jumpTimer <= 0 && !isPaused.Value && !DialogPanel.IsDialogPlaying;
+        private Vector2 MoveInput => SolisInput.GetVector2("Move");
+        private bool InputJump => SolisInput.GetKeyDown("Jump");
+        private bool InputJumpUp => SolisInput.GetKeyUp("Jump");
+        private bool CanJump => !IsJumping && (IsGrounded || _coyoteTimer > 0) && _jumpTimer <= 0 && !isPaused.Value && !DialogPanel.IsDialogPlaying;
 
-        private bool CanJumpCut =>
-            _isJumping && (transform.position.y - _startJumpPos) >= JumpCutMinHeight;
+        private protected bool CanJumpCut =>
+            IsJumping && (transform.position.y - _startJumpPos) >= JumpCutMinHeight;
         private bool IsPlayerLocked => _isCinematicRunning || isRespawning.Value;
         private Vector3 HeadOffset => headOffset.position;
         #endregion
 
+        #region TEMP - Grappling Hook
+        public LineRenderer grapplingLine;
+
+        public Transform attachedTo;
+        public Vector3 attachedToLocalPoint;
+        
+        public FloatNetworkValue grapplingHook = new(0f);
+        public Vector3NetworkValue grapplingHookPosition = new(Vector3.zero);
+        #endregion
+        
         #region Unity Callbacks
 
-        public void OnEnable()
+        protected virtual void OnEnable()
         {
-            WithValues(isRespawning, isPaused, username);
+            WithValues(isRespawning, isPaused, username, grapplingHookPosition, grapplingHook);
             isRespawning.OnValueChanged += _OnRespawningChanged;
             isPaused.OnValueChanged += OnPausedChanged;
+            grapplingHook.OnValueChanged += (old, @new) => grapplingLine.enabled = @new > 0;
 
             PauseManager.OnPause += _OnPause;
 
@@ -218,6 +228,11 @@ namespace Solis.Player
             InvokeRepeating(nameof(_Tick), 0, 1f / tickRate);
         }
 
+        private void OnDisable()
+        {
+            CancelInvoke(nameof(_Tick));
+        }
+
         private void OnPausedChanged(bool old, bool @new)
         {
             Debug.Log((CharacterType == CharacterType.Human ? "Nina" : "RAM") + (@new ? " paused " : " resumed") + " the game");
@@ -230,11 +245,6 @@ namespace Solis.Player
             renderer.material.SetInt(Respawning, @new ? 1 : 0);
         }
 
-        private void OnDisable()
-        {
-            CancelInvoke(nameof(_Tick));
-        }
-
         private void Update()
         {
             if (!HasAuthority || !IsOwnedByClient) return;
@@ -244,7 +254,7 @@ namespace Solis.Player
             if (IsPlayerLocked)
             {
                 if(DialogPanel.IsDialogPlaying || _isCinematicRunning)
-                    if(Input.GetKeyDown(KeyCode.Return))
+                    if(SolisInput.GetKeyDown("Skip"))
                         SendPacket(new PlayerInputPackage { Key = KeyCode.Return, Id = Id, CharacterType = this.CharacterType}, true);
                 return;
             }
@@ -255,6 +265,8 @@ namespace Solis.Player
                     _Move();
                     _Jump();
                     _Interact();
+                    _Special();
+                    _GrapplingHook();
                     break;
                 case State.Magnetized:
                     if (magnetAnchor == null)
@@ -272,15 +284,21 @@ namespace Solis.Player
                     }
 
                     break;
+                
+                case State.GrapplingHook:
+                    if(SolisInput.GetKeyDown("GrapplingHook"))
+                        _ExitGrapplingHook();
+                    break;
             }
 
-
+            /*
             if (Input.GetKeyDown(KeyCode.Alpha1))
                 emoteController.ShowEmote(0);
             else if (Input.GetKeyDown(KeyCode.Alpha2))
                 emoteController.ShowEmote(1);
             else if (Input.GetKeyDown(KeyCode.Alpha3))
                 emoteController.ShowEmote(2);
+            */
         }
 
         private void FixedUpdate()
@@ -291,27 +309,36 @@ namespace Solis.Player
                     Mathf.LerpAngle(body.localEulerAngles.y, _remoteBodyRotation, Time.fixedDeltaTime * 20), 0);
                 body.localPosition = Vector3.Lerp(body.localPosition, _remoteBodyPosition, Time.fixedDeltaTime * 20);
 
-                if (state == State.Magnetized)
+                switch (state)
                 {
-                    if (magnetAnchor == null)
-                    {
+                    case State.GrapplingHook:
+                        _HandleGrapplingHookRemote();
+                        break;
+                    case State.Magnetized when magnetAnchor == null:
                         state = State.Normal;
                         velocity = Vector3.zero;
                         controller.enabled = true;
-                    }
-                    else
+                        break;
+                    case State.Magnetized:
                     {
                         var pos = magnetAnchor.position - magnetReferenceLocalPosition;
                         controller.enabled = false;
                         var playerPos = transform.position;
                         transform.position = Vector3.MoveTowards(playerPos, pos, Time.deltaTime * 15);
+                        break;
                     }
                 }
+
+
                 return;
             }
 
             switch (state)
             {
+                case State.GrapplingHook:
+                    _HandleGrapplingHook();
+                    break;
+                
                 case State.Normal:
                     _Gravity();
                     _HandlePlatform();
@@ -342,7 +369,7 @@ namespace Solis.Player
                     Physics.SyncTransforms();
                     if (Physics.CheckSphere(transform.position, 0.5f, LayerMask.GetMask("SafeGround")))
                     {
-                        if (!Physics.Raycast(nextPos, Vector3.down, 1.1f) && !_isJumping && IsGrounded)
+                        if (!Physics.Raycast(nextPos, Vector3.down, 1.1f) && !IsJumping && IsGrounded)
                         {
                             walking = false;
                             velocity.x = velocity.z = 0;
@@ -427,7 +454,7 @@ namespace Solis.Player
 
             if (Physics.Raycast(debugNextMovePos, Vector3.down, 1.1f))
             {
-                Gizmos.color = !_isJumping && IsGrounded ? Color.green : Color.yellow;
+                Gizmos.color = !IsJumping && IsGrounded ? Color.green : Color.yellow;
                 Gizmos.DrawRay(debugNextMovePos, hit.point - debugNextMovePos);
             }
             else
@@ -488,9 +515,80 @@ namespace Solis.Player
             }
         }
         #endregion
-
+        
         #region Private Methods
-        private void _Timer()
+
+        protected virtual void _GrapplingHook()
+        {
+            if (SolisInput.GetKeyDown("GrapplingHook"))
+            {
+                //raycast grappling hook
+                var camRay = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f, 0));
+                var ray = new Ray(transform.position + camRay.direction, camRay.direction);
+                if (Physics.Raycast(ray, out var hit, 100))
+                {
+                    attachedTo = hit.transform;
+                    attachedToLocalPoint = attachedTo.InverseTransformPoint(hit.point);
+                    state = State.GrapplingHook;
+                }
+                else
+                {
+                    attachedTo = null;
+                }
+            }
+        }
+
+        protected virtual void _ExitGrapplingHook()
+        {
+            var delta = grapplingHookPosition.Value - transform.position;
+            var direction = delta.normalized;
+            var v = 10 * grapplingHook.Value * direction;
+            
+            velocity = v;
+            state = State.Normal;
+
+            grapplingHook.Value = 0f;
+        }
+
+        protected virtual void _HandleGrapplingHook()
+        {
+            var deltaTime = Time.fixedDeltaTime;
+            grapplingHook.Value = Mathf.Lerp(grapplingHook.Value,  1f, deltaTime * 10f);
+            grapplingHookPosition.Value = attachedTo.TransformPoint(attachedToLocalPoint);
+
+            _HandleGrapplingHookRemote();
+
+            var delta = grapplingHookPosition.Value - transform.position;
+            var direction = delta.normalized;
+            var v = 10 * grapplingHook.Value * direction;
+
+            controller.Move(v * deltaTime);
+            velocity = Vector3.zero;
+                
+            if (delta.magnitude < 0.5f)
+            {
+                _ExitGrapplingHook();
+            }
+            else
+            {
+                var targetRotation = Quaternion.LookRotation(delta);
+                var targetEuler = targetRotation.eulerAngles;
+
+                transform.eulerAngles = new Vector3(0,
+                    Mathf.LerpAngle(transform.eulerAngles.y, 0, Time.deltaTime * 20), 0);
+                body.localEulerAngles = new Vector3(0,
+                    Mathf.LerpAngle(body.localEulerAngles.y, targetEuler.y, deltaTime * 20), 0);
+            }
+        }
+
+        protected virtual void _HandleGrapplingHookRemote()
+        {
+            var start = handPosition.position;
+            grapplingLine.SetPositions(new[] {start, Vector3.Lerp(start, attachedTo.TransformPoint(attachedToLocalPoint), grapplingHook.Value)});
+        }
+        
+        
+        protected virtual void _Timer()
         {
             var deltaTime = Time.deltaTime;
             _coyoteTimer = IsGrounded ? CoyoteTime : _coyoteTimer - deltaTime;
@@ -517,7 +615,7 @@ namespace Solis.Player
 
         private void _Interact()
         {
-            if (Input.GetButtonDown("Interact") && _interactTimer <= 0 && IsGrounded)
+            if (SolisInput.GetKeyDown("Interact") && _interactTimer <= 0 && IsGrounded)
             {
                 animator.SetTrigger("Punch");
                 _interactTimer = InteractCooldown;
@@ -534,9 +632,11 @@ namespace Solis.Player
                 });
             }
             if(DialogPanel.IsDialogPlaying)
-                if(Input.GetKeyDown(KeyCode.Return))
+                if(SolisInput.GetKeyDown("Skip"))
                     SendPacket(new PlayerInputPackage { Key = KeyCode.Return, Id = Id, CharacterType = this.CharacterType}, true);
         }
+        
+        protected virtual void _Special() { }
 
         private void _Move()
         {
@@ -555,7 +655,7 @@ namespace Solis.Player
             if (InputJump && CanJump)
             {
                 animator.SetTrigger("Jumping");
-                _isJumping = true;
+                IsJumping = true;
                 _isJumpingEnd = false;
                 _isJumpCut = false;
                 _inJumpState = true;
@@ -574,18 +674,18 @@ namespace Solis.Player
             
             if (_isJumpCut && CanJumpCut)
             {
-                _isJumping = false;
+                IsJumping = false;
                 velocity.y *= 0.5f;
                 _multiplier = JumpGravityMultiplier;
             }
 
-            if (_isJumping)
+            if (IsJumping)
             {
                 velocity.y += JumpAcceleration * Time.deltaTime;
                 var diff = Mathf.Abs((transform.position.y + (velocity.y*Time.fixedDeltaTime)) - _startJumpPos);
                 if (diff >= JumpMaxHeight)
                 {
-                    _isJumping = false;
+                    IsJumping = false;
                     velocity.y *= MaxHeightDecel;
                     _multiplier = JumpGravityMultiplier;
                     Debug.Log("Max Height Reached");
@@ -628,17 +728,17 @@ namespace Solis.Player
                 return;
             }
 
-            if (velocity.y < 0 && !_isFalling)
+            if (!_isFalling && (velocity.y < 0 || (!IsJumping && velocity.y > 1)))
                 _isFalling = true;
 
-            if (_isJumping)
+            if (IsJumping)
             {
                 var posY = transform.position.y;
                 var expectedYPos = _lastJumpHeight + (_lastJumpVelocity * Time.fixedDeltaTime);
                 var diff = Mathf.Abs(expectedYPos - posY);
                 if(diff > 0.1f && posY < expectedYPos)
                 {
-                    _isJumping = false;
+                    IsJumping = false;
                     _isJumpCut = false;
                     _isJumpingEnd = true;
                     velocity.y *= HitHeadDecel;
@@ -714,6 +814,12 @@ namespace Solis.Player
                     carriedObject.isOn.Value = false;
                 carriedObject = null;
             }
+
+            if (HasAuthority && IsOwnedByClient)
+            {
+                SolisInput.Instance.RumblePulse(0.25f, 0.75f, 0.25f);
+            }
+
             switch (death)
             {
                 case Death.Stun:

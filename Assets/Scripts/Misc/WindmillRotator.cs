@@ -20,6 +20,8 @@ namespace Solis.Misc
 
         [SerializeField]
         private AudioSource audioSource;
+        [SerializeField]
+        private float pitchSpeedBase = 130;
 
         public float Power => _currentSpeed / speed;
 
@@ -52,7 +54,7 @@ namespace Solis.Misc
                 if (_currentSpeed > 60)
                 {
                     if (!audioSource.isPlaying) audioSource.Play();
-                    audioSource.pitch = _currentSpeed / 130;
+                    audioSource.pitch = _currentSpeed / pitchSpeedBase;
                 }
                 // If the current speed is 60 or less and the audio source is playing, stop the audio source.
                 else if (audioSource.isPlaying)
