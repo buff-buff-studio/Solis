@@ -35,7 +35,8 @@ namespace Solis.Player
         public enum State
         {
             Normal,
-            Magnetized
+            Magnetized,
+            GrapplingHook
         }
 
         /// <summary>
@@ -189,13 +190,24 @@ namespace Solis.Player
         private Vector3 HeadOffset => headOffset.position;
         #endregion
 
+        #region TEMP - Grappling Hook
+        public LineRenderer grapplingLine;
+
+        public Transform attachedTo;
+        public Vector3 attachedToLocalPoint;
+        
+        public FloatNetworkValue grapplingHook = new(0f);
+        public Vector3NetworkValue grapplingHookPosition = new(Vector3.zero);
+        #endregion
+        
         #region Unity Callbacks
 
         protected virtual void OnEnable()
         {
-            WithValues(isRespawning, isPaused, username);
+            WithValues(isRespawning, isPaused, username, grapplingHookPosition, grapplingHook);
             isRespawning.OnValueChanged += _OnRespawningChanged;
             isPaused.OnValueChanged += OnPausedChanged;
+            grapplingHook.OnValueChanged += (old, @new) => grapplingLine.enabled = @new > 0;
 
             PauseManager.OnPause += _OnPause;
 
@@ -254,6 +266,7 @@ namespace Solis.Player
                     _Jump();
                     _Interact();
                     _Special();
+                    _GrapplingHook();
                     break;
                 case State.Magnetized:
                     if (magnetAnchor == null)
@@ -270,6 +283,11 @@ namespace Solis.Player
                         transform.position = Vector3.MoveTowards(playerPos, pos, Time.deltaTime * 15);
                     }
 
+                    break;
+                
+                case State.GrapplingHook:
+                    if(SolisInput.GetKeyDown("GrapplingHook"))
+                        _ExitGrapplingHook();
                     break;
             }
 
@@ -291,27 +309,36 @@ namespace Solis.Player
                     Mathf.LerpAngle(body.localEulerAngles.y, _remoteBodyRotation, Time.fixedDeltaTime * 20), 0);
                 body.localPosition = Vector3.Lerp(body.localPosition, _remoteBodyPosition, Time.fixedDeltaTime * 20);
 
-                if (state == State.Magnetized)
+                switch (state)
                 {
-                    if (magnetAnchor == null)
-                    {
+                    case State.GrapplingHook:
+                        _HandleGrapplingHookRemote();
+                        break;
+                    case State.Magnetized when magnetAnchor == null:
                         state = State.Normal;
                         velocity = Vector3.zero;
                         controller.enabled = true;
-                    }
-                    else
+                        break;
+                    case State.Magnetized:
                     {
                         var pos = magnetAnchor.position - magnetReferenceLocalPosition;
                         controller.enabled = false;
                         var playerPos = transform.position;
                         transform.position = Vector3.MoveTowards(playerPos, pos, Time.deltaTime * 15);
+                        break;
                     }
                 }
+
+
                 return;
             }
 
             switch (state)
             {
+                case State.GrapplingHook:
+                    _HandleGrapplingHook();
+                    break;
+                
                 case State.Normal:
                     _Gravity();
                     _HandlePlatform();
@@ -488,8 +515,79 @@ namespace Solis.Player
             }
         }
         #endregion
-
+        
         #region Private Methods
+
+        protected virtual void _GrapplingHook()
+        {
+            if (SolisInput.GetKeyDown("GrapplingHook"))
+            {
+                //raycast grappling hook
+                var camRay = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f, 0));
+                var ray = new Ray(transform.position + camRay.direction, camRay.direction);
+                if (Physics.Raycast(ray, out var hit, 100))
+                {
+                    attachedTo = hit.transform;
+                    attachedToLocalPoint = attachedTo.InverseTransformPoint(hit.point);
+                    state = State.GrapplingHook;
+                }
+                else
+                {
+                    attachedTo = null;
+                }
+            }
+        }
+
+        protected virtual void _ExitGrapplingHook()
+        {
+            var delta = grapplingHookPosition.Value - transform.position;
+            var direction = delta.normalized;
+            var v = 10 * grapplingHook.Value * direction;
+            
+            velocity = v;
+            state = State.Normal;
+
+            grapplingHook.Value = 0f;
+        }
+
+        protected virtual void _HandleGrapplingHook()
+        {
+            var deltaTime = Time.fixedDeltaTime;
+            grapplingHook.Value = Mathf.Lerp(grapplingHook.Value,  1f, deltaTime * 10f);
+            grapplingHookPosition.Value = attachedTo.TransformPoint(attachedToLocalPoint);
+
+            _HandleGrapplingHookRemote();
+
+            var delta = grapplingHookPosition.Value - transform.position;
+            var direction = delta.normalized;
+            var v = 10 * grapplingHook.Value * direction;
+
+            controller.Move(v * deltaTime);
+            velocity = Vector3.zero;
+                
+            if (delta.magnitude < 0.5f)
+            {
+                _ExitGrapplingHook();
+            }
+            else
+            {
+                var targetRotation = Quaternion.LookRotation(delta);
+                var targetEuler = targetRotation.eulerAngles;
+
+                transform.eulerAngles = new Vector3(0,
+                    Mathf.LerpAngle(transform.eulerAngles.y, 0, Time.deltaTime * 20), 0);
+                body.localEulerAngles = new Vector3(0,
+                    Mathf.LerpAngle(body.localEulerAngles.y, targetEuler.y, deltaTime * 20), 0);
+            }
+        }
+
+        protected virtual void _HandleGrapplingHookRemote()
+        {
+            var start = handPosition.position;
+            grapplingLine.SetPositions(new[] {start, Vector3.Lerp(start, attachedTo.TransformPoint(attachedToLocalPoint), grapplingHook.Value)});
+        }
+        
+        
         protected virtual void _Timer()
         {
             var deltaTime = Time.deltaTime;

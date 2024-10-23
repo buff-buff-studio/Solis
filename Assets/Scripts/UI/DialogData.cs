@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using _Scripts.UI;
 using TMPro;
 using UI;
@@ -11,6 +12,16 @@ using UnityEngine;
 
 namespace UI
 {
+    [Serializable]
+    public enum Effects
+    {
+        Shake,
+        Big,
+        Small,
+        Rainbow,
+        Glitch
+    }
+    [Serializable]
     public enum Emojis
     {
         Lever,
@@ -56,6 +67,19 @@ namespace UI
         public CharacterTypeEmote characterType;
         public Emotion emotion;
     }
+
+    [Serializable]
+    public class EffectsAndWords
+    {
+        public Effects effects;
+        public string word;
+
+        public EffectsAndWords(Effects effect, string word)
+        {
+            effects = effect;
+            this.word = word;
+        }
+    }
     [Serializable]
     public class DialogStruct
     {
@@ -64,23 +88,8 @@ namespace UI
         private TextMeshProUGUI _textField;
         [TextArea]
         public string textValue;
-        public Emojis[] emojis;
-        private List<string> _instancedValues;
-        
-        public string GetFormattedString()
-        {
-            _instancedValues = new List<string>();
-
-            for (int i = 0; i < emojis.Length; i++)
-            {
-                EmojisStructure emojisStructure = DialogPanel.Instance.emojisStructure.First(c => c.emoji == emojis[i]);
-                var field = emojisStructure.emojiNameDisplay;
-                string value = $"<sprite name=\"{emojisStructure.emojiNameInSpriteEditor}\"> <color=#{emojisStructure.textColor.ToHexString()}>{field}</color>";
-                _instancedValues.Add(value);
-            }
-
-            return string.Format(textValue, _instancedValues.ToArray());
-        }
+      //  public Emojis[] emojis;
+    
     }
     
     [CreateAssetMenu(fileName = "Dialog", menuName = "Solis/Game/Dialog")]
